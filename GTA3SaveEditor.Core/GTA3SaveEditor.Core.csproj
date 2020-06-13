@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <AssemblyName>GTA3SaveEditor.Core</AssemblyName>
+    <Product>GTA3SaveEditor</Product>
+    <Authors>Wes Hampson</Authors>
+    <Company>Wes Hampson</Company>
+    <Copyright>(C) 2020 Wes Hampson. All Rights Reserved.</Copyright>
+    <Description>The Grand Theft Auto III save file editor.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>2.0.0-alpha</Version>
+    <AssemblyVersion>2.0.0.15</AssemblyVersion>
+    <FileVersion>2.0.0.15</FileVersion>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GTASaveData.GTA3" Version="1.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="WpfEssentials" Version="1.2.0" />
+  </ItemGroup>
+
+</Project>

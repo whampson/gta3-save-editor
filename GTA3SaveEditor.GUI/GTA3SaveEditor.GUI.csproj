@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <AssemblyName>GTA3SaveEditor.GUI</AssemblyName>
+    <Product>GTA3SaveEditor</Product>
+    <Authors>Wes Hampson</Authors>
+    <Company>Wes Hampson</Company>
+    <Copyright>(C) 2020 Wes Hampson. All Rights Reserved.</Copyright>
+    <Description>Grand Theft Auto III save file editor graphical user interface.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Version>2.0.0-alpha</Version>
+    <AssemblyVersion>2.0.0.51</AssemblyVersion>
+    <FileVersion>2.0.0.51</FileVersion>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <OutputType>WinExe</OutputType>
+    <UseWPF>true</UseWPF>
+    <StartupObject>GTA3SaveEditor.GUI.App</StartupObject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\.editorconfig" Link=".editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WpfEssentials.Win32" Version="1.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GTA3SaveEditor.Core\GTA3SaveEditor.Core.csproj" />
+  </ItemGroup>
+
+</Project>
