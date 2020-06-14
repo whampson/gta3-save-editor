@@ -1,20 +1,22 @@
 ﻿using GTA3SaveEditor.Core;
+using GTA3SaveEditor.GUI.Events;
 using GTASaveData;
 using GTASaveData.GTA3;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Security;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using WpfEssentials;
 using WpfEssentials.Win32;
 
-namespace GTA3SaveEditor.GUI
+namespace GTA3SaveEditor.GUI.ViewModels
 {
     public class MainViewModel : ObservableObject
     {
         public event EventHandler<FileDialogEventArgs> FileDialogRequested;
+        public event EventHandler<FileDialogEventArgs> FolderDialogRequested;
         public event EventHandler<MessageBoxEventArgs> MessageBoxRequested;
         public event EventHandler<TabRefreshEventArgs> TabRefresh;
 
@@ -23,8 +25,8 @@ namespace GTA3SaveEditor.GUI
         private string m_statusText;
 
         public SaveEditor TheEditor { get; }
-        public GTA3Save TheSave => TheEditor.GetActiveFile();
-        public Settings TheSettings => TheEditor.GetSettings();
+        public GTA3Save TheSave => TheEditor.ActiveFile;
+        public Settings TheSettings => TheEditor.Settings;
 
         public ObservableCollection<TabPageViewModelBase> Tabs
         {
@@ -46,44 +48,35 @@ namespace GTA3SaveEditor.GUI
 
         public MainViewModel()
         {
-            TheEditor = new SaveEditor();
             Tabs = new ObservableCollection<TabPageViewModelBase>();
+            TheEditor = new SaveEditor();
+
+            Tabs.Add(new WelcomeViewModel(this));
+            Tabs.Add(new GeneralViewModel(this));
+            Tabs.Add(new JsonViewModel(this));
+
+            TheEditor.FileOpened += TheEditor_FileOpened;
+            TheEditor.FileClosed += TheEditor_FileClosed;
+            TheEditor.FileSaved += TheEditor_FileSaved;
         }
 
         public void Initialize()
         {
-            TheEditor.FileOpened += TheEditor_FileOpened;
-            TheEditor.FileClosed += TheEditor_FileClosed;
-            TheEditor.FileSaved += TheEditor_FileSaved;
-            PopulateTabs();
+            if (File.Exists(App.SettingsPath))
+            {
+                TheSettings.LoadSettings(App.SettingsPath);
+            }
+            
+            RefreshTabs(TabRefreshTrigger.WindowLoaded);
+            StatusText = "Ready.";
         }
 
-        private void TheEditor_FileOpened(object sender, EventArgs e)
+        public void Shutdown()
         {
-            OnPropertyChanged(nameof(TheSave));
-            OnTabRefresh(TabRefreshTrigger.FileLoaded);
-            StatusText = "File opened: " + TheSettings.MostRecentFile;
+            TheSettings.SaveSettings(App.SettingsPath);
         }
 
-        private void TheEditor_FileClosed(object sender, EventArgs e)
-        {
-            OnPropertyChanged(nameof(TheSave));
-            OnTabRefresh(TabRefreshTrigger.FileClosed);
-            StatusText = "File closed.";
-        }
-
-        private void TheEditor_FileSaved(object sender, EventArgs e)
-        {
-            StatusText = "File saved: " + TheSettings.MostRecentFile;
-        }
-
-        private void PopulateTabs()
-        {
-            Tabs.Add(new JsonViewModel(this));
-            OnTabRefresh(TabRefreshTrigger.WindowLoaded);
-        }
-
-        private void OpenFile(string path)
+        public void OpenFile(string path)
         {
             if (TheEditor.IsFileOpen)
             {
@@ -99,21 +92,22 @@ namespace GTA3SaveEditor.GUI
             catch (Exception e)
             {
                 Log.Exception(e);
-                if (e is IOException ||
-                    e is SecurityException ||
-                    e is UnauthorizedAccessException ||
-                    e is SerializationException)
+                if (e is SerializationException)
                 {
                     MessageBoxException(e, "The file could not be loaded.");
+                    return;
                 }
                 else if (e is InvalidDataException)
                 {
-                    MessageBoxError("The file is not a valid GTA3 save.");
+                    MessageBoxError("The file is not a valid GTA3 save file.");
+                    return;
                 }
+
+                throw;
             }
         }
 
-        private void SaveFile(string path)
+        public void SaveFile(string path)
         {
             try
             {
@@ -122,26 +116,85 @@ namespace GTA3SaveEditor.GUI
             catch (Exception e)
             {
                 Log.Exception(e);
-                if (e is IOException ||
-                    e is SecurityException ||
-                    e is UnauthorizedAccessException ||
-                    e is SerializationException)
+                if (e is SerializationException)
                 {
                     MessageBoxException(e, "The file could not be saved.");
+                    return;
                 }
+
+                throw;
             }
         }
 
-        private void RequestFileDialog(FileDialogType type)
+        public void RequestFolderDialog(FileDialogType type, Action<bool?, FileDialogEventArgs> callback)
         {
-            FileDialogEventArgs e = new FileDialogEventArgs(type, FileDialogRequested_Callback)
+            FileDialogEventArgs e = new FileDialogEventArgs(type, callback)
             {
-                InitialDirectory = TheSettings.MostRecentFile,
+                InitialDirectory = TheSettings.MostRecentFile
+            };
+            FolderDialogRequested?.Invoke(this, e);
+        }
+
+        public void RequestFileDialog(FileDialogType type, Action<bool?, FileDialogEventArgs> callback)
+        {
+            FileDialogEventArgs e = new FileDialogEventArgs(type, callback)
+            {
+                InitialDirectory = TheSettings.MostRecentFile
             };
             FileDialogRequested?.Invoke(this, e);
         }
 
-        private void FileDialogRequested_Callback(bool? result, FileDialogEventArgs e)
+        public void MessageBoxInfo(string text, string title = "Information")
+        {
+            MessageBoxRequested?.Invoke(this, new MessageBoxEventArgs(
+                text, title, icon: MessageBoxImage.Information));
+        }
+
+        public void MessageBoxWarning(string text, string title = "Warning")
+        {
+            MessageBoxRequested?.Invoke(this, new MessageBoxEventArgs(
+                text, title, icon: MessageBoxImage.Warning));
+        }
+
+        public void MessageBoxError(string text, string title = "Error")
+        {
+            MessageBoxRequested?.Invoke(this, new MessageBoxEventArgs(
+                text, title, icon: MessageBoxImage.Error));
+        }
+
+        public void MessageBoxException(Exception e, string text = "An error has occurred.", string title = "Error")
+        {
+            text += $"\n\n{e.GetType().Name}: {e.Message}";
+
+            MessageBoxError(text, title);
+        }
+
+        public void RefreshTabs(TabRefreshTrigger trigger)
+        {
+            TabRefresh?.Invoke(this, new TabRefreshEventArgs(trigger));
+            SelectedTabIndex = Tabs.IndexOf(Tabs.Where(x => x.IsVisible).FirstOrDefault());
+        }
+
+        private void TheEditor_FileOpened(object sender, EventArgs e)
+        {
+            OnPropertyChanged(nameof(TheSave));
+            RefreshTabs(TabRefreshTrigger.FileOpened);
+            StatusText = "File opened: " + TheSettings.MostRecentFile;
+        }
+
+        private void TheEditor_FileClosed(object sender, EventArgs e)
+        {
+            OnPropertyChanged(nameof(TheSave));
+            RefreshTabs(TabRefreshTrigger.FileClosed);
+            StatusText = "File closed.";
+        }
+
+        public void TheEditor_FileSaved(object sender, EventArgs e)
+        {
+            StatusText = "File saved: " + TheSettings.MostRecentFile;
+        }
+
+        public void FileDialogRequested_Callback(bool? result, FileDialogEventArgs e)
         {
             if (result != true)
             {
@@ -160,60 +213,13 @@ namespace GTA3SaveEditor.GUI
             }
         }
 
-        private void MessageBoxInfo(string text, string title = "Information")
-        {
-            MessageBoxRequested?.Invoke(this, new MessageBoxEventArgs(
-                text, title, icon: MessageBoxImage.Information));
-        }
-
-        private void MessageBoxWarning(string text, string title = "Warning")
-        {
-            MessageBoxRequested?.Invoke(this, new MessageBoxEventArgs(
-                text, title, icon: MessageBoxImage.Warning));
-        }
-
-        private void MessageBoxError(string text, string title = "Error")
-        {
-            MessageBoxRequested?.Invoke(this, new MessageBoxEventArgs(
-                text, title, icon: MessageBoxImage.Error));
-        }
-
-        private void MessageBoxException(Exception e, string text = "An error has occurred.", string title = "Error")
-        {
-            string theText = text;
-            if (!string.IsNullOrEmpty(theText))
-            {
-                theText += $"\n\n" +
-                    $"{e.GetType().Name}: {e.Message} ({e.HResult})";
-            }
-
-            MessageBoxError(theText, title);
-        }
-
-
-        //private void OnPopulateFileTypeList()
-        //{
-        //    PopulateFileTypeList?.Invoke(this, new FileTypeListEventArgs(FileFormats));
-        //}
-
-        private void OnTabRefresh(TabRefreshTrigger trigger, int desiredTabIndex = 0)
-        {
-            TabRefresh?.Invoke(this, new TabRefreshEventArgs(trigger));
-
-            //if (desiredTabIndex != -1 && desiredTabIndex == SelectedTabIndex)
-            //{
-            //    SelectedTabIndex = -1;
-            //}
-            SelectedTabIndex = desiredTabIndex;
-        }
-
         public ICommand FileOpenCommand
         {
             get
             {
                 return new RelayCommand
                 (
-                    () => RequestFileDialog(FileDialogType.OpenFileDialog)
+                    () => RequestFileDialog(FileDialogType.OpenFileDialog, FileDialogRequested_Callback)
                 );
             }
         }
@@ -260,7 +266,7 @@ namespace GTA3SaveEditor.GUI
             {
                 return new RelayCommand
                 (
-                    () => RequestFileDialog(FileDialogType.SaveFileDialog),
+                    () => RequestFileDialog(FileDialogType.SaveFileDialog, FileDialogRequested_Callback),
                     () => TheEditor.IsFileOpen
                 );
             }

@@ -2,6 +2,7 @@
 using GTASaveData.GTA3;
 using System;
 using System.IO;
+using System.Security;
 using WpfEssentials;
 
 namespace GTA3SaveEditor.Core
@@ -13,23 +14,35 @@ namespace GTA3SaveEditor.Core
         public event EventHandler FileClosed;
 
         private Settings m_settings;
-        private GTA3Save m_theSave;
+        private GTA3Save m_activeFile;
 
-        public bool IsFileOpen => m_theSave != null;
+        public bool IsFileOpen => m_activeFile != null;
+
+        public Settings Settings
+        {
+            get { return m_settings; }
+            set { m_settings = value; OnPropertyChanged(); }
+        }
+
+        public GTA3Save ActiveFile
+        {
+            get { return m_activeFile; } 
+            set {
+                CloseFile();
+
+                m_activeFile = value;
+                if (m_activeFile != null)
+                {
+                    OnFileOpened();
+                }
+                OnPropertyChanged();
+            }
+        }
 
         public SaveEditor()
         {
-            m_settings = new Settings();
-        }
-
-        public Settings GetSettings()
-        {
-            return m_settings;
-        }
-
-        public GTA3Save GetActiveFile()
-        {
-            return m_theSave;
+            Settings = new Settings();
+            ActiveFile = null;
         }
 
         public void OpenFile(string path)
@@ -39,14 +52,16 @@ namespace GTA3SaveEditor.Core
                 throw FileAlreadyLoaded();
             }
 
-            m_theSave = ((m_settings.AutoDetectFileType)
+            ActiveFile = ((Settings.AutoDetectFileType)
                 ? SaveData.Load<GTA3Save>(path)
-                : SaveData.Load<GTA3Save>(path, m_settings.ForcedFileType))
+                : SaveData.Load<GTA3Save>(path, Settings.ForcedFileType))
                 ?? throw BadSaveData();
 
-            m_settings.AddRecentFile(path);
+            Settings.AddRecentFile(path);
             OnFileOpened();
         }
+
+
 
         public void SaveFile(string path)
         {
@@ -55,32 +70,29 @@ namespace GTA3SaveEditor.Core
                 throw NoFileLoaded();
             }
 
-            if (m_settings.UpdateTimeStampOnSave)
+            if (Settings.UpdateTimeStampOnSave)
             {
-                m_theSave.TimeStamp = DateTime.Now;
+                ActiveFile.TimeStamp = DateTime.Now;
             }
 
-            m_theSave.Save(path);
-            m_settings.AddRecentFile(path);
+            ActiveFile.Save(path);
+            Settings.AddRecentFile(path);
             OnFileSaved();
         }
 
         public void CloseFile()
         {
-            if (!IsFileOpen)
+            if (IsFileOpen)
             {
-                throw NoFileLoaded();
+                m_activeFile.Dispose();
+                m_activeFile = null;
+                OnFileClosed();
+                OnPropertyChanged(nameof(ActiveFile));
             }
-
-            m_theSave.Dispose();
-            m_theSave = null;
-
-            OnFileClosed();
         }
 
         private void OnFileOpened()
         {
-            
             OnPropertyChanged(nameof(IsFileOpen));
             FileOpened?.Invoke(this, EventArgs.Empty);
         }
@@ -109,6 +121,29 @@ namespace GTA3SaveEditor.Core
         private InvalidDataException BadSaveData()
         {
             throw new InvalidDataException("Not a valid GTA3 save file!");
+        }
+
+        public static bool TryOpenFile(string path, out GTA3Save saveFile)
+        {
+            try
+            {
+                saveFile = SaveData.Load<GTA3Save>(path);
+                return saveFile != null;
+            }
+            catch (Exception e)
+            {
+                if (e is IOException ||
+                    e is SecurityException ||
+                    e is UnauthorizedAccessException ||
+                    e is SerializationException ||
+                    e is InvalidDataException)
+                {
+                    Log.Exception(e);
+                    saveFile = null;
+                    return false;
+                }
+                throw;
+            }
         }
     }
 }

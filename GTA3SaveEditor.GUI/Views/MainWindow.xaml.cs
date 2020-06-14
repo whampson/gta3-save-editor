@@ -1,7 +1,10 @@
-﻿using System.Windows;
+﻿using GTA3SaveEditor.GUI.ViewModels;
+using Ookii.Dialogs.Wpf;
+using System.ComponentModel;
+using System.Windows;
 using WpfEssentials.Win32;
 
-namespace GTA3SaveEditor.GUI
+namespace GTA3SaveEditor.GUI.Views
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -12,6 +15,7 @@ namespace GTA3SaveEditor.GUI
         {
             InitializeComponent();
 
+            ViewModel.FolderDialogRequested += ViewModel_FolderDialogRequested;
             ViewModel.FileDialogRequested += ViewModel_FileDialogRequested;
             ViewModel.MessageBoxRequested += ViewModel_MessageBoxRequested;
         }
@@ -20,6 +24,15 @@ namespace GTA3SaveEditor.GUI
         {
             get { return (MainViewModel) DataContext; }
             set { DataContext = value; }
+        }
+
+        private void ViewModel_FolderDialogRequested(object sender, FileDialogEventArgs e)
+        {
+            VistaFolderBrowserDialog dialog = new VistaFolderBrowserDialog();
+            bool? result = dialog.ShowDialog(this);
+
+            e.FileName = dialog.SelectedPath;
+            e.Callback?.Invoke(result, e);
         }
 
         private void ViewModel_FileDialogRequested(object sender, FileDialogEventArgs e)
@@ -35,6 +48,11 @@ namespace GTA3SaveEditor.GUI
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
             ViewModel.Initialize();
+        }
+
+        private void Window_Closing(object sender, CancelEventArgs e)
+        {
+            ViewModel.Shutdown();
         }
     }
 }

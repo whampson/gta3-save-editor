@@ -27,6 +27,7 @@ namespace GTA3SaveEditor.GUI.Controls
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
+
             m_itemsHolder = GetTemplateChild("PART_ItemsHolder") as Panel;
             UpdateSelectedItem();
         }

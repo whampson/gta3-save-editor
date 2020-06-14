@@ -1,10 +1,11 @@
-﻿using GTASaveData;
+﻿using GTA3SaveEditor.GUI.Events;
+using GTASaveData;
 using GTASaveData.GTA3;
 using GTASaveData.Types.Interfaces;
 using System;
 using System.Collections.Generic;
 
-namespace GTA3SaveEditor.GUI
+namespace GTA3SaveEditor.GUI.ViewModels
 {
     public class JsonViewModel : TabPageViewModelBase
     {
@@ -29,15 +30,25 @@ namespace GTA3SaveEditor.GUI
         }
 
         public JsonViewModel(MainViewModel mainViewModel)
-            : base("JSON Viewer", PageVisibility.Always, mainViewModel)
+            : base("JSON Viewer", TabPageVisibility.WhenFileIsOpen, mainViewModel)
         {
             MainViewModel.TabRefresh += MainViewModel_TabRefresh;
         }
 
         private void MainViewModel_TabRefresh(object sender, TabRefreshEventArgs e)
         {
-            Text = "";
-            SelectedBlockIndex = -1;
+            switch (e.Trigger)
+            {
+                case TabRefreshTrigger.WindowLoaded:
+                case TabRefreshTrigger.FileClosed:
+                    SelectedBlockIndex = -1;
+                    break;
+                case TabRefreshTrigger.FileOpened:
+                    SelectedBlockIndex = 0;
+                    break;
+            }
+
+            UpdateTextBox();
         }
 
         public void UpdateTextBox()

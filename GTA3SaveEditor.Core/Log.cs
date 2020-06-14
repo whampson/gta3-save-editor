@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace GTA3SaveEditor.Core
 {
@@ -62,9 +63,9 @@ namespace GTA3SaveEditor.Core
             Error(string.Format(format, args));
         }
 
-        public static void Exception(Exception e)
+        public static void Exception(Exception e, [CallerMemberName] string caller = null)
         {
-            Error($"{e.GetType().Name}: {e.Message}");
+            Error($"{caller}(): {e.GetType().Name}: {e.Message}");
         }
     }
 }

@@ -10,12 +10,52 @@ namespace GTA3SaveEditor.Core
     {
         public const int DefaultRecentFilesCapacity = 10;
 
+        [JsonProperty(PropertyName = "RecentFiles")]
+        private ObservableCollection<string> m_recentFiles;
+
+        private int m_recentFilesCapacity;
+        private string m_lastDirectoryBrowsed;
+        private string m_welcomePath;
+        private bool m_welcomePathRecurse;
         private bool m_updateTimeStamp;
         private bool m_autoDetectFileType;
         private FileFormat m_forcedFileType;
-        private int m_recentFilesCapacity;
-        private ObservableCollection<string> m_recentFiles;
-        private string m_lastDirectoryBrowsed;
+
+        [JsonIgnore]
+        public ReadOnlyObservableCollection<string> RecentFiles
+        {
+            get { return new ReadOnlyObservableCollection<string>(m_recentFiles); }
+        }
+
+        [JsonIgnore]
+        public string MostRecentFile
+        {
+            get { return (m_recentFiles.Count > 0) ? m_recentFiles[0] : null; }
+        }
+
+        public int RecentFilesCapacity
+        {
+            get { return m_recentFilesCapacity; }
+            set { m_recentFilesCapacity = value; OnPropertyChanged(); }
+        }
+
+        public string LastDirectoryBrowsed
+        {
+            get { return m_lastDirectoryBrowsed; }
+            set { m_lastDirectoryBrowsed = value; OnPropertyChanged(); }
+        }
+
+        public string WelcomePath
+        {
+            get { return m_welcomePath; }
+            set { m_welcomePath = value; OnPropertyChanged(); }
+        }
+
+        public bool WelcomePathRecurse
+        {
+            get { return m_welcomePathRecurse; }
+            set { m_welcomePathRecurse = value; OnPropertyChanged(); }
+        }
 
         public bool UpdateTimeStampOnSave
         {
@@ -33,28 +73,6 @@ namespace GTA3SaveEditor.Core
         {
             get { return m_forcedFileType; }
             set { m_forcedFileType = value; OnPropertyChanged(); }
-        }
-
-        public int RecentFilesCapacity
-        {
-            get { return m_recentFilesCapacity; }
-            set { m_recentFilesCapacity = value; OnPropertyChanged(); }
-        }
-
-        public ReadOnlyObservableCollection<string> RecentFiles
-        {
-            get { return new ReadOnlyObservableCollection<string>(m_recentFiles); }
-        }
-
-        public string MostRecentFile
-        {
-             get { return (m_recentFiles.Count > 0) ? m_recentFiles[0] : null; }
-        }
-
-        public string LastDirectoryBrowsed
-        {
-            get { return m_lastDirectoryBrowsed; }
-            set { m_lastDirectoryBrowsed = value; OnPropertyChanged(); }
         }
 
         public Settings()
@@ -98,7 +116,7 @@ namespace GTA3SaveEditor.Core
 
         public void SaveSettings(string path)
         {
-            string settingsJson = JsonConvert.SerializeObject(this);
+            string settingsJson = JsonConvert.SerializeObject(this, Formatting.Indented);
             File.WriteAllText(path, settingsJson);
         }
     }
