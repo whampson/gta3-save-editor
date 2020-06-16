@@ -1,19 +1,33 @@
 ﻿using GTASaveData.GTA3;
 using System;
 using System.ComponentModel;
+using System.Windows.Input;
+using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
     public class GeneralViewModel : TabPageViewModelBase
     {
-        public SimpleVariables m_simpleVars;
+        private SimpleVariables m_simpleVars;
+        private bool? m_fixedPurpleNinesGlitch;
+        private bool? m_fixedHostilePeds;
+        private bool? m_fixedPercentageBug;
+
+        public bool IsAndroid
+        {
+            get { return MainViewModel.TheSave.FileFormat.IsAndroid; }
+        }
+
+        public bool IsPS2
+        {
+            get { return MainViewModel.TheSave.FileFormat.IsPS2; }
+        }
 
         public SimpleVariables SimpleVars
         {
             get { return m_simpleVars; }
             set { m_simpleVars = value; OnPropertyChanged(); }
         }
-
         public string LastMissionPassedName
         {
             get { return SimpleVars.LastMissionPassedName; }
@@ -77,6 +91,24 @@ namespace GTA3SaveEditor.GUI.ViewModels
             WeatherType.Sunny, WeatherType.Sunny, WeatherType.Rainy, WeatherType.Cloudy,
         };
 
+        public bool? FixedPurpleNinesGlitch
+        {
+            get { return m_fixedPurpleNinesGlitch; }
+            set { m_fixedPurpleNinesGlitch = value; OnPropertyChanged(); }
+        }
+
+        public bool? FixedHostilePeds
+        {
+            get { return m_fixedHostilePeds; }
+            set { m_fixedHostilePeds = value; OnPropertyChanged(); }
+        }
+
+        public bool? FixedPercentageBug
+        {
+            get { return m_fixedPercentageBug; }
+            set { m_fixedPercentageBug = value; OnPropertyChanged(); }
+        }
+
         public GeneralViewModel(MainViewModel mainViewModel)
             : base("General", TabPageVisibility.WhenFileIsOpen, mainViewModel)
         { }
@@ -86,6 +118,12 @@ namespace GTA3SaveEditor.GUI.ViewModels
             base.Initialize();
             SimpleVars = MainViewModel.TheSave.SimpleVars;
 
+            DetectPurpleNinesGlitch();
+            DetectHostilePeds();
+            DetectPercentageBug();
+
+            OnPropertyChanged(nameof(IsAndroid));
+            OnPropertyChanged(nameof(IsPS2));
             OnPropertyChanged(nameof(LastMissionPassedName));
             OnPropertyChanged(nameof(GameClock));
             OnPropertyChanged(nameof(CurrentPadMode));
@@ -96,6 +134,112 @@ namespace GTA3SaveEditor.GUI.ViewModels
         protected override void Shutdown()
         {
             base.Shutdown();
+        }
+
+        private void DetectPurpleNinesGlitch()
+        {
+            // TODO: MainViewModel.TheSave.Gangs[GangType.Hoods]
+            Gang hoods = MainViewModel.TheSave.Gangs.Gangs[(int) GangType.Hoods];
+
+            if (hoods.PedModelOverride != -1)
+            {
+                FixedPurpleNinesGlitch = false;
+            }
+            {
+                FixedPurpleNinesGlitch = null;
+            }
+        }
+
+        private void FixPurpleNinesGlitch()
+        {
+            Gang hoods = MainViewModel.TheSave.Gangs.Gangs[(int) GangType.Hoods];
+            hoods.PedModelOverride = -1;
+
+            FixedPurpleNinesGlitch = true;
+        }
+
+        private void DetectHostilePeds()
+        {
+            // TODO:
+            FixedHostilePeds = null;
+        }
+
+        private void FixHostilePeds()
+        {
+            // TODO:
+            FixedHostilePeds = true;
+        }
+
+        private void DetectPercentageBug()
+        {
+            Stats stats = MainViewModel.TheSave.Stats;
+
+            // TODO: && ScmVersion == 1
+            if (stats.TotalProgressInGame == 156)
+            {
+                FixedPercentageBug = false;
+            }
+            else
+            {
+                FixedPercentageBug = null;
+            }
+        }
+
+        private void FixPercentageBug()
+        {
+            Stats stats = MainViewModel.TheSave.Stats;
+            stats.TotalProgressInGame = 154;
+
+            FixedPercentageBug = true;
+        }
+
+        private void ResetTimers()
+        {
+            // TODO:
+        }
+
+        public ICommand FixPurpleNinesGlitchCommand
+        {
+            get
+            {
+                return new RelayCommand
+                (
+                    () => FixPurpleNinesGlitch()
+                );
+            }
+        }
+
+        public ICommand FixHostilePedsCommand
+        {
+            get
+            {
+                return new RelayCommand
+                (
+                    () => FixHostilePeds()
+                );
+            }
+        }
+
+        public ICommand FixPercentageBugCommand
+        {
+            get
+            {
+                return new RelayCommand
+                (
+                    () => FixPercentageBug()
+                );
+            }
+        }
+
+        public ICommand ResetTimersCommand
+        {
+            get
+            {
+                return new RelayCommand
+                (
+                    () => ResetTimers()
+                );
+            }
         }
     }
 

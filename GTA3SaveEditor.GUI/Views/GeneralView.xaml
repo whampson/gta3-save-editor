@@ -9,8 +9,14 @@
     xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"
     xmlns:ext="clr-namespace:WpfEssentials.Win32.Extensions;assembly=WpfEssentials.Win32"
     xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
+    xmlns:conv="clr-namespace:GTA3SaveEditor.GUI.Converters"
     mc:Ignorable="d" 
     d:DesignHeight="500" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <conv:GlitchStatusConverter x:Key="GlitchStatusConverter"/>
+        <conv:InvertBooleanConverter x:Key="InvertBooleanConverter" Default="False"/>
+    </UserControl.Resources>
 
     <Grid>
 
@@ -29,9 +35,10 @@
 
             <GroupBox
                 Grid.Row="0"
-                Header="Save Info">
+                Header="Save Info"
+                Margin="5">
 
-                <Grid Margin="5">
+                <Grid>
 
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="75"/>
@@ -46,32 +53,36 @@
                     <TextBlock
                         Grid.Column="0" Grid.Row="0" Margin="5,0,0,0"
                         Style="{StaticResource LabelStyleRight}"
-                        Text="Title: "/>
+                        Text="Title: "
+                        IsEnabled="{Binding IsPS2, Converter={StaticResource InvertBooleanConverter}}"/>
                     <TextBlock
                         Grid.Column="0" Grid.Row="1" Margin="5,0,0,0"
                         Style="{StaticResource LabelStyleRight}"
-                        Text="Time Stamp: "/>
+                        Text="Time Stamp: "
+                        IsEnabled="{Binding IsPS2, Converter={StaticResource InvertBooleanConverter}}"/>
                     <TextBlock
                         Grid.Column="0" Grid.Row="2" Margin="5,0,0,0"
                         Style="{StaticResource LabelStyleRight}"
                         Text="Quick Save: "
-                        IsEnabled="False"/>
+                        IsEnabled="{Binding IsAndroid, Mode=OneWay}"/>
 
                     <TextBox
                         Grid.Column="1" Grid.Row="0" Margin="5"
                         Style="{StaticResource TextBoxStyle}"
-                        Text="{Binding LastMissionPassedName, UpdateSourceTrigger=PropertyChanged}"/>
+                        Text="{Binding LastMissionPassedName, UpdateSourceTrigger=PropertyChanged}"
+                        IsEnabled="{Binding IsPS2, Converter={StaticResource InvertBooleanConverter}}"/>
                     <xctk:DateTimeUpDown
                         Grid.Column="1" Grid.Row="1" Height="25" Margin="5"
                         Format="Custom" FormatString="dd MMM yyyy HH:mm:ss"
                         TextAlignment="Left"
-                        Value="{Binding MainViewModel.TheSave.TimeStamp}"/>
+                        Value="{Binding MainViewModel.TheSave.TimeStamp}"
+                        IsEnabled="{Binding IsPS2, Converter={StaticResource InvertBooleanConverter}}"/>
                     <ComboBox
                         Grid.Column="1" Grid.Row="2" Height="25" Margin="5"
                         Style="{StaticResource EnumComboBoxStyle}"
                         ItemsSource="{ext:EnumValueCollection EnumType=gta3:QuickSaveState}"
                         SelectedItem="{Binding SimpleVars.IsQuickSave}"
-                        IsEnabled="False"/>
+                        IsEnabled="{Binding IsAndroid, Mode=OneWay}"/>
 
                 </Grid>
 
@@ -79,9 +90,10 @@
 
             <GroupBox
                 Grid.Row="1"
-                Header="Time">
+                Header="Time"
+                Margin="5,0,5,5">
 
-                <Grid Margin="5">
+                <Grid>
 
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="115"/>
@@ -144,9 +156,10 @@
 
             <GroupBox
                 Grid.Row="2"
-                Header="Weather">
+                Header="Weather"
+                Margin="5,0,5,5">
 
-                <Grid Margin="5">
+                <Grid>
 
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -192,7 +205,8 @@
 
             <GroupBox
                 Grid.Row="0"
-                Header="Game Settings">
+                Header="Game Settings"
+                Margin="5">
 
                 <StackPanel
                     Margin="5"
@@ -213,7 +227,7 @@
                         Style="{StaticResource LabelStyle}"
                         Text="In-Car Camera Mode:"/>
                     <ComboBox
-                        Margin="5,5,5,10"
+                        Margin="5,5,5,0"
                         Style="{StaticResource EnumComboBoxStyle}"
                         ItemsSource="{ext:EnumValueCollection EnumType=vm:InCarCameraMode}"
                         SelectedItem="{Binding InCarCameraMode}"/>
@@ -224,10 +238,11 @@
 
             <GroupBox
                 Grid.Row="1"
-                Header="PS2-only Game Settings"
-                IsEnabled="False">
+                Margin="5,0,5,5"
+                Header="PS2 Game Settings"
+                IsEnabled="{Binding IsPS2, Mode=OneWay}">
 
-                <Grid Margin="5">
+                <Grid>
 
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -342,13 +357,13 @@
 
         <Grid Grid.Column="2">
 
-            <GroupBox Header="Fixes">
+            <GroupBox
+                Header="Fixes"
+                Margin="5">
 
                 <StackPanel
                     Margin="5"
                     Orientation="Vertical">
-
-                    <!-- TOOD: template for these? -->
 
                     <GroupBox Header="Purple Nines Glitch">
 
@@ -371,12 +386,16 @@
                             <TextBlock
                                 Grid.Column="1" Grid.Row="0" Margin="5"
                                 Style="{StaticResource LabelStyleLeft}"
-                                Text="Glitch Not Detected"/>
+                                Text="{Binding FixedPurpleNinesGlitch,
+                                    Converter={StaticResource GlitchStatusConverter}}"/>
                             <Button
                                 Grid.Column="1" Grid.Row="1" Margin="5"
                                 Height="25" Width="95"
                                 HorizontalAlignment="Left"
-                                Content="Fix Glitch"/>
+                                IsEnabled="{Binding FixedPurpleNinesGlitch,
+                                    Converter={StaticResource InvertBooleanConverter}}"
+                                Content="Fix Glitch"
+                                Command="{Binding FixPurpleNinesGlitchCommand}"/>
                         </Grid>
 
                     </GroupBox>
@@ -402,12 +421,16 @@
                             <TextBlock
                                 Grid.Column="1" Grid.Row="0" Margin="5"
                                 Style="{StaticResource LabelStyleLeft}"
-                                Text="Glitch Not Detected"/>
+                                Text="{Binding FixedHostilePeds,
+                                    Converter={StaticResource GlitchStatusConverter}}"/>
                             <Button
                                 Grid.Column="1" Grid.Row="1" Margin="5"
                                 Height="25" Width="95"
                                 HorizontalAlignment="Left"
-                                Content="Fix Glitch"/>
+                                IsEnabled="{Binding FixedHostilePeds,
+                                    Converter={StaticResource InvertBooleanConverter}}"
+                                Content="Fix Glitch"
+                                Command="{Binding FixHostilePedsCommand}"/>
                         </Grid>
 
                     </GroupBox>
@@ -433,12 +456,48 @@
                             <TextBlock
                                 Grid.Column="1" Grid.Row="0" Margin="5"
                                 Style="{StaticResource LabelStyleLeft}"
-                                Text="Glitch Not Detected"/>
+                                Text="{Binding FixedPercentageBug,
+                                    Converter={StaticResource GlitchStatusConverter}}"/>
                             <Button
                                 Grid.Column="1" Grid.Row="1" Margin="5"
                                 Height="25" Width="95"
                                 HorizontalAlignment="Left"
-                                Content="Fix Glitch"/>
+                                IsEnabled="{Binding FixedPercentageBug,
+                                    Converter={StaticResource InvertBooleanConverter}}"
+                                Content="Fix Glitch"
+                                Command="{Binding FixPercentageBugCommand}"/>
+                        </Grid>
+
+                    </GroupBox>
+
+                    <GroupBox Header="Timer-Related Bugs">
+
+                        <Grid Margin="0,10,0,15">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="3*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock
+                                Grid.Column="0" Grid.Row="0" Margin="5"
+                                Style="{StaticResource LabelStyleRight}"
+                                Text="Status: "/>
+                            <TextBlock
+                                Grid.Column="1" Grid.Row="0" Margin="5"
+                                Style="{StaticResource LabelStyleLeft}"
+                                Text="Detection Not Available"/>
+                            <Button
+                                Grid.Column="1" Grid.Row="1" Margin="5"
+                                Height="25" Width="95"
+                                HorizontalAlignment="Left"
+                                Content="Reset Timers"
+                                Command="{Binding ResetTimersCommand}"/>
                         </Grid>
 
                     </GroupBox>
