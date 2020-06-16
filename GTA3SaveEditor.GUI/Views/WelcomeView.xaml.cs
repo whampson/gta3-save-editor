@@ -1,4 +1,5 @@
 ﻿using GTA3SaveEditor.GUI.ViewModels;
+using System.Windows.Input;
 
 namespace GTA3SaveEditor.GUI.Views
 {
@@ -18,7 +19,7 @@ namespace GTA3SaveEditor.GUI.Views
             set { DataContext = value; }
         }
 
-        private void ListBox_MouseDoubleClick(object sender, System.Windows.Input.MouseButtonEventArgs e)
+        private void ListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             if (ViewModel.SelectedFile != null)
             {

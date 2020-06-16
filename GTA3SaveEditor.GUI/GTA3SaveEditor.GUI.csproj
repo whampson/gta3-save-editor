@@ -9,8 +9,8 @@
     <Description>Grand Theft Auto III save file editor graphical user interface.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>2.0.0-alpha</Version>
-    <AssemblyVersion>2.0.0.187</AssemblyVersion>
-    <FileVersion>2.0.0.187</FileVersion>
+    <AssemblyVersion>2.0.0.343</AssemblyVersion>
+    <FileVersion>2.0.0.343</FileVersion>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
@@ -22,6 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MiqM.Xceed.Wpf.Toolkit.NETCore" Version="3.5.1.3" />
     <PackageReference Include="Ookii.Dialogs.Wpf.NETCore" Version="2.1.0" />
     <PackageReference Include="WpfEssentials.Win32" Version="1.2.0" />
   </ItemGroup>

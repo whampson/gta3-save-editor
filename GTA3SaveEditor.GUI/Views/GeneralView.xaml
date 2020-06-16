@@ -1,14 +1,453 @@
 ﻿<v:TabPageViewBase
     x:Class="GTA3SaveEditor.GUI.Views.GeneralView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:GTA3SaveEditor.GUI.ViewModels"
     xmlns:v="clr-namespace:GTA3SaveEditor.GUI.Views"
+    xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"
+    xmlns:ext="clr-namespace:WpfEssentials.Win32.Extensions;assembly=WpfEssentials.Win32"
+    xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
     mc:Ignorable="d" 
-    d:DesignHeight="450" d:DesignWidth="800">
+    d:DesignHeight="500" d:DesignWidth="800">
 
     <Grid>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+            <ColumnDefinition Width="1*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <GroupBox
+                Grid.Row="0"
+                Header="Save Info">
+
+                <Grid Margin="5">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="75"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                        Grid.Column="0" Grid.Row="0" Margin="5,0,0,0"
+                        Style="{StaticResource LabelStyleRight}"
+                        Text="Title: "/>
+                    <TextBlock
+                        Grid.Column="0" Grid.Row="1" Margin="5,0,0,0"
+                        Style="{StaticResource LabelStyleRight}"
+                        Text="Time Stamp: "/>
+                    <TextBlock
+                        Grid.Column="0" Grid.Row="2" Margin="5,0,0,0"
+                        Style="{StaticResource LabelStyleRight}"
+                        Text="Quick Save: "
+                        IsEnabled="False"/>
+
+                    <TextBox
+                        Grid.Column="1" Grid.Row="0" Margin="5"
+                        Style="{StaticResource TextBoxStyle}"
+                        Text="{Binding LastMissionPassedName, UpdateSourceTrigger=PropertyChanged}"/>
+                    <xctk:DateTimeUpDown
+                        Grid.Column="1" Grid.Row="1" Height="25" Margin="5"
+                        Format="Custom" FormatString="dd MMM yyyy HH:mm:ss"
+                        TextAlignment="Left"
+                        Value="{Binding MainViewModel.TheSave.TimeStamp}"/>
+                    <ComboBox
+                        Grid.Column="1" Grid.Row="2" Height="25" Margin="5"
+                        Style="{StaticResource EnumComboBoxStyle}"
+                        ItemsSource="{ext:EnumValueCollection EnumType=gta3:QuickSaveState}"
+                        SelectedItem="{Binding SimpleVars.IsQuickSave}"
+                        IsEnabled="False"/>
+
+                </Grid>
+
+            </GroupBox>
+
+            <GroupBox
+                Grid.Row="1"
+                Header="Time">
+
+                <Grid Margin="5">
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="115"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                        Grid.Column="0" Grid.Row="0" Margin="5,0,0,0"
+                        Style="{StaticResource LabelStyleRight}"
+                        Text="Game Clock: "/>
+                    <TextBlock
+                        Grid.Column="0" Grid.Row="1" Margin="5,0,0,0"
+                        Style="{StaticResource LabelStyleRight}"
+                        Text="Minute Length (ms): "/>
+                    <TextBlock
+                        Grid.Column="0" Grid.Row="2" Margin="5,0,0,0"
+                        Style="{StaticResource LabelStyleRight}"
+                        Text="Global Timer: "/>
+                    <TextBlock
+                        Grid.Column="0" Grid.Row="3" Margin="5,0,0,0"
+                        Style="{StaticResource LabelStyleRight}"
+                        Text="Weather Timer: "/>
+                    <TextBlock
+                        Grid.Column="0" Grid.Row="4" Margin="5,0,0,0"
+                        Style="{StaticResource LabelStyleRight}"
+                        Text="Frame Counter: "/>
+
+                    <xctk:DateTimeUpDown
+                        Grid.Column="1" Grid.Row="0" Height="25" Margin="5"
+                        Format="Custom" FormatString="HH:mm"
+                        Minimum="00:00" Maximum="23:59"
+                        Value="{Binding GameClock}"/>
+                    <xctk:LongUpDown
+                        Grid.Column="1" Grid.Row="1" Height="25" Margin="5"
+                        Style="{StaticResource UnsignedIntegerUpDownStyle}"
+                        Value="{Binding SimpleVars.MillisecondsPerGameMinute}"/>
+                    <xctk:LongUpDown
+                        Grid.Column="1" Grid.Row="2" Height="25" Margin="5"
+                        Style="{StaticResource UnsignedIntegerUpDownStyle}"
+                        Value="{Binding SimpleVars.TimeInMilliseconds}"/>
+                    <xctk:LongUpDown
+                        Grid.Column="1" Grid.Row="3" Height="25" Margin="5"
+                        Style="{StaticResource UnsignedIntegerUpDownStyle}"
+                        Value="{Binding SimpleVars.LastClockTick}"/>
+                    <xctk:LongUpDown
+                        Grid.Column="1" Grid.Row="4" Height="25" Margin="5"
+                        Style="{StaticResource UnsignedIntegerUpDownStyle}"
+                        Value="{Binding SimpleVars.FrameCounter}"/>
+
+                </Grid>
+
+            </GroupBox>
+
+            <GroupBox
+                Grid.Row="2"
+                Header="Weather">
+
+                <Grid Margin="5">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <TextBlock
+                        Grid.Row="0"
+                        Margin="5,0,0,0"
+                        Style="{StaticResource LabelStyle}"
+                        Text="Current Weather:"/>
+                    <ComboBox
+                        Grid.Row="1"
+                        Margin="5,5,5,10"
+                        ItemsSource="{x:Static vm:GeneralViewModel.WeatherList}"
+                        SelectedIndex="{Binding SimpleVars.WeatherTypeInList}"/>
+
+                    <TextBlock
+                        Grid.Row="2"
+                        Margin="5,0,0,0"
+                        Style="{StaticResource LabelStyle}"
+                        Text="Forced Weather:"/>
+                    <ComboBox
+                        Grid.Row="3"
+                        Margin="5,5,5,10"
+                        Style="{StaticResource EnumComboBoxStyle}"
+                        ItemsSource="{ext:EnumValueCollection EnumType=gta3:WeatherType}"
+                        SelectedItem="{Binding SimpleVars.ForcedWeatherType}"/>
+
+                </Grid>
+
+            </GroupBox>
+
+        </Grid>
+
+        <Grid Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <GroupBox
+                Grid.Row="0"
+                Header="Game Settings">
+
+                <StackPanel
+                    Margin="5"
+                    Orientation="Vertical">
+
+                    <TextBlock
+                        Margin="5,0,0,0"
+                        Style="{StaticResource LabelStyle}"
+                        Text="On-Foot Camera Mode:"/>
+                    <ComboBox
+                        Margin="5,5,5,10"
+                        Style="{StaticResource EnumComboBoxStyle}"
+                        ItemsSource="{ext:EnumValueCollection EnumType=vm:OnFootCameraMode}"
+                        SelectedItem="{Binding OnFootCameraMode}"/>
+
+                    <TextBlock
+                        Margin="5,0,0,0"
+                        Style="{StaticResource LabelStyle}"
+                        Text="In-Car Camera Mode:"/>
+                    <ComboBox
+                        Margin="5,5,5,10"
+                        Style="{StaticResource EnumComboBoxStyle}"
+                        ItemsSource="{ext:EnumValueCollection EnumType=vm:InCarCameraMode}"
+                        SelectedItem="{Binding InCarCameraMode}"/>
+
+                </StackPanel>
+
+            </GroupBox>
+
+            <GroupBox
+                Grid.Row="1"
+                Header="PS2-only Game Settings"
+                IsEnabled="False">
+
+                <Grid Margin="5">
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel
+                        Grid.Row="0"
+                        Orientation="Vertical">
+
+                        <TextBlock
+                                Margin="5,0,0,0"
+                                Style="{StaticResource LabelStyle}"
+                                Text="Language:"/>
+                        <ComboBox
+                                Margin="5,5,5,10"
+                                Style="{StaticResource EnumComboBoxStyle}"
+                                ItemsSource="{ext:EnumValueCollection EnumType=gta3:Language}"
+                                SelectedItem="{Binding SimpleVars.PrefsLanguage}"/>
+                        <TextBlock
+                                Margin="5,0,0,0"
+                                Style="{StaticResource LabelStyle}"
+                                Text="Controller Mode:"/>
+                        <ComboBox
+                                Margin="5,5,5,15"
+                                Style="{StaticResource EnumComboBoxStyle}"
+                                ItemsSource="{ext:EnumValueCollection EnumType=vm:PadMode}"
+                                SelectedItem="{Binding CurrentPadMode}"/>
+
+                    </StackPanel>
+
+                    <Grid Grid.Row="1">
+
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <TextBlock
+                            Grid.Column="0" Grid.Row="0" Margin="5,0,0,0"
+                            Style="{StaticResource LabelStyleRight}"
+                            Text="Music Volume: "/>
+                        <TextBlock
+                            Grid.Column="0" Grid.Row="1" Margin="5,0,0,0"
+                            Style="{StaticResource LabelStyleRight}"
+                            Text="SFX Volume: "/>
+                        <TextBlock
+                            Grid.Column="0" Grid.Row="2" Margin="5,5,5,10"
+                            Style="{StaticResource LabelStyleRight}"
+                            Text="Brightness: "/>
+
+                        <!-- TODO: verify min/max -->
+                        <Slider
+                            Grid.Column="1" Grid.Row="0" Height="25" Margin="5"
+                            Minimum="0" Maximum="127" AutoToolTipPlacement="TopLeft"
+                            Value="{Binding SimpleVars.PrefsMusicVolume}"/>
+                        <Slider
+                            Grid.Column="1" Grid.Row="1" Height="25" Margin="5"
+                            Minimum="0" Maximum="127" AutoToolTipPlacement="TopLeft"
+                            Value="{Binding SimpleVars.PrefsSfxVolume}"/>
+                        <Slider
+                            Grid.Column="1" Grid.Row="2" Height="25" Margin="5,5,5,10"
+                            Minimum="0" Maximum="256" AutoToolTipPlacement="TopLeft"
+                            Value="{Binding SimpleVars.PrefsBrightness}"/>
+
+                        <CheckBox
+                            Grid.Column="0" Grid.Row="3" Height="25" Margin="5"
+                            Style="{StaticResource CheckBoxStyle}"
+                            IsChecked="{Binding SimpleVars.PrefsShowSubtitles}"
+                            Content="Show Subtitles"/>
+                        <CheckBox
+                            Grid.Column="1" Grid.Row="3" Height="25" Margin="5"
+                            Style="{StaticResource CheckBoxStyle}"
+                            IsChecked="{Binding SimpleVars.PrefsUseWideScreen}"
+                            Content="Widescreen"/>
+                        <CheckBox
+                            Grid.Column="0" Grid.Row="4" Height="25" Margin="5"
+                            Style="{StaticResource CheckBoxStyle}"
+                            IsChecked="{Binding SimpleVars.PrefsUseVibration}"
+                            Content="Vibration"/>
+                        <CheckBox
+                            Grid.Column="1" Grid.Row="4" Height="25" Margin="5"
+                            Style="{StaticResource CheckBoxStyle}"
+                            IsChecked="{Binding SimpleVars.PrefsStereoMono}"
+                            Content="Stereo Output"/>
+                        <CheckBox
+                            Grid.Column="0" Grid.Row="5" Height="25" Margin="5"
+                            Style="{StaticResource CheckBoxStyle}"
+                            IsChecked="{Binding SimpleVars.BlurOn}"
+                            Content="Trails"/>
+
+                    </Grid>
+
+                    <!-- Fill extra space-->
+                    <DockPanel Grid.Row="3"/>
+
+                </Grid>
+
+            </GroupBox>
+        </Grid>
+
+        <Grid Grid.Column="2">
+
+            <GroupBox Header="Fixes">
+
+                <StackPanel
+                    Margin="5"
+                    Orientation="Vertical">
+
+                    <!-- TOOD: template for these? -->
+
+                    <GroupBox Header="Purple Nines Glitch">
+
+                        <Grid Margin="0,10,0,15">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="3*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock
+                                Grid.Column="0" Grid.Row="0" Margin="5"
+                                Style="{StaticResource LabelStyleRight}"
+                                Text="Status: "/>
+                            <TextBlock
+                                Grid.Column="1" Grid.Row="0" Margin="5"
+                                Style="{StaticResource LabelStyleLeft}"
+                                Text="Glitch Not Detected"/>
+                            <Button
+                                Grid.Column="1" Grid.Row="1" Margin="5"
+                                Height="25" Width="95"
+                                HorizontalAlignment="Left"
+                                Content="Fix Glitch"/>
+                        </Grid>
+
+                    </GroupBox>
+
+                    <GroupBox Header="Hostile Peds">
+
+                        <Grid Margin="0,10,0,15">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="3*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock
+                                Grid.Column="0" Grid.Row="0" Margin="5"
+                                Style="{StaticResource LabelStyleRight}"
+                                Text="Status: "/>
+                            <TextBlock
+                                Grid.Column="1" Grid.Row="0" Margin="5"
+                                Style="{StaticResource LabelStyleLeft}"
+                                Text="Glitch Not Detected"/>
+                            <Button
+                                Grid.Column="1" Grid.Row="1" Margin="5"
+                                Height="25" Width="95"
+                                HorizontalAlignment="Left"
+                                Content="Fix Glitch"/>
+                        </Grid>
+
+                    </GroupBox>
+
+                    <GroupBox Header="Percentage Bug">
+
+                        <Grid Margin="0,10,0,15">
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="3*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock
+                                Grid.Column="0" Grid.Row="0" Margin="5"
+                                Style="{StaticResource LabelStyleRight}"
+                                Text="Status: "/>
+                            <TextBlock
+                                Grid.Column="1" Grid.Row="0" Margin="5"
+                                Style="{StaticResource LabelStyleLeft}"
+                                Text="Glitch Not Detected"/>
+                            <Button
+                                Grid.Column="1" Grid.Row="1" Margin="5"
+                                Height="25" Width="95"
+                                HorizontalAlignment="Left"
+                                Content="Fix Glitch"/>
+                        </Grid>
+
+                    </GroupBox>
+
+                </StackPanel>
+
+            </GroupBox>
+
+        </Grid>
 
     </Grid>
 

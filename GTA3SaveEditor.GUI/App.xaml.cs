@@ -1,6 +1,8 @@
 ﻿using GTA3SaveEditor.GUI.Views;
 using System;
 using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace GTA3SaveEditor.GUI
 {
@@ -19,7 +21,7 @@ namespace GTA3SaveEditor.GUI
 
             TheWindow = new MainWindow
             {
-                Title = "GTA3 Save Editor",
+                Title = "Grand Theft Auto III Save Editor",
                 Height = 600,
                 Width = 800
             };
@@ -47,8 +49,16 @@ namespace GTA3SaveEditor.GUI
                 }
             }
             
-            TheWindow.ViewModel.MessageBoxError(text, "Unhandled Exception");
+            TheWindow.ViewModel.ShowMessageBoxError(text, "Unhandled Exception");
             // TODO: log file?
+        }
+
+        private void TextBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (sender is TextBox tb)
+            {
+                tb.SelectAll();
+            }
         }
     }
 }

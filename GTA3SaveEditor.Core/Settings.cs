@@ -51,7 +51,7 @@ namespace GTA3SaveEditor.Core
             set { m_welcomePath = value; OnPropertyChanged(); }
         }
 
-        public bool WelcomePathRecurse
+        public bool WelcomePathRecursiveSearch
         {
             get { return m_welcomePathRecurse; }
             set { m_welcomePathRecurse = value; OnPropertyChanged(); }

@@ -6,7 +6,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:v="clr-namespace:GTA3SaveEditor.GUI.Views"
     mc:Ignorable="d" 
-    d:DesignHeight="450" d:DesignWidth="800">
+    d:DesignHeight="500" d:DesignWidth="800">
 
     <Grid>
 
@@ -22,7 +22,7 @@
 
         <TextBlock
             Grid.Column="1" Grid.Row="0"
-            Text="GTA3 Save Editor"
+            Text="Grand Theft Auto III Save Editor"
             HorizontalAlignment="Center"
             VerticalAlignment="Center"
             FontSize="50"
@@ -48,36 +48,33 @@
                     ItemsSource="{Binding SaveFiles}"
                     SelectedItem="{Binding SelectedFile}"
                     MouseDoubleClick="ListBox_MouseDoubleClick">
+
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="6*"/>
                                     <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="2.5*"/>
                                 </Grid.ColumnDefinitions>
-                                <Grid.InputBindings>
-                                    <MouseBinding
-                                        MouseAction="LeftDoubleClick"
-                                        Command="{Binding LoadCommand}"/>
-                                </Grid.InputBindings>
                                 <TextBlock Grid.Column="0" Text="{Binding Name}" FontWeight="Bold"/>
                                 <TextBlock Grid.Column="1" Text="{Binding FileFormat}" HorizontalAlignment="Right"/>
                                 <TextBlock Grid.Column="2" Text="{Binding TimeStamp}" HorizontalAlignment="Right"/>
+                                <!-- TODO: tooltip showing file path -->
                             </Grid>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
+
                 </ListBox>
 
-                <TextBox
+                <TextBlock
                     Grid.Row="1"
                     Margin="5,0,5,0"
                     Height="25"
-                    VerticalContentAlignment="Center"
-                    Text="{Binding MainViewModel.TheSettings.WelcomePath}"/>
+                    VerticalAlignment="Center"
+                    Text="{Binding SelectedDirectory}"/>
 
-                <Grid
-                    Grid.Row="2">
+                <Grid Grid.Row="2">
 
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="95"/>
@@ -95,7 +92,7 @@
                         Grid.Column="1"
                         VerticalAlignment="Center"
                         Content="Search Subfolders"
-                        IsChecked="{Binding MainViewModel.TheSettings.WelcomePathRecurse}"/>
+                        IsChecked="{Binding SearchSubDirectories}"/>
                     <Button
                         Grid.Column="2"
                         Content="Open"

@@ -8,7 +8,7 @@
     xmlns:conv2="clr-namespace:WpfEssentials.Win32.Converters;assembly=WpfEssentials.Win32"
     xmlns:v="clr-namespace:GTA3SaveEditor.GUI.Views"
     mc:Ignorable="d" 
-    d:DesignHeight="450" d:DesignWidth="800">
+    d:DesignHeight="500" d:DesignWidth="800">
 
     <UserControl.Resources>
         <conv2:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>

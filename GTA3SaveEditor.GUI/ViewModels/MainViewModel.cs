@@ -81,7 +81,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
             if (TheEditor.IsFileOpen)
             {
                 // TODO: save/discard message
-                MessageBoxError("Please close the current file before opening a new one.");
+                ShowMessageBoxError("Please close the current file before opening a new one.");
                 return;
             }
 
@@ -94,12 +94,12 @@ namespace GTA3SaveEditor.GUI.ViewModels
                 Log.Exception(e);
                 if (e is SerializationException)
                 {
-                    MessageBoxException(e, "The file could not be loaded.");
+                    ShowMessageBoxException(e, "The file could not be loaded.");
                     return;
                 }
                 else if (e is InvalidDataException)
                 {
-                    MessageBoxError("The file is not a valid GTA3 save file.");
+                    ShowMessageBoxError("The file is not a valid GTA3 save file.");
                     return;
                 }
 
@@ -118,7 +118,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
                 Log.Exception(e);
                 if (e is SerializationException)
                 {
-                    MessageBoxException(e, "The file could not be saved.");
+                    ShowMessageBoxException(e, "The file could not be saved.");
                     return;
                 }
 
@@ -126,7 +126,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
             }
         }
 
-        public void RequestFolderDialog(FileDialogType type, Action<bool?, FileDialogEventArgs> callback)
+        public void ShowFolderDialog(FileDialogType type, Action<bool?, FileDialogEventArgs> callback)
         {
             FileDialogEventArgs e = new FileDialogEventArgs(type, callback)
             {
@@ -135,7 +135,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
             FolderDialogRequested?.Invoke(this, e);
         }
 
-        public void RequestFileDialog(FileDialogType type, Action<bool?, FileDialogEventArgs> callback)
+        public void ShowFileDialog(FileDialogType type, Action<bool?, FileDialogEventArgs> callback)
         {
             FileDialogEventArgs e = new FileDialogEventArgs(type, callback)
             {
@@ -144,29 +144,28 @@ namespace GTA3SaveEditor.GUI.ViewModels
             FileDialogRequested?.Invoke(this, e);
         }
 
-        public void MessageBoxInfo(string text, string title = "Information")
+        public void ShowMessageBoxInfo(string text, string title = "Information")
         {
             MessageBoxRequested?.Invoke(this, new MessageBoxEventArgs(
                 text, title, icon: MessageBoxImage.Information));
         }
 
-        public void MessageBoxWarning(string text, string title = "Warning")
+        public void ShowMessageBoxWarning(string text, string title = "Warning")
         {
             MessageBoxRequested?.Invoke(this, new MessageBoxEventArgs(
                 text, title, icon: MessageBoxImage.Warning));
         }
 
-        public void MessageBoxError(string text, string title = "Error")
+        public void ShowMessageBoxError(string text, string title = "Error")
         {
             MessageBoxRequested?.Invoke(this, new MessageBoxEventArgs(
                 text, title, icon: MessageBoxImage.Error));
         }
 
-        public void MessageBoxException(Exception e, string text = "An error has occurred.", string title = "Error")
+        public void ShowMessageBoxException(Exception e, string text = "An error has occurred.", string title = "Error")
         {
             text += $"\n\n{e.GetType().Name}: {e.Message}";
-
-            MessageBoxError(text, title);
+            ShowMessageBoxError(text, title);
         }
 
         public void RefreshTabs(TabRefreshTrigger trigger)
@@ -175,6 +174,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
             SelectedTabIndex = Tabs.IndexOf(Tabs.Where(x => x.IsVisible).FirstOrDefault());
         }
 
+        #region Event Handlers
         private void TheEditor_FileOpened(object sender, EventArgs e)
         {
             OnPropertyChanged(nameof(TheSave));
@@ -189,12 +189,12 @@ namespace GTA3SaveEditor.GUI.ViewModels
             StatusText = "File closed.";
         }
 
-        public void TheEditor_FileSaved(object sender, EventArgs e)
+        private void TheEditor_FileSaved(object sender, EventArgs e)
         {
             StatusText = "File saved: " + TheSettings.MostRecentFile;
         }
 
-        public void FileDialogRequested_Callback(bool? result, FileDialogEventArgs e)
+        private void ShowFileDialog_Callback(bool? result, FileDialogEventArgs e)
         {
             if (result != true)
             {
@@ -212,14 +212,16 @@ namespace GTA3SaveEditor.GUI.ViewModels
                     break;
             }
         }
+        #endregion
 
+        #region Commands
         public ICommand FileOpenCommand
         {
             get
             {
                 return new RelayCommand
                 (
-                    () => RequestFileDialog(FileDialogType.OpenFileDialog, FileDialogRequested_Callback)
+                    () => ShowFileDialog(FileDialogType.OpenFileDialog, ShowFileDialog_Callback)
                 );
             }
         }
@@ -266,7 +268,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
             {
                 return new RelayCommand
                 (
-                    () => RequestFileDialog(FileDialogType.SaveFileDialog, FileDialogRequested_Callback),
+                    () => ShowFileDialog(FileDialogType.SaveFileDialog, ShowFileDialog_Callback),
                     () => TheEditor.IsFileOpen
                 );
             }
@@ -282,5 +284,6 @@ namespace GTA3SaveEditor.GUI.ViewModels
                 );
             }
         }
+        #endregion
     }
 }
