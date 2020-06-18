@@ -8,23 +8,24 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using WpfEssentials;
 using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
-    public class MainViewModel : ObservableObject
+    public class Main : ViewModelBase
     {
-        public event EventHandler<FileDialogEventArgs> FileDialogRequested;
-        public event EventHandler<FileDialogEventArgs> FolderDialogRequested;
-        public event EventHandler<MessageBoxEventArgs> MessageBoxRequested;
-        public event EventHandler<TabRefreshEventArgs> TabRefresh;
+        public event EventHandler<MessageBoxEventArgs> MessageBoxRequest;
+        public event EventHandler<FileDialogEventArgs> FileDialogRequest;
+        public event EventHandler<FileDialogEventArgs> FolderDialogRequest;
+        public event EventHandler<GxtSelectionEventArgs> GxtSelectionDialogRequest;
+        public event EventHandler<TabUpdateEventArgs> TabUpdate;
 
         private ObservableCollection<TabPageViewModelBase> m_tabs;
         private int m_selectedTabIndex;
         private string m_statusText;
 
-        public SaveEditor TheEditor { get; }
+        public SaveEditor TheEditor { get; private set; }
+        public Gxt TheText { get; private set; }
         public GTA3Save TheSave => TheEditor.ActiveFile;
         public Settings TheSettings => TheEditor.Settings;
 
@@ -46,14 +47,16 @@ namespace GTA3SaveEditor.GUI.ViewModels
             set { m_statusText = value; OnPropertyChanged(); }
         }
 
-        public MainViewModel()
+        public Main()
         {
             Tabs = new ObservableCollection<TabPageViewModelBase>();
             TheEditor = new SaveEditor();
+            TheText = new Gxt();
 
-            Tabs.Add(new WelcomeViewModel(this));
-            Tabs.Add(new GeneralViewModel(this));
-            Tabs.Add(new JsonViewModel(this));
+            Tabs.Add(new Welcome(this));
+            Tabs.Add(new General(this));
+            Tabs.Add(new Player(this));
+            Tabs.Add(new JsonViewer(this));
 
             TheEditor.FileOpened += TheEditor_FileOpened;
             TheEditor.FileClosed += TheEditor_FileClosed;
@@ -66,8 +69,14 @@ namespace GTA3SaveEditor.GUI.ViewModels
             {
                 TheSettings.LoadSettings(App.SettingsPath);
             }
+
+            if (!string.IsNullOrEmpty(TheSettings.GameDirectory))
+            {
+                // TODO: select based on language
+                TheText = Gxt.LoadFromFile(TheSettings.GameDirectory + @"\TEXT\ENGLISH.GXT");
+            }
             
-            RefreshTabs(TabRefreshTrigger.WindowLoaded);
+            RefreshTabs(TabUpdateTrigger.WindowLoaded);
             StatusText = "Ready.";
         }
 
@@ -126,39 +135,22 @@ namespace GTA3SaveEditor.GUI.ViewModels
             }
         }
 
-        public void ShowFolderDialog(FileDialogType type, Action<bool?, FileDialogEventArgs> callback)
-        {
-            FileDialogEventArgs e = new FileDialogEventArgs(type, callback)
-            {
-                InitialDirectory = TheSettings.MostRecentFile
-            };
-            FolderDialogRequested?.Invoke(this, e);
-        }
-
-        public void ShowFileDialog(FileDialogType type, Action<bool?, FileDialogEventArgs> callback)
-        {
-            FileDialogEventArgs e = new FileDialogEventArgs(type, callback)
-            {
-                InitialDirectory = TheSettings.MostRecentFile
-            };
-            FileDialogRequested?.Invoke(this, e);
-        }
-
+        #region Window Actions
         public void ShowMessageBoxInfo(string text, string title = "Information")
         {
-            MessageBoxRequested?.Invoke(this, new MessageBoxEventArgs(
+            MessageBoxRequest?.Invoke(this, new MessageBoxEventArgs(
                 text, title, icon: MessageBoxImage.Information));
         }
 
         public void ShowMessageBoxWarning(string text, string title = "Warning")
         {
-            MessageBoxRequested?.Invoke(this, new MessageBoxEventArgs(
+            MessageBoxRequest?.Invoke(this, new MessageBoxEventArgs(
                 text, title, icon: MessageBoxImage.Warning));
         }
 
         public void ShowMessageBoxError(string text, string title = "Error")
         {
-            MessageBoxRequested?.Invoke(this, new MessageBoxEventArgs(
+            MessageBoxRequest?.Invoke(this, new MessageBoxEventArgs(
                 text, title, icon: MessageBoxImage.Error));
         }
 
@@ -168,24 +160,53 @@ namespace GTA3SaveEditor.GUI.ViewModels
             ShowMessageBoxError(text, title);
         }
 
-        public void RefreshTabs(TabRefreshTrigger trigger)
+        public void ShowFileDialog(FileDialogType type, Action<bool?, FileDialogEventArgs> callback)
         {
-            TabRefresh?.Invoke(this, new TabRefreshEventArgs(trigger));
-            SelectedTabIndex = Tabs.IndexOf(Tabs.Where(x => x.IsVisible).FirstOrDefault());
+            FileDialogEventArgs e = new FileDialogEventArgs(type, callback)
+            {
+                InitialDirectory = TheSettings.MostRecentFile
+            };
+            FileDialogRequest?.Invoke(this, e);
         }
 
-        #region Event Handlers
+        public void ShowFolderDialog(FileDialogType type, Action<bool?, FileDialogEventArgs> callback)
+        {
+            FileDialogEventArgs e = new FileDialogEventArgs(type, callback)
+            {
+                InitialDirectory = TheSettings.MostRecentFile
+            };
+            FolderDialogRequest?.Invoke(this, e);
+        }
+
+        public void ShowGxtSelectionDialog(Action<bool?, GxtSelectionEventArgs> callback)
+        {
+            GxtSelectionEventArgs e = new GxtSelectionEventArgs()
+            {
+                GxtTable = TheText,
+                Callback = callback
+            };
+            GxtSelectionDialogRequest?.Invoke(this, e);
+        }
+
+        public void RefreshTabs(TabUpdateTrigger trigger)
+        {
+            TabUpdate?.Invoke(this, new TabUpdateEventArgs(trigger));
+            SelectedTabIndex = Tabs.IndexOf(Tabs.Where(x => x.IsVisible).FirstOrDefault());
+        }
+        #endregion
+
+        #region Window Event Handlers
         private void TheEditor_FileOpened(object sender, EventArgs e)
         {
             OnPropertyChanged(nameof(TheSave));
-            RefreshTabs(TabRefreshTrigger.FileOpened);
+            RefreshTabs(TabUpdateTrigger.FileOpened);
             StatusText = "File opened: " + TheSettings.MostRecentFile;
         }
 
         private void TheEditor_FileClosed(object sender, EventArgs e)
         {
             OnPropertyChanged(nameof(TheSave));
-            RefreshTabs(TabRefreshTrigger.FileClosed);
+            RefreshTabs(TabUpdateTrigger.FileClosed);
             StatusText = "File closed.";
         }
 

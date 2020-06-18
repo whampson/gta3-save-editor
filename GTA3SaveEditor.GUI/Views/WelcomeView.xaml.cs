@@ -6,22 +6,16 @@ namespace GTA3SaveEditor.GUI.Views
     /// <summary>
     /// Interaction logic for WelcomeView.xaml
     /// </summary>
-    public partial class WelcomeView : TabPageViewBase
+    public partial class WelcomeView : TabPageBase<Welcome>
     {
         public WelcomeView()
         {
             InitializeComponent();
         }
 
-        public WelcomeViewModel ViewModel
-        {
-            get { return (WelcomeViewModel) DataContext; }
-            set { DataContext = value; }
-        }
-
         private void ListBox_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            if (ViewModel.SelectedFile != null)
+            if (ViewModel.SelectedItem != null)
             {
                 ViewModel.LoadCommand.Execute(null);
             }

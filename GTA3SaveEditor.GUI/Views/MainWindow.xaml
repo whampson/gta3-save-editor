@@ -7,14 +7,15 @@
     xmlns:ctrl="clr-namespace:GTA3SaveEditor.GUI.Controls"
     xmlns:conv="clr-namespace:GTA3SaveEditor.GUI.Converters"
     xmlns:conv2="clr-namespace:WpfEssentials.Win32.Converters;assembly=WpfEssentials.Win32"
-    xmlns:vm="clr-namespace:GTA3SaveEditor.GUI.ViewModels"
     xmlns:v="clr-namespace:GTA3SaveEditor.GUI.Views"
+    xmlns:m="clr-namespace:GTA3SaveEditor.GUI.ViewModels"
     mc:Ignorable="d"
-    Loaded="Window_Loaded"
-    Closing="Window_Closing">
+    Loaded="Window_Loaded" Closing="Window_Closing"
+    d:DesignHeight="500" d:DesignWidth="800"
+    d:DataContext="{d:DesignInstance Type=m:Main}">
 
     <Window.DataContext>
-        <vm:MainViewModel/>
+        <m:Main/>
     </Window.DataContext>
 
     <Window.Resources>
@@ -23,13 +24,16 @@
         <conv:IsZeroConverter x:Key="IsNotZeroConverter" Invert="True"/>
         <conv2:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
 
-        <DataTemplate DataType="{x:Type vm:WelcomeViewModel}">
+        <DataTemplate DataType="{x:Type m:Welcome}">
             <v:WelcomeView/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:GeneralViewModel}">
+        <DataTemplate DataType="{x:Type m:General}">
             <v:GeneralView/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type vm:JsonViewModel}">
+        <DataTemplate DataType="{x:Type m:Player}">
+            <v:PlayerView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type m:JsonViewer}">
             <v:JsonView/>
         </DataTemplate>
 
@@ -145,7 +149,8 @@
                 Style="{StaticResource TabControlStyle}"
                 ItemsSource="{Binding Tabs}"
                 IsSynchronizedWithCurrentItem="True"
-                SelectedIndex="{Binding SelectedTabIndex}">
+                SelectedIndex="{Binding SelectedTabIndex}"
+                SelectionChanged="TabControl_SelectionChanged">
 
                 <TabControl.ItemContainerStyle>
                     <Style TargetType="{x:Type TabItem}">

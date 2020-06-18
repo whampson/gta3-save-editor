@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
-    public class JsonViewModel : TabPageViewModelBase
+    public class JsonViewer : TabPageViewModelBase
     {
         private int m_selectedBlockIndex;
         private string m_text;
@@ -28,7 +28,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
             set { m_text = value; OnPropertyChanged(); }
         }
 
-        public JsonViewModel(MainViewModel mainViewModel)
+        public JsonViewer(Main mainViewModel)
             : base("JSON Viewer", TabPageVisibility.WhenFileIsOpen, mainViewModel)
         { }
 
@@ -48,15 +48,22 @@ namespace GTA3SaveEditor.GUI.ViewModels
             UpdateTextBox();
         }
 
+        public override void Refresh()
+        {
+            base.Refresh();
+
+            UpdateTextBox();
+        }
+
         public void UpdateTextBox()
         {
-            if (!MainViewModel.TheEditor.IsFileOpen || SelectedBlockIndex < 0)
+            if (!MainWindow.TheEditor.IsFileOpen || SelectedBlockIndex < 0)
             {
                 Text = "";
                 return;
             }
 
-            IReadOnlyList<ISaveDataObject> blocks = (MainViewModel.TheSave as ISaveData).Blocks;
+            IReadOnlyList<ISaveDataObject> blocks = (MainWindow.TheSave as ISaveData).Blocks;
             Text = (blocks[SelectedBlockIndex] as SaveDataObject).ToJsonString();
         }
     }

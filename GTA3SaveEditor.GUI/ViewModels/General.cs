@@ -1,4 +1,5 @@
-﻿using GTASaveData.GTA3;
+﻿using GTA3SaveEditor.GUI.Events;
+using GTASaveData.GTA3;
 using System;
 using System.ComponentModel;
 using System.Windows.Input;
@@ -6,21 +7,25 @@ using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
-    public class GeneralViewModel : TabPageViewModelBase
+    public class General : TabPageViewModelBase
     {
+        private bool m_isInitializing;
         private SimpleVariables m_simpleVars;
+        private string m_saveTitle;
+        private string m_saveTitleGxtKey;
+        private bool m_isSaveTitleFromGxt;
         private bool? m_fixedPurpleNinesGlitch;
         private bool? m_fixedHostilePeds;
         private bool? m_fixedPercentageBug;
 
-        public bool IsAndroid
+        public bool IsMobile
         {
-            get { return MainViewModel.TheSave.FileFormat.IsAndroid; }
+            get { return MainWindow.TheSave.FileFormat.IsMobile; }
         }
 
         public bool IsPS2
         {
-            get { return MainViewModel.TheSave.FileFormat.IsPS2; }
+            get { return MainWindow.TheSave.FileFormat.IsPS2; }
         }
 
         public SimpleVariables SimpleVars
@@ -28,18 +33,39 @@ namespace GTA3SaveEditor.GUI.ViewModels
             get { return m_simpleVars; }
             set { m_simpleVars = value; OnPropertyChanged(); }
         }
-        public string LastMissionPassedName
+
+        public string SaveTitle
         {
-            get { return SimpleVars.LastMissionPassedName; }
+            get { return m_saveTitle; }
             set
             {
-                if (value.Length > SimpleVariables.MaxMissionPassedNameLength - 1)
+                if (!m_isInitializing && !IsSaveTitleFromGxt)
                 {
-                    value = value.Substring(0, SimpleVariables.MaxMissionPassedNameLength - 1);
+                    value = SetLastMissionPassedNameString(value);
                 }
-                SimpleVars.LastMissionPassedName = value;
+                m_saveTitle = value;
                 OnPropertyChanged();
             }
+        } 
+
+        public string SaveTitleGxtKey
+        {
+            get { return m_saveTitleGxtKey; }
+            set
+            {
+                if (!m_isInitializing && IsSaveTitleFromGxt)
+                {
+                    SaveTitle = SetLastMissionPassedNameGxt(value);
+                }
+                m_saveTitleGxtKey = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsSaveTitleFromGxt
+        {
+            get { return m_isSaveTitleFromGxt; }
+            set { m_isSaveTitleFromGxt = value; OnPropertyChanged(); }
         }
 
         public DateTime GameClock
@@ -109,37 +135,78 @@ namespace GTA3SaveEditor.GUI.ViewModels
             set { m_fixedPercentageBug = value; OnPropertyChanged(); }
         }
 
-        public GeneralViewModel(MainViewModel mainViewModel)
+        public General(Main mainViewModel)
             : base("General", TabPageVisibility.WhenFileIsOpen, mainViewModel)
         { }
 
         protected override void Initialize()
         {
+            m_isInitializing = true;
             base.Initialize();
-            SimpleVars = MainViewModel.TheSave.SimpleVars;
 
+            SimpleVars = MainWindow.TheSave.SimpleVars;
+
+            InitSaveTitle();
             DetectPurpleNinesGlitch();
             DetectHostilePeds();
             DetectPercentageBug();
 
-            OnPropertyChanged(nameof(IsAndroid));
+            OnPropertyChanged(nameof(IsMobile));
             OnPropertyChanged(nameof(IsPS2));
-            OnPropertyChanged(nameof(LastMissionPassedName));
             OnPropertyChanged(nameof(GameClock));
             OnPropertyChanged(nameof(CurrentPadMode));
             OnPropertyChanged(nameof(OnFootCameraMode));
             OnPropertyChanged(nameof(InCarCameraMode));
+            
+            m_isInitializing = false;
         }
 
-        protected override void Shutdown()
+        private void InitSaveTitle()
         {
-            base.Shutdown();
+            string name = SimpleVars.LastMissionPassedName;
+            if (!string.IsNullOrEmpty(name) && name[0] == '\uFFFF')
+            {
+                string key = name.Substring(1);
+                if (MainWindow.TheText.TryGetValue(key, out string title))
+                {
+                    IsSaveTitleFromGxt = true;
+                    SaveTitleGxtKey = key;
+                    SaveTitle = title;
+                    return;
+                }
+            }
+
+            IsSaveTitleFromGxt = false;
+            SaveTitle = name;
+        }
+
+        public string SetLastMissionPassedNameString(string value)
+        {
+            const int MaxLength = SimpleVariables.MaxMissionPassedNameLength - 1;
+
+            if (value == null) throw new ArgumentNullException(nameof(value));
+            if (value.Length > MaxLength) value = value.Substring(0, MaxLength);
+
+            SimpleVars.LastMissionPassedName = value;
+            return value;
+        }
+
+        public string SetLastMissionPassedNameGxt(string key)
+        {
+            if (key == null) return null;
+
+            if (MainWindow.TheText.TryGetValue(key, out string name))
+            {
+                SimpleVars.LastMissionPassedName = '\uFFFF' + key;
+            }
+
+            return name;
         }
 
         private void DetectPurpleNinesGlitch()
         {
             // TODO: MainViewModel.TheSave.Gangs[GangType.Hoods]
-            Gang hoods = MainViewModel.TheSave.Gangs.Gangs[(int) GangType.Hoods];
+            Gang hoods = MainWindow.TheSave.Gangs.Gangs[(int) GangType.Hoods];
 
             if (hoods.PedModelOverride != -1)
             {
@@ -152,7 +219,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         private void FixPurpleNinesGlitch()
         {
-            Gang hoods = MainViewModel.TheSave.Gangs.Gangs[(int) GangType.Hoods];
+            Gang hoods = MainWindow.TheSave.Gangs.Gangs[(int) GangType.Hoods];
             hoods.PedModelOverride = -1;
 
             FixedPurpleNinesGlitch = true;
@@ -172,7 +239,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         private void DetectPercentageBug()
         {
-            Stats stats = MainViewModel.TheSave.Stats;
+            Stats stats = MainWindow.TheSave.Stats;
 
             // TODO: && ScmVersion == 1
             if (stats.TotalProgressInGame == 156)
@@ -187,7 +254,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         private void FixPercentageBug()
         {
-            Stats stats = MainViewModel.TheSave.Stats;
+            Stats stats = MainWindow.TheSave.Stats;
             stats.TotalProgressInGame = 154;
 
             FixedPercentageBug = true;
@@ -196,6 +263,26 @@ namespace GTA3SaveEditor.GUI.ViewModels
         private void ResetTimers()
         {
             // TODO:
+        }
+
+        public void GxtSelectionDialog_Callback(bool? result, GxtSelectionEventArgs e)
+        {
+            if (result == true)
+            {
+                SaveTitleGxtKey = e.SelectedKey;
+            }
+        }
+
+        public ICommand SelectGxtKeyCommand
+        {
+            get
+            {
+                return new RelayCommand<Action<bool?, GxtSelectionEventArgs>>
+                (
+                    (_) => MainWindow.ShowGxtSelectionDialog(GxtSelectionDialog_Callback),
+                    (_) => IsSaveTitleFromGxt
+                );
+            }
         }
 
         public ICommand FixPurpleNinesGlitchCommand

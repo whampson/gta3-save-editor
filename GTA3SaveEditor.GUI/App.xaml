@@ -8,7 +8,6 @@
     Startup="Application_Startup">
 
     <Application.Resources>
-
         <conv:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
 
         <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
@@ -41,6 +40,7 @@
         </Style>
 
         <Style x:Key="CheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="VerticalAlignment" Value="Center"/>
             <Style.Triggers>
                 <Trigger Property="IsEnabled" Value="False">
                     <Setter Property="Foreground" Value="Gray"/>

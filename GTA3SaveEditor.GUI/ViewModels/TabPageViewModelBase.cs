@@ -1,12 +1,11 @@
 ﻿using GTA3SaveEditor.GUI.Events;
-using WpfEssentials;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
     /// <summary>
     /// The view model base for tab pages.
     /// </summary>
-    public abstract class TabPageViewModelBase : ObservableObject
+    public abstract class TabPageViewModelBase : ViewModelBase
     {
         private bool m_isVisible;
 
@@ -21,7 +20,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         /// <summary>
         /// Gets the tab page visibility setting. This dicates whether the page will
-        /// be visible or hidden when a <see cref="MainViewModel.TabRefresh"/> event occurs.
+        /// be visible or hidden when a <see cref="Main.TabUpdate"/> event occurs.
         /// </summary>
         public TabPageVisibility Visibility { get; }
 
@@ -33,32 +32,38 @@ namespace GTA3SaveEditor.GUI.ViewModels
         /// <summary>
         /// Gets the main window view model for accessing global functions.
         /// </summary>
-        public MainViewModel MainViewModel { get; }
+        public Main MainWindow { get; }
 
-        public TabPageViewModelBase(string title, TabPageVisibility visibility, MainViewModel mainViewModel)
+        public TabPageViewModelBase(string title, TabPageVisibility visibility, Main mainWindow)
         {
             Title = title;
             Visibility = visibility;
 
-            MainViewModel = mainViewModel;
-            MainViewModel.TabRefresh += MainViewModel_TabRefresh;
+            MainWindow = mainWindow;
+            MainWindow.TabUpdate += MainViewModel_TabUpdate;
         }
 
         /// <summary>
-        /// Initialize the view when a <see cref="MainViewModel.TabRefresh"/> event
+        /// Initializes the view when a <see cref="Main.TabUpdate"/> event
         /// makes the view visible.
         /// </summary>
         protected virtual void Initialize()
         { }
 
         /// <summary>
-        /// Uninitialize the view when a <see cref="MainViewModel.TabRefresh"/> event
+        /// Uninitializes the view when a <see cref="Main.TabUpdate"/> event
         /// hides the view.
         /// </summary>
         protected virtual void Shutdown()
         { }
 
-        private void MainViewModel_TabRefresh(object sender, TabRefreshEventArgs e)
+        /// <summary>
+        /// Refreshes the view content.
+        /// </summary>
+        public virtual void Refresh()
+        { }
+
+        private void MainViewModel_TabUpdate(object sender, TabUpdateEventArgs e)
         {
             bool wasVisible = IsVisible;
 
@@ -70,13 +75,12 @@ namespace GTA3SaveEditor.GUI.ViewModels
             {
                 switch (e.Trigger)
                 {
-                    case TabRefreshTrigger.WindowLoaded:
-                    case TabRefreshTrigger.FileClosed:
+                    case TabUpdateTrigger.WindowLoaded:
+                    case TabUpdateTrigger.FileClosed:
                         IsVisible = (Visibility == TabPageVisibility.WhenFileIsClosed);
                         break;
-                    case TabRefreshTrigger.FileOpened:
+                    case TabUpdateTrigger.FileOpened:
                         IsVisible = (Visibility == TabPageVisibility.WhenFileIsOpen);
-                        Shutdown();
                         break;
                 }
             }

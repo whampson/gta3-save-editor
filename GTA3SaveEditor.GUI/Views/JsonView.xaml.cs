@@ -6,17 +6,11 @@ namespace GTA3SaveEditor.GUI.Views
     /// <summary>
     /// Interaction logic for JsonView.xaml
     /// </summary>
-    public partial class JsonView : TabPageViewBase
+    public partial class JsonView : TabPageBase<JsonViewer>
     {
         public JsonView()
         {
             InitializeComponent();
-        }
-
-        public JsonViewModel ViewModel
-        {
-            get { return (JsonViewModel) DataContext; }
-            set { DataContext = value; }
         }
 
         private void BlockComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)

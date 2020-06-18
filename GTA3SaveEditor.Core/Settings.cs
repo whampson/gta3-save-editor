@@ -15,6 +15,7 @@ namespace GTA3SaveEditor.Core
 
         private int m_recentFilesCapacity;
         private string m_lastDirectoryBrowsed;
+        private string m_gameDirectory;
         private string m_welcomePath;
         private bool m_welcomePathRecurse;
         private bool m_updateTimeStamp;
@@ -43,6 +44,12 @@ namespace GTA3SaveEditor.Core
         {
             get { return m_lastDirectoryBrowsed; }
             set { m_lastDirectoryBrowsed = value; OnPropertyChanged(); }
+        }
+
+        public string GameDirectory
+        {
+            get { return m_gameDirectory; }
+            set { m_gameDirectory = value; OnPropertyChanged(); }
         }
 
         public string WelcomePath

@@ -1,17 +1,19 @@
-﻿<v:TabPageViewBase
+﻿<v:TabPageBase
     x:Class="GTA3SaveEditor.GUI.Views.GeneralView"
+    x:TypeArguments="m:General"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:GTA3SaveEditor.GUI.ViewModels"
     xmlns:v="clr-namespace:GTA3SaveEditor.GUI.Views"
+    xmlns:m="clr-namespace:GTA3SaveEditor.GUI.ViewModels"
     xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"
     xmlns:ext="clr-namespace:WpfEssentials.Win32.Extensions;assembly=WpfEssentials.Win32"
     xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
     xmlns:conv="clr-namespace:GTA3SaveEditor.GUI.Converters"
     mc:Ignorable="d" 
-    d:DesignHeight="500" d:DesignWidth="800">
+    d:DesignHeight="500" d:DesignWidth="800"
+    d:DataContext="{d:DesignInstance Type=m:General}">
 
     <UserControl.Resources>
         <conv:GlitchStatusConverter x:Key="GlitchStatusConverter"/>
@@ -36,7 +38,9 @@
             <GroupBox
                 Grid.Row="0"
                 Header="Save Info"
-                Margin="5">
+                Margin="5"
+                IsEnabled="{Binding IsPS2, Mode=OneWay,
+                    Converter={StaticResource InvertBooleanConverter}}">
 
                 <Grid>
 
@@ -53,36 +57,46 @@
                     <TextBlock
                         Grid.Column="0" Grid.Row="0" Margin="5,0,0,0"
                         Style="{StaticResource LabelStyleRight}"
-                        Text="Title: "
-                        IsEnabled="{Binding IsPS2, Converter={StaticResource InvertBooleanConverter}}"/>
-                    <TextBlock
-                        Grid.Column="0" Grid.Row="1" Margin="5,0,0,0"
-                        Style="{StaticResource LabelStyleRight}"
-                        Text="Time Stamp: "
-                        IsEnabled="{Binding IsPS2, Converter={StaticResource InvertBooleanConverter}}"/>
+                        Text="Title: "/>
                     <TextBlock
                         Grid.Column="0" Grid.Row="2" Margin="5,0,0,0"
                         Style="{StaticResource LabelStyleRight}"
-                        Text="Quick Save: "
-                        IsEnabled="{Binding IsAndroid, Mode=OneWay}"/>
+                        Text="Time Stamp: "
+                        IsEnabled="{Binding IsMobile, Converter={StaticResource InvertBooleanConverter}}"/>
 
                     <TextBox
                         Grid.Column="1" Grid.Row="0" Margin="5"
                         Style="{StaticResource TextBoxStyle}"
-                        Text="{Binding LastMissionPassedName, UpdateSourceTrigger=PropertyChanged}"
-                        IsEnabled="{Binding IsPS2, Converter={StaticResource InvertBooleanConverter}}"/>
+                        Text="{Binding SaveTitle, UpdateSourceTrigger=PropertyChanged}"
+                        IsEnabled="{Binding IsSaveTitleFromGxt, Converter={StaticResource InvertBooleanConverter}}"
+                        ToolTipService.ToolTip="{Binding SaveTitle}"
+                        ToolTipService.InitialShowDelay="1000"
+                        ToolTipService.ShowOnDisabled="True"/>
+                    <DockPanel
+                        Grid.Column="1" Grid.Row="1"
+                        IsEnabled="{Binding IsMobile, Mode=OneWay}">
+                        <CheckBox
+                            DockPanel.Dock="Left"
+                            Margin="5,0,0,0"
+                            Style="{StaticResource CheckBoxStyle}"
+                            Content="GXT Entry"
+                            IsChecked="{Binding IsSaveTitleFromGxt}"
+                            Checked="GxtCheckBox_Checked"
+                            Unchecked="GxtCheckBox_Unchecked"/>
+                        <Button
+                            DockPanel.Dock="Right"
+                            Style="{StaticResource ButtonStyle}"
+                            Height="25" Width="75"
+                            HorizontalAlignment="Right"
+                            Content="Select..."
+                            Command="{Binding SelectGxtKeyCommand}"/>
+                    </DockPanel>
                     <xctk:DateTimeUpDown
-                        Grid.Column="1" Grid.Row="1" Height="25" Margin="5"
+                        Grid.Column="1" Grid.Row="2" Height="25" Margin="5"
                         Format="Custom" FormatString="dd MMM yyyy HH:mm:ss"
                         TextAlignment="Left"
-                        Value="{Binding MainViewModel.TheSave.TimeStamp}"
-                        IsEnabled="{Binding IsPS2, Converter={StaticResource InvertBooleanConverter}}"/>
-                    <ComboBox
-                        Grid.Column="1" Grid.Row="2" Height="25" Margin="5"
-                        Style="{StaticResource EnumComboBoxStyle}"
-                        ItemsSource="{ext:EnumValueCollection EnumType=gta3:QuickSaveState}"
-                        SelectedItem="{Binding SimpleVars.IsQuickSave}"
-                        IsEnabled="{Binding IsAndroid, Mode=OneWay}"/>
+                        Value="{Binding MainWindow.TheSave.TimeStamp}"
+                        IsEnabled="{Binding IsMobile, Converter={StaticResource InvertBooleanConverter}}"/>
 
                 </Grid>
 
@@ -176,7 +190,7 @@
                     <ComboBox
                         Grid.Row="1"
                         Margin="5,5,5,10"
-                        ItemsSource="{x:Static vm:GeneralViewModel.WeatherList}"
+                        ItemsSource="{x:Static m:General.WeatherList}"
                         SelectedIndex="{Binding SimpleVars.WeatherTypeInList}"/>
 
                     <TextBlock
@@ -219,7 +233,7 @@
                     <ComboBox
                         Margin="5,5,5,10"
                         Style="{StaticResource EnumComboBoxStyle}"
-                        ItemsSource="{ext:EnumValueCollection EnumType=vm:OnFootCameraMode}"
+                        ItemsSource="{ext:EnumValueCollection EnumType=m:OnFootCameraMode}"
                         SelectedItem="{Binding OnFootCameraMode}"/>
 
                     <TextBlock
@@ -229,7 +243,7 @@
                     <ComboBox
                         Margin="5,5,5,0"
                         Style="{StaticResource EnumComboBoxStyle}"
-                        ItemsSource="{ext:EnumValueCollection EnumType=vm:InCarCameraMode}"
+                        ItemsSource="{ext:EnumValueCollection EnumType=m:InCarCameraMode}"
                         SelectedItem="{Binding InCarCameraMode}"/>
 
                 </StackPanel>
@@ -271,7 +285,7 @@
                         <ComboBox
                                 Margin="5,5,5,15"
                                 Style="{StaticResource EnumComboBoxStyle}"
-                                ItemsSource="{ext:EnumValueCollection EnumType=vm:PadMode}"
+                                ItemsSource="{ext:EnumValueCollection EnumType=m:PadMode}"
                                 SelectedItem="{Binding CurrentPadMode}"/>
 
                     </StackPanel>
@@ -510,4 +524,4 @@
 
     </Grid>
 
-</v:TabPageViewBase>
+</v:TabPageBase>
