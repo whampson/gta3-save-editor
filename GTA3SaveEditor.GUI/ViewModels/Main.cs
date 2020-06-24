@@ -56,6 +56,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
             Tabs.Add(new Welcome(this));
             Tabs.Add(new General(this));
             Tabs.Add(new Player(this));
+            Tabs.Add(new MapViewer(this));
             Tabs.Add(new JsonViewer(this));
 
             TheEditor.FileOpened += TheEditor_FileOpened;

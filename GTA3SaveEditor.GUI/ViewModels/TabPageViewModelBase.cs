@@ -34,12 +34,12 @@ namespace GTA3SaveEditor.GUI.ViewModels
         /// </summary>
         public Main MainWindow { get; }
 
-        public TabPageViewModelBase(string title, TabPageVisibility visibility, Main mainWindow)
+        public TabPageViewModelBase(string title, TabPageVisibility visibility, Main mainViewModel)
         {
             Title = title;
             Visibility = visibility;
 
-            MainWindow = mainWindow;
+            MainWindow = mainViewModel;
             MainWindow.TabUpdate += MainViewModel_TabUpdate;
         }
 

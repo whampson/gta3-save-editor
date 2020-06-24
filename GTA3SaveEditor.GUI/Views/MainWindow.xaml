@@ -33,6 +33,9 @@
         <DataTemplate DataType="{x:Type m:Player}">
             <v:PlayerView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type m:MapViewer}">
+            <v:MapView/>
+        </DataTemplate>
         <DataTemplate DataType="{x:Type m:JsonViewer}">
             <v:JsonView/>
         </DataTemplate>

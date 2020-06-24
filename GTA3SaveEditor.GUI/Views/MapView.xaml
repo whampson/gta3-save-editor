@@ -1,0 +1,69 @@
+﻿<v:TabPageBase
+    x:Class="GTA3SaveEditor.GUI.Views.MapView"
+    x:TypeArguments="m:MapViewer"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:v="clr-namespace:GTA3SaveEditor.GUI.Views"
+    xmlns:m="clr-namespace:GTA3SaveEditor.GUI.ViewModels"
+    xmlns:c="clr-namespace:GTA3SaveEditor.GUI.Controls"
+    mc:Ignorable="d" 
+    d:DesignHeight="500" d:DesignWidth="800"
+    d:DataContext="{d:DesignInstance m:MapViewer}">
+
+    <UserControl.Resources>
+        <BitmapImage
+            x:Key="MapImage"
+            UriSource="/GTA3SaveEditor.GUI;component/Resources/gta3-map.png"/>
+    </UserControl.Resources>
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="25"/>
+        </Grid.RowDefinitions>
+
+        <c:MapControl
+            x:Name="m_map"
+            Grid.Row="0"
+            Background="Black"
+            Cursor="Cross"
+            Origin="512,512"
+            Scale="0.256,-0.256"
+            Image="{StaticResource MapImage}"
+            Offset="{Binding Coords1}"
+            Zoom="{Binding ZoomLevel}"
+            MaximumZoom="5"
+            MinimumZoom="0.3"
+            InitialZoom="0.60"
+            InitialOffset="0,-100"
+            ZoomWithMouseWheel="True"
+            PanWithMouseDrag="True"
+            PanWithMouseDragButton="Left"
+            MouseOverOffset="{Binding Coords2}"
+            MouseDown="Map_MouseDown">
+        </c:MapControl>
+
+
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="75"/>
+                <ColumnDefinition Width="75"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="75"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="75"/>
+                <ColumnDefinition Width="75"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="{Binding Coords1.X, StringFormat=F3}" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Column="1" Text="{Binding Coords1.Y, StringFormat=F3}" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Column="3" Text="{Binding ZoomLevel, StringFormat=P}" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Column="5" Text="{Binding Coords2.X, StringFormat=F3}" HorizontalAlignment="Right"/>
+            <TextBlock Grid.Column="6" Text="{Binding Coords2.Y, StringFormat=F3}" HorizontalAlignment="Right"/>
+        </Grid>
+
+    </Grid>
+
+</v:TabPageBase>
