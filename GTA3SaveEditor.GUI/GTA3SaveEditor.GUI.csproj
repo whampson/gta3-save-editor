@@ -9,8 +9,8 @@
     <Description>Grand Theft Auto III save file editor graphical user interface.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>2.0.0-alpha</Version>
-    <AssemblyVersion>2.0.0.931</AssemblyVersion>
-    <FileVersion>2.0.0.931</FileVersion>
+    <AssemblyVersion>2.0.0.935</AssemblyVersion>
+    <FileVersion>2.0.0.935</FileVersion>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
@@ -18,7 +18,27 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\gta3-map.png" />
+    <None Remove="Resources\map.png" />
+    <None Remove="Resources\radar_asuka.png" />
+    <None Remove="Resources\radar_bomb.png" />
+    <None Remove="Resources\radar_cat.png" />
+    <None Remove="Resources\radar_centre.png" />
+    <None Remove="Resources\radar_copcar.png" />
+    <None Remove="Resources\radar_don.png" />
+    <None Remove="Resources\radar_eight.png" />
+    <None Remove="Resources\radar_el.png" />
+    <None Remove="Resources\radar_ice.png" />
+    <None Remove="Resources\radar_joey.png" />
+    <None Remove="Resources\radar_kenji.png" />
+    <None Remove="Resources\radar_liz.png" />
+    <None Remove="Resources\radar_luigi.png" />
+    <None Remove="Resources\radar_north.png" />
+    <None Remove="Resources\radar_ray.png" />
+    <None Remove="Resources\radar_sal.png" />
+    <None Remove="Resources\radar_save.png" />
+    <None Remove="Resources\radar_spray.png" />
+    <None Remove="Resources\radar_tony.png" />
+    <None Remove="Resources\radar_weapon.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,7 +56,67 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="Resources\gta3-map.png">
+    <Resource Include="Resources\map.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_asuka.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_bomb.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_cat.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_centre.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_copcar.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_don.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_eight.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_el.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_ice.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_joey.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_kenji.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_liz.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_luigi.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_north.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_ray.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_sal.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_save.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_spray.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_tony.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\radar_weapon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
   </ItemGroup>

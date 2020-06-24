@@ -15,7 +15,7 @@
     <UserControl.Resources>
         <BitmapImage
             x:Key="MapImage"
-            UriSource="/GTA3SaveEditor.GUI;component/Resources/gta3-map.png"/>
+            UriSource="/GTA3SaveEditor.GUI;component/Resources/map.png"/>
     </UserControl.Resources>
 
     <Grid>
@@ -42,8 +42,7 @@
             ZoomWithMouseWheel="True"
             PanWithMouseDrag="True"
             PanWithMouseDragButton="Left"
-            MouseOverOffset="{Binding Coords2}"
-            MouseDown="Map_MouseDown">
+            MouseOverOffset="{Binding Coords2}">
         </c:MapControl>
 
 
