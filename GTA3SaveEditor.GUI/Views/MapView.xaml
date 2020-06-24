@@ -18,6 +18,12 @@
             UriSource="/GTA3SaveEditor.GUI;component/Resources/map.png"/>
     </UserControl.Resources>
 
+    <UserControl.InputBindings>
+        <!-- TODO: not working -->
+        <KeyBinding Key="OemPlus" Command="{Binding ZoomInCommand}"/>
+        <KeyBinding Key="OemMinus" Command="{Binding ZoomOutCommand}"/>
+    </UserControl.InputBindings>
+
     <Grid>
 
         <Grid.RowDefinitions>
@@ -33,7 +39,7 @@
             Origin="512,512"
             Scale="0.256,-0.256"
             Image="{StaticResource MapImage}"
-            Offset="{Binding Coords1}"
+            Offset="{Binding PanOffset}"
             Zoom="{Binding ZoomLevel}"
             MaximumZoom="5"
             MinimumZoom="0.3"
@@ -42,7 +48,33 @@
             ZoomWithMouseWheel="True"
             PanWithMouseDrag="True"
             PanWithMouseDragButton="Left"
-            MouseOverOffset="{Binding Coords2}">
+            MouseOverCoords="{Binding MouseOverCoords}">
+            
+            <c:MapControl.ContextMenu>
+                
+                <ContextMenu Opened="ContextMenu_Opened">
+                    
+                    <MenuItem
+                        Header="Pan Here"
+                        Command="{Binding PanHereCommand}"/>
+                    <Separator/>
+                    <MenuItem
+                        Header="Zoom In"
+                        Command="{Binding ZoomInCommand}"
+                        InputGestureText="+"/>
+                    <MenuItem
+                        Header="Zoom Out"
+                        Command="{Binding ZoomOutCommand}"
+                        InputGestureText="-"/>
+                    <Separator/>
+                    <MenuItem
+                        Header="Add Blip Here"
+                        Command="{Binding AddBlipHereCommand}"/>
+
+                </ContextMenu>
+                
+            </c:MapControl.ContextMenu>
+            
         </c:MapControl>
 
 

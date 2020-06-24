@@ -1,4 +1,5 @@
 ﻿using GTA3SaveEditor.GUI.ViewModels;
+using System.Windows.Forms;
 
 namespace GTA3SaveEditor.GUI.Views
 {
@@ -10,6 +11,11 @@ namespace GTA3SaveEditor.GUI.Views
         public MapView()
         {
             InitializeComponent();
+        }
+
+        private void ContextMenu_Opened(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ViewModel.ContextMenuOffset = m_map.MouseClickOffset;
         }
     }
 }
