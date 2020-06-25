@@ -15,7 +15,8 @@ namespace GTA3SaveEditor.GUI.Views
 
         private void ContextMenu_Opened(object sender, System.Windows.RoutedEventArgs e)
         {
-            ViewModel.ContextMenuOffset = m_map.MouseClickOffset;
+            ViewModel.ContextMenuOffset = m_map.MouseOverOffset;
+            m_map.DrawBlip(m_map.MouseOverOffset);
         }
     }
 }

@@ -11,6 +11,7 @@
     <Border
         x:Name="m_border"
         ClipToBounds="True"
+        SizeChanged="MapControl_SizeChanged"
         MouseDown="MapControl_MouseDown"
         MouseUp="MapControl_MouseUp"
         MouseMove="MapControl_MouseMove"
@@ -19,7 +20,16 @@
         Cursor="{Binding Cursor}"
         DataContext="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=l:MapControl}}">
 
-        <Canvas x:Name="m_canvas">
+        <Border.InputBindings>
+            <KeyBinding Key="{Binding PanUpKey}" Command="{Binding PanUpCommand}"/>
+            <KeyBinding Key="{Binding PanDownKey}" Command="{Binding PanDownCommand}"/>
+            <KeyBinding Key="{Binding PanLeftKey}" Command="{Binding PanLeftCommand}"/>
+            <KeyBinding Key="{Binding PanRightKey}" Command="{Binding PanRightCommand}"/>
+            <KeyBinding Key="{Binding ZoomInKey}" Command="{Binding ZoomInCommand}"/>
+            <KeyBinding Key="{Binding ZoomOutKey}" Command="{Binding ZoomOutCommand}"/>
+        </Border.InputBindings>
+
+        <Canvas x:Name="m_canvas" Focusable="{Binding Focusable}" FocusVisualStyle="{x:Null}">
             <Canvas.RenderTransform>
                 <MatrixTransform Matrix="{Binding RenderMatrix}"/>
             </Canvas.RenderTransform>

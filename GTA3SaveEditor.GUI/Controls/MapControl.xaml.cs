@@ -1,8 +1,12 @@
-﻿using System.Windows;
+﻿using System;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Shapes;
+using WpfEssentials.Win32;
+using Xceed.Wpf.Toolkit.Zoombox;
 
 namespace GTA3SaveEditor.GUI.Controls
 {
@@ -15,10 +19,19 @@ namespace GTA3SaveEditor.GUI.Controls
         public static readonly Vector DefaultScale = new Vector(1, 1);
         public const double DefaultZoom = 1.0;
         public const double DefaultMinimumZoom = 0.1;
-        public const double DefaultMaximumZoom = 4.0;
+        public const double DefaultMaximumZoom = 5.0;
         public const double DefaultZoomDelta = 0.1;
+        public const double DefaultPanDelta = 10;
+        public const bool DefaultPanWithKeyboard = true;
         public const bool DefaultPanWithMouseDrag = true;
+        public const bool DefaultZoomWithKeyboard = true;
         public const bool DefaultZoomWithMouseWheel = true;
+        public const Key DefaultPanUpKey = Key.Up;
+        public const Key DefaultPanDownKey = Key.Down;
+        public const Key DefaultPanLeftKey = Key.Left;
+        public const Key DefaultPanRightKey = Key.Right;
+        public const Key DefaultZoomInKey = Key.OemPlus;
+        public const Key DefaultZoomOutKey = Key.OemMinus;
         #endregion
 
         #region Properties
@@ -41,13 +54,11 @@ namespace GTA3SaveEditor.GUI.Controls
         }
 
         /// <summary>
-        /// Gets or sets the map-to-world distance scale factor.
+        /// Gets or sets the ratio between distance on the map
+        /// and distance in the world.
         /// </summary>
         /// <remarks>
-        /// The map distance is measured in pixels. A scale factor of
-        /// 0.5,1 means that every pixel 1 in the X direction represents
-        /// 2 units in the world, and every 1 pixel in the Y direction
-        /// represents 1 unit in the world.
+        /// The map distance is measured in pixels.
         /// </remarks>
         public Vector Scale
         {
@@ -56,10 +67,10 @@ namespace GTA3SaveEditor.GUI.Controls
         }
 
         /// <summary>
-        /// Gets or sets the map origin.
+        /// Gets or sets the map/world coodinate origin.
         /// </summary>
         /// <remarks>
-        /// The origin point is measured as a pixel offset from
+        /// The coordinate origin is measured as a pixel offset from
         /// the top left corner of the map iamge.
         /// </remarks>
         public Point Origin
@@ -69,33 +80,103 @@ namespace GTA3SaveEditor.GUI.Controls
         }
 
         /// <summary>
-        /// Gets or sets the map pan offset.
+        /// Gets or sets centerpoint of the viewport.
         /// </summary>
         /// <remarks>
-        /// The pan offset is measured as the pixel offset of
-        /// the map origin from the center of the viewport.
+        /// The center is measured as a map coordinate
+        /// (measured in pixels) centered about the
+        /// <see cref="Origin"/>.
         /// </remarks>
-        public Point Offset
+        public Point Center
         {
-            get { return (Point) GetValue(OffsetProperty); }
-            set { SetValue(OffsetProperty, value); }
+            get { return (Point) GetValue(CenterProperty); }
+            set { SetValue(CenterProperty, value); }
         }
 
         /// <summary>
-        /// Gets or sets the initial offset value.
+        /// Gets or sets the initial value of <see cref="Center"/>.
         /// </summary>
-        /// <remarks>
-        /// The <see cref="Offset"/> property is set to this value
-        /// when <see cref="Reset"/> is called.
-        /// </remarks>
-        public Point InitialOffset
+        public Point InitialCenter
         {
-            get { return (Point) GetValue(InitialOffsetProperty); }
-            set { SetValue(InitialOffsetProperty, value); }
+            get { return (Point) GetValue(InitialCenterProperty); }
+            set { SetValue(InitialCenterProperty, value); }
         }
 
         /// <summary>
-        /// Gets or sets the zoom factor.
+        /// Gets or sets effective panning speed when using the
+        /// keyboard to pan.
+        /// </summary>
+        public double PanDelta
+        {
+            get { return (double) GetValue(PanDeltaProperty); }
+            set { SetValue(PanDeltaProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to allow panning with the keyboard.
+        /// </summary>
+        public bool PanWithKeyboard
+        {
+            get { return (bool) GetValue(PanWithKeyboardProperty); }
+            set { SetValue(PanWithKeyboardProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to allow panning by dragging the mouse.
+        /// </summary>
+        public bool PanWithMouseDrag
+        {
+            get { return (bool) GetValue(PanWithMouseDragProperty); }
+            set { SetValue(PanWithMouseDragProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the key used to pan up.
+        /// </summary>
+        public Key PanUpKey
+        {
+            get { return (Key) GetValue(PanUpKeyProperty); }
+            set { SetValue(PanUpKeyProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the key used to pan down.
+        /// </summary>
+        public Key PanDownKey
+        {
+            get { return (Key) GetValue(PanDownKeyProperty); }
+            set { SetValue(PanDownKeyProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the key used to pan left.
+        /// </summary>
+        public Key PanLeftKey
+        {
+            get { return (Key) GetValue(PanLeftKeyProperty); }
+            set { SetValue(PanLeftKeyProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the key used to pan right.
+        /// </summary>
+        public Key PanRightKey
+        {
+            get { return (Key) GetValue(PanRightKeyProperty); }
+            set { SetValue(PanRightKeyProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the mouse button to use for panning.
+        /// </summary>
+        public MouseButton PanWithMouseDragButton
+        {
+            get { return (MouseButton) GetValue(PanWithMouseDragButtonProperty); }
+            set { SetValue(PanWithMouseDragButtonProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets the magnification scale.
         /// </summary>
         public double Zoom
         {
@@ -104,12 +185,8 @@ namespace GTA3SaveEditor.GUI.Controls
         }
 
         /// <summary>
-        /// Gets or sets the initial zoom value.
+        /// Gets or sets the initial value of <see cref="Zoom"/>.
         /// </summary>
-        /// <remarks>
-        /// The <see cref="Zoom"/> property is set to this value
-        /// when <see cref="Reset"/> is called.
-        /// </remarks>
         public double InitialZoom
         {
             get { return (double) GetValue(InitialZoomProperty); }
@@ -119,11 +196,6 @@ namespace GTA3SaveEditor.GUI.Controls
         /// <summary>
         /// Gets or sets the minimum zoom value.
         /// </summary>
-        /// <remarks>
-        /// When <see cref="ZoomWithMouseWheel"/> is enabled, the actual
-        /// minimum zoom value may be slightly above or below this value
-        /// depending on the value of <see cref="ZoomDelta"/>.
-        /// </remarks>
         public double MinimumZoom
         {
             get { return (double) GetValue(MinimumZoomProperty); }
@@ -133,11 +205,6 @@ namespace GTA3SaveEditor.GUI.Controls
         /// <summary>
         /// Gets or sets the maximum zoom value.
         /// </summary>
-        /// <remarks>
-        /// When <see cref="ZoomWithMouseWheel"/> is enabled, the actual
-        /// maximum zoom value may be slightly above or below this value
-        /// depending on the value of <see cref="ZoomDelta"/>.
-        /// </remarks>
         public double MaximumZoom
         {
             get { return (double) GetValue(MaximumZoomProperty); }
@@ -145,9 +212,7 @@ namespace GTA3SaveEditor.GUI.Controls
         }
 
         /// <summary>
-        /// The amount by which to scale the <see cref="Zoom"/> factor
-        /// when <see cref="ZoomWithMouseWheel"/> is enabled and the
-        /// mouse wheel is moved.
+        /// The amount to zoom when using the mouse wheel or keyboard.
         /// </summary>
         public double ZoomDelta
         {
@@ -156,7 +221,16 @@ namespace GTA3SaveEditor.GUI.Controls
         }
 
         /// <summary>
-        /// Gets or sets whether to zoom the map by moving the mouse wheel.
+        /// Gets or sets whether to enable zooming with the keyboard.
+        /// </summary>
+        public bool ZoomWithKeyboard
+        {
+            get { return (bool) GetValue(ZoomWithKeyboardProperty); }
+            set { SetValue(ZoomWithKeyboardProperty, value); }
+        }
+
+        /// <summary>
+        /// Gets or sets whether to enable zooming with the mouse wheel.
         /// </summary>
         public bool ZoomWithMouseWheel
         {
@@ -165,27 +239,25 @@ namespace GTA3SaveEditor.GUI.Controls
         }
 
         /// <summary>
-        /// Gets or sets whether to pan the map by clicking and dragging the mouse.
+        /// Gets or sets the key used to zoom in.
         /// </summary>
-        public bool PanWithMouseDrag
+        public Key ZoomInKey
         {
-            get { return (bool) GetValue(PanWithMouseDragProperty); }
-            set { SetValue(PanWithMouseDragProperty, value); }
+            get { return (Key) GetValue(ZoomInKeyProperty); }
+            set { SetValue(ZoomInKeyProperty, value); }
         }
 
         /// <summary>
-        /// Gets or sets the mouse button that must be held down
-        /// for map panning to occur when <see cref="PanWithMouseDrag"/>
-        /// is enabled.
+        /// Gets or set the key used to zoom out.
         /// </summary>
-        public MouseButton PanWithMouseDragButton
+        public Key ZoomOutKey
         {
-            get { return (MouseButton) GetValue(PanWithMouseDragButtonProperty); }
-            set { SetValue(PanWithMouseDragButtonProperty, value); }
+            get { return (Key) GetValue(ZoomOutKeyProperty); }
+            set { SetValue(ZoomOutKeyProperty, value); }
         }
 
         /// <summary>
-        /// Gets the point in the control area where the mouse was last clicked.
+        /// Gets the point in the view the mouse was last clicked.
         /// </summary>
         public Point MouseClickPoint
         {
@@ -213,7 +285,7 @@ namespace GTA3SaveEditor.GUI.Controls
         }
 
         /// <summary>
-        /// Gets the point in the control area where the mouse was last moved.
+        /// Gets the point in the view where the mouse was last moved.
         /// </summary>
         public Point MouseOverPoint
         {
@@ -254,22 +326,23 @@ namespace GTA3SaveEditor.GUI.Controls
         public static readonly DependencyProperty OriginProperty = DependencyProperty.Register(
             nameof(Origin), typeof(Point), typeof(MapControl), new PropertyMetadata(default(Point)));
 
-        public static readonly DependencyProperty OffsetProperty = DependencyProperty.Register(
-            nameof(Offset), typeof(Point), typeof(MapControl), new FrameworkPropertyMetadata(
+        public static readonly DependencyProperty CenterProperty = DependencyProperty.Register(
+            nameof(Center), typeof(Point), typeof(MapControl), new FrameworkPropertyMetadata(
                 default(Point),
                 FrameworkPropertyMetadataOptions.AffectsRender |
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                 OffsetPropertyChanged));
 
-        public static readonly DependencyProperty InitialOffsetProperty = DependencyProperty.Register(
-            nameof(InitialOffset), typeof(Point), typeof(MapControl), new PropertyMetadata(default(Point)));
+        public static readonly DependencyProperty InitialCenterProperty = DependencyProperty.Register(
+            nameof(InitialCenter), typeof(Point), typeof(MapControl), new PropertyMetadata(default(Point)));
 
         public static readonly DependencyProperty ZoomProperty = DependencyProperty.Register(
             nameof(Zoom), typeof(double), typeof(MapControl), new FrameworkPropertyMetadata(
                 DefaultZoom,
                 FrameworkPropertyMetadataOptions.AffectsRender |
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
-                ZoomPropertyChanged));
+                new PropertyChangedCallback(ZoomPropertyChanged),
+                new CoerceValueCallback(ZoomCoerceValue)));
 
         public static readonly DependencyProperty InitialZoomProperty = DependencyProperty.Register(
             nameof(InitialZoom), typeof(double), typeof(MapControl), new PropertyMetadata(DefaultZoom));
@@ -283,42 +356,68 @@ namespace GTA3SaveEditor.GUI.Controls
         public static readonly DependencyProperty ZoomDeltaProperty = DependencyProperty.Register(
             nameof(ZoomDelta), typeof(double), typeof(MapControl), new PropertyMetadata(DefaultZoomDelta));
 
-        public static readonly DependencyProperty PanWithMouseDragProperty = DependencyProperty.Register(
-            nameof(PanWithMouseDrag), typeof(bool), typeof(MapControl), new PropertyMetadata(DefaultPanWithMouseDrag));
+        public static readonly DependencyProperty ZoomWithKeyboardProperty = DependencyProperty.Register(
+            nameof(ZoomWithKeyboard), typeof(bool), typeof(MapControl), new PropertyMetadata(DefaultZoomWithKeyboard));
 
         public static readonly DependencyProperty ZoomWithMouseWheelProperty = DependencyProperty.Register(
             nameof(ZoomWithMouseWheel), typeof(bool), typeof(MapControl), new PropertyMetadata(DefaultZoomWithMouseWheel));
 
+        public static readonly DependencyProperty PanDeltaProperty = DependencyProperty.Register(
+            nameof(PanDelta), typeof(double), typeof(MapControl), new PropertyMetadata(DefaultPanDelta));
+
+        public static readonly DependencyProperty PanWithKeyboardProperty = DependencyProperty.Register(
+            nameof(PanWithKeyboard), typeof(bool), typeof(MapControl), new PropertyMetadata(DefaultPanWithKeyboard));
+
+        public static readonly DependencyProperty PanWithMouseDragProperty = DependencyProperty.Register(
+            nameof(PanWithMouseDrag), typeof(bool), typeof(MapControl), new PropertyMetadata(DefaultPanWithMouseDrag));
+
+        public static readonly DependencyProperty PanUpKeyProperty = DependencyProperty.Register(
+            nameof(PanUpKey), typeof(Key), typeof(MapControl), new PropertyMetadata(DefaultPanUpKey));
+
+        public static readonly DependencyProperty PanDownKeyProperty = DependencyProperty.Register(
+            nameof(PanDownKey), typeof(Key), typeof(MapControl), new PropertyMetadata(DefaultPanDownKey));
+
+        public static readonly DependencyProperty PanLeftKeyProperty = DependencyProperty.Register(
+            nameof(PanLeftKey), typeof(Key), typeof(MapControl), new PropertyMetadata(DefaultPanLeftKey));
+
+        public static readonly DependencyProperty PanRightKeyProperty = DependencyProperty.Register(
+            nameof(PanRightKey), typeof(Key), typeof(MapControl), new PropertyMetadata(DefaultPanRightKey));
+
+        public static readonly DependencyProperty ZoomInKeyProperty = DependencyProperty.Register(
+            nameof(ZoomInKey), typeof(Key), typeof(MapControl), new PropertyMetadata(DefaultZoomInKey));
+
+        public static readonly DependencyProperty ZoomOutKeyProperty = DependencyProperty.Register(
+            nameof(ZoomOutKey), typeof(Key), typeof(MapControl), new PropertyMetadata(DefaultZoomOutKey));
+
         public static readonly DependencyProperty PanWithMouseDragButtonProperty = DependencyProperty.Register(
             nameof(PanWithMouseDragButton), typeof(MouseButton), typeof(MapControl), new PropertyMetadata(default(MouseButton)));
 
-        // TODO: make these readonly
-        public static readonly DependencyProperty MouseClickPointProperty = DependencyProperty.Register(
+        private static readonly DependencyProperty MouseClickPointProperty = DependencyProperty.Register(
             nameof(MouseClickPoint), typeof(Point), typeof(MapControl), new FrameworkPropertyMetadata(
                 default(Point),
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-        public static readonly DependencyProperty MouseClickOffsetProperty = DependencyProperty.Register(
+        private static readonly DependencyProperty MouseClickOffsetProperty = DependencyProperty.Register(
             nameof(MouseClickOffset), typeof(Point), typeof(MapControl), new FrameworkPropertyMetadata(
                 default(Point),
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-        public static readonly DependencyProperty MouseClickCoordsProperty = DependencyProperty.Register(
+        private static readonly DependencyProperty MouseClickCoordsProperty = DependencyProperty.Register(
             nameof(MouseClickCoords), typeof(Point), typeof(MapControl), new FrameworkPropertyMetadata(
                 default(Point),
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-        public static readonly DependencyProperty MouseOverPointProperty = DependencyProperty.Register(
+        private static readonly DependencyProperty MouseOverPointProperty = DependencyProperty.Register(
             nameof(MouseOverPoint), typeof(Point), typeof(MapControl), new FrameworkPropertyMetadata(
                 default(Point),
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-        public static readonly DependencyProperty MouseOverOffsetProperty = DependencyProperty.Register(
+        private static readonly DependencyProperty MouseOverOffsetProperty = DependencyProperty.Register(
             nameof(MouseOverOffset), typeof(Point), typeof(MapControl), new FrameworkPropertyMetadata(
                 default(Point),
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
-        public static readonly DependencyProperty MouseOverCoordsProperty = DependencyProperty.Register(
+        private static readonly DependencyProperty MouseOverCoordsProperty = DependencyProperty.Register(
             nameof(MouseOverCoords), typeof(Point), typeof(MapControl), new FrameworkPropertyMetadata(
                 default(Point),
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
@@ -347,7 +446,7 @@ namespace GTA3SaveEditor.GUI.Controls
         public void Reset()
         {
             RenderMatrix = Matrix.Identity;
-            Offset = InitialOffset;
+            Center = InitialCenter;
             Zoom = InitialZoom;
         }
 
@@ -392,7 +491,7 @@ namespace GTA3SaveEditor.GUI.Controls
         /// World coordinates are determined based on the <see cref="Origin"/>
         /// and <see cref="Scale"/> properties.
         /// </remarks>
-        public Point WorldToPixelCoords(Point world)
+        public Point WorldCoordsToPixel(Point world)
         {
             return new Point()
             {
@@ -408,7 +507,7 @@ namespace GTA3SaveEditor.GUI.Controls
         /// Pixel coordinates are measured from the top-left of the map image.
         /// Map coordinates are pixel coordinates centered about the <see cref="Origin"/>.
         /// </remarks>
-        public Point MapToPixelCoords(Point map)
+        public Point MapCoordsToPixel(Point map)
         {
             return new Point()
             {
@@ -418,9 +517,38 @@ namespace GTA3SaveEditor.GUI.Controls
         }
         #endregion
 
+        public void DrawBlip(Point p)
+        {
+            Image i = new Image();
+            i.Width = 16;
+            i.Height = 16;
+
+            BitmapImage bi = new BitmapImage();
+            bi.BeginInit();
+            bi.UriSource = new Uri(@"/GTA3SaveEditor.GUI;component/Resources/radar_asuka.png", UriKind.Relative);
+            bi.DecodePixelWidth = 16;
+            bi.EndInit();
+
+            i.Source = bi;
+
+            Canvas.SetLeft(i, p.X + Origin.X);
+            Canvas.SetTop(i, p.Y + Origin.Y);
+            m_canvas.Children.Add(i);
+        }
+
         #region Private Functions
+        private double GetZoomScale(double delta)
+        {
+            double scale = 1;
+            if (delta > 0) scale = (delta + 1);
+            if (delta < 0) scale = (1 / (-delta + 1));
+
+            return scale;
+        }
+
         /// <summary>
-        /// Applies the current zoom value over the current pan offset.
+        /// Magnifies the map to the current Zoom value
+        /// then pans to Center.
         /// </summary>
         private void ApplyZoom()
         {
@@ -428,60 +556,79 @@ namespace GTA3SaveEditor.GUI.Controls
             m.ScalePrepend(Zoom, Zoom);
             RenderMatrix = m;
 
-            ApplyOffset();
+            PanToCenter();
         }
 
         /// <summary>
         /// Applies an incremental zoom over a point.
         /// </summary>
-        private void ZoomIncrementOverPoint(Point p, double delta)
+        private void ZoomToPoint(Point p, double delta)
         {
-            if (Zoom < MinimumZoom && delta < 0) return;
-            if (Zoom > MaximumZoom && delta > 0) return;
-
-            double scale = 1;
-            if (delta > 0) scale = (delta + 1);
-            if (delta < 0) scale = (1 / (-delta + 1));
-
-            Matrix m = RenderMatrix;
-            m.ScaleAtPrepend(scale, scale, p.X, p.Y);
-            RenderMatrix = m;
+            double scale = GetZoomScale(delta);
+            if (Zoom * scale < MinimumZoom) return;
+            if (Zoom * scale > MaximumZoom) return;
 
             m_suppressZoomChangedHandler = true;
             Zoom *= scale;
             m_suppressZoomChangedHandler = false;
 
-            UpdateOffset();
+            Matrix m = RenderMatrix;
+            m.ScaleAtPrepend(scale, scale, p.X, p.Y);
+            RenderMatrix = m;
+
+            UpdateCenter();
+        }
+
+        public void ZoomCenter(double delta)
+        {
+            double scale = GetZoomScale(delta);
+            double newZoom = Zoom * scale;
+            if (newZoom >= MinimumZoom && newZoom <= MaximumZoom)
+            {
+                Zoom = newZoom;
+            }
         }
 
         /// <summary>
-        /// Sets the Offset property according to current render matrix translation offset.
+        /// Pans the map by an X and Y amount.
         /// </summary>
-        private void UpdateOffset()
+        public void Pan(double xDelta, double yDelta)
         {
-            Point t = GetRenderTranslate();
-            double x = Origin.X + ((t.X - (m_border.ActualWidth / 2)) / Zoom);
-            double y = Origin.Y + ((t.Y - (m_border.ActualHeight / 2)) / Zoom);
+            Point p = Center;
+            p.X += xDelta;
+            p.Y += yDelta;
+            Center = p;
+        }
 
-            m_suppressOffsetChangedHandler = true;
-            Offset = new Point(x, y);
+        /// <summary>
+        /// Pans the map to the Center corrdinate.
+        /// </summary>
+        private void PanToCenter()
+        {
+            double offsetX = (m_border.ActualWidth / 2) - ((Origin.X - Center.X) * Zoom);
+            double offsetY = (m_border.ActualHeight / 2) - ((Origin.Y - Center.Y) * Zoom);
+            SetRenderMatrixOffset(offsetX, offsetY);
+        }
+
+
+        /// <summary>
+        /// Ensures the Center coordinate is in-sync with the render matrix offset.
+        /// </summary>
+        private void UpdateCenter()
+        {
+            Point offset = GetRenderMatrixOffset();
+            double x = Origin.X + ((offset.X - (m_border.ActualWidth / 2)) / Zoom);
+            double y = Origin.Y + ((offset.Y - (m_border.ActualHeight / 2)) / Zoom);
+
+            m_suppressOffsetChangedHandler = true;      // We don't need to pan the map again
+            Center = new Point(x, y);
             m_suppressOffsetChangedHandler = false;
         }
 
         /// <summary>
-        /// Translates the render matrix according to Offset property.
+        /// Gets the render matrix translation offset.
         /// </summary>
-        private void ApplyOffset()
-        {
-            double tX = (m_border.ActualWidth / 2) - ((Origin.X - Offset.X) * Zoom);
-            double tY = (m_border.ActualHeight / 2) - ((Origin.Y - Offset.Y) * Zoom);
-            SetRenderTranslate(tX, tY);
-        }
-
-        /// <summary>
-        /// Gets the current render matrix translation offset.
-        /// </summary>
-        private Point GetRenderTranslate()
+        private Point GetRenderMatrixOffset()
         {
             return new Point(RenderMatrix.OffsetX, RenderMatrix.OffsetY);
         }
@@ -489,7 +636,7 @@ namespace GTA3SaveEditor.GUI.Controls
         /// <summary>
         /// Sets the render matrix translation offset.
         /// </summary>
-        private void SetRenderTranslate(double x, double y)
+        private void SetRenderMatrixOffset(double x, double y)
         {
             Matrix m = RenderMatrix;
             m.OffsetX = x;
@@ -501,22 +648,34 @@ namespace GTA3SaveEditor.GUI.Controls
         #region Event Handlers
         private void MapControl_Loaded(object sender, RoutedEventArgs e)
         {
+            Keyboard.Focus(m_canvas);
+
             Reset();
             ApplyZoom();
-            ApplyOffset();
+            PanToCenter();
+        }
+
+        private void MapControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            UpdateCenter();
         }
 
         private void MapControl_MouseDown(object sender, MouseButtonEventArgs e)
         {
+            Keyboard.Focus(m_canvas);
+
             if (!m_canvas.IsMouseCaptured)
             {
-                MouseClickPoint = e.MouseDevice.GetPosition(m_border);
-                MouseClickOffset = PixelToMapCoords(e.MouseDevice.GetPosition(m_image));
-                MouseClickCoords = PixelToWorldCoords(e.MouseDevice.GetPosition(m_image));
+                Point borderPos = e.MouseDevice.GetPosition(m_border);
+                Point imagePos = e.MouseDevice.GetPosition(m_image);
+
+                MouseClickPoint = borderPos;
+                MouseClickOffset = PixelToMapCoords(imagePos);
+                MouseClickCoords = PixelToWorldCoords(imagePos);
 
                 if (PanWithMouseDrag && PanWithMouseDragButton == e.ChangedButton)
                 {
-                    m_prePanRenderOffset = GetRenderTranslate();
+                    m_prePanRenderOffset = GetRenderMatrixOffset();
                     m_canvas.CaptureMouse();
                 }
             }
@@ -532,20 +691,23 @@ namespace GTA3SaveEditor.GUI.Controls
 
         private void MapControl_MouseMove(object sender, MouseEventArgs e)
         {
-            MouseOverPoint = e.MouseDevice.GetPosition(m_border);
+            Point borderPos = e.MouseDevice.GetPosition(m_border);
+            Point imagePos = e.MouseDevice.GetPosition(m_image);
+
+            MouseOverPoint = borderPos;
             
             if (m_canvas.IsMouseCaptured)
             {
                 Point p = e.MouseDevice.GetPosition(m_border);
                 double x = m_prePanRenderOffset.X + (p.X - MouseClickPoint.X);
                 double y = m_prePanRenderOffset.Y + (p.Y - MouseClickPoint.Y);
-                SetRenderTranslate(x, y);
-                UpdateOffset();
+                SetRenderMatrixOffset(x, y);
+                UpdateCenter();
             }
             else
             {
-                MouseOverOffset = PixelToMapCoords(e.MouseDevice.GetPosition(m_image));
-                MouseOverCoords = PixelToWorldCoords(e.MouseDevice.GetPosition(m_image));
+                MouseOverOffset = PixelToMapCoords(imagePos);
+                MouseOverCoords = PixelToWorldCoords(imagePos);
             }
         }
 
@@ -555,19 +717,19 @@ namespace GTA3SaveEditor.GUI.Controls
             {
                 Point p = e.MouseDevice.GetPosition(m_canvas);
                 double increment = (e.Delta > 0) ? +ZoomDelta : -ZoomDelta;
-                ZoomIncrementOverPoint(p, increment);
+                ZoomToPoint(p, increment);
             }
         }
         #endregion
 
-        #region Property Changed Handlers
+        #region Dependency Property Callbacks
         private static void OffsetPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             if (sender is MapControl mapControl)
             {
                 if (!mapControl.m_suppressOffsetChangedHandler)
                 {
-                    mapControl.ApplyOffset();
+                    mapControl.PanToCenter();
                 }
             }
         }
@@ -582,6 +744,57 @@ namespace GTA3SaveEditor.GUI.Controls
                 }
             }
         }
+
+        private static object ZoomCoerceValue(DependencyObject sender, object o)
+        {
+            if (sender is MapControl mapControl && o is double value)
+            {
+                if (value < mapControl.MinimumZoom) value = mapControl.MinimumZoom;
+                if (value > mapControl.MaximumZoom) value = mapControl.MaximumZoom;
+
+                return value;
+            }
+
+            throw new ArgumentException();
+        }
+        #endregion
+
+        #region Commands
+        public ICommand PanUpCommand => new RelayCommand
+        (
+            () => Pan(0, PanDelta),
+            () => PanWithKeyboard
+        );
+
+        public ICommand PanDownCommand => new RelayCommand
+        (
+            () => Pan(0, -PanDelta),
+            () => PanWithKeyboard
+        );
+
+        public ICommand PanLeftCommand => new RelayCommand
+        (
+            () => Pan(PanDelta, 0),
+            () => PanWithKeyboard
+        );
+
+        public ICommand PanRightCommand => new RelayCommand
+        (
+            () => Pan(-PanDelta, 0),
+            () => PanWithKeyboard
+        );
+
+        public ICommand ZoomInCommand => new RelayCommand
+        (
+            () => ZoomCenter(ZoomDelta),
+            () => ZoomWithKeyboard
+        );
+
+        public ICommand ZoomOutCommand => new RelayCommand
+        (
+            () => ZoomCenter(-ZoomDelta),
+            () => ZoomWithKeyboard
+        );
         #endregion
     }
 }

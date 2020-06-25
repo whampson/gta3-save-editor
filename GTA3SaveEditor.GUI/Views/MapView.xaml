@@ -18,12 +18,6 @@
             UriSource="/GTA3SaveEditor.GUI;component/Resources/map.png"/>
     </UserControl.Resources>
 
-    <UserControl.InputBindings>
-        <!-- TODO: not working -->
-        <KeyBinding Key="OemPlus" Command="{Binding ZoomInCommand}"/>
-        <KeyBinding Key="OemMinus" Command="{Binding ZoomOutCommand}"/>
-    </UserControl.InputBindings>
-
     <Grid>
 
         <Grid.RowDefinitions>
@@ -39,37 +33,25 @@
             Origin="512,512"
             Scale="0.256,-0.256"
             Image="{StaticResource MapImage}"
-            Offset="{Binding PanOffset}"
+            Center="{Binding PanOffset}"
             Zoom="{Binding ZoomLevel}"
             MaximumZoom="5"
             MinimumZoom="0.3"
             InitialZoom="0.60"
-            InitialOffset="0,-100"
-            ZoomWithMouseWheel="True"
-            PanWithMouseDrag="True"
-            PanWithMouseDragButton="Left"
-            MouseOverCoords="{Binding MouseOverCoords}">
+            InitialCenter="0,-100"
+            MouseOverCoords="{Binding MouseOverCoords}"
+            Focusable="True">
             
             <c:MapControl.ContextMenu>
                 
                 <ContextMenu Opened="ContextMenu_Opened">
-                    
-                    <MenuItem
-                        Header="Pan Here"
-                        Command="{Binding PanHereCommand}"/>
-                    <Separator/>
-                    <MenuItem
-                        Header="Zoom In"
-                        Command="{Binding ZoomInCommand}"
-                        InputGestureText="+"/>
-                    <MenuItem
-                        Header="Zoom Out"
-                        Command="{Binding ZoomOutCommand}"
-                        InputGestureText="-"/>
-                    <Separator/>
+
                     <MenuItem
                         Header="Add Blip Here"
                         Command="{Binding AddBlipHereCommand}"/>
+                    <MenuItem
+                        Header="Pan Here"
+                        Command="{Binding PanHereCommand}"/>
 
                 </ContextMenu>
                 
@@ -88,11 +70,11 @@
                 <ColumnDefinition Width="75"/>
                 <ColumnDefinition Width="75"/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0" Text="{Binding Coords1.X, StringFormat=F3}" HorizontalAlignment="Left"/>
-            <TextBlock Grid.Column="1" Text="{Binding Coords1.Y, StringFormat=F3}" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Column="0" Text="{Binding PanOffset.X, StringFormat=F3}" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Column="1" Text="{Binding PanOffset.Y, StringFormat=F3}" HorizontalAlignment="Left"/>
             <TextBlock Grid.Column="3" Text="{Binding ZoomLevel, StringFormat=P}" HorizontalAlignment="Center"/>
-            <TextBlock Grid.Column="5" Text="{Binding Coords2.X, StringFormat=F3}" HorizontalAlignment="Right"/>
-            <TextBlock Grid.Column="6" Text="{Binding Coords2.Y, StringFormat=F3}" HorizontalAlignment="Right"/>
+            <TextBlock Grid.Column="5" Text="{Binding MouseOverCoords.X, StringFormat=F3}" HorizontalAlignment="Right"/>
+            <TextBlock Grid.Column="6" Text="{Binding MouseOverCoords.Y, StringFormat=F3}" HorizontalAlignment="Right"/>
         </Grid>
 
     </Grid>

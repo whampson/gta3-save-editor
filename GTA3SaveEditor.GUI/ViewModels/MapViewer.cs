@@ -48,16 +48,6 @@ namespace GTA3SaveEditor.GUI.ViewModels
             PanOffset = p;
         }
 
-        public void ZoomIn()
-        {
-            ZoomLevel *= 1.1;
-        }
-
-        public void ZoomOut()
-        {
-            ZoomLevel *= 1 / 1.1;
-        }
-
         public ICommand PanHereCommand
         {
             get
@@ -65,28 +55,6 @@ namespace GTA3SaveEditor.GUI.ViewModels
                 return new RelayCommand
                 (
                     () => PanHere()
-                );
-            }
-        }
-
-        public ICommand ZoomInCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => ZoomIn()
-                );
-            }
-        }
-
-        public ICommand ZoomOutCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => ZoomOut()
                 );
             }
         }
