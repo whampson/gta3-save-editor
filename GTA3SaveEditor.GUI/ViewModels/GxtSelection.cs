@@ -35,16 +35,10 @@ namespace GTA3SaveEditor.GUI.ViewModels
             SelectedIndex = -1;
         }
 
-        public ICommand SelectCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => CloseDialog(true),
-                    () => SelectedIndex != -1
-                );
-            }
-        }
+        public ICommand SelectCommand => new RelayCommand
+        (
+            () => CloseDialog(true),
+            () => SelectedIndex != -1
+        );
     }
 }

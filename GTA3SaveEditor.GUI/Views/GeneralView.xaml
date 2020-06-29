@@ -95,7 +95,7 @@
                         Grid.Column="1" Grid.Row="2" Height="25" Margin="5"
                         Format="Custom" FormatString="dd MMM yyyy HH:mm:ss"
                         TextAlignment="Left"
-                        Value="{Binding MainWindow.TheSave.TimeStamp}"
+                        Value="{Binding MainViewModel.TheSave.TimeStamp}"
                         IsEnabled="{Binding IsMobile, Converter={StaticResource InvertBooleanConverter}}"/>
 
                 </Grid>

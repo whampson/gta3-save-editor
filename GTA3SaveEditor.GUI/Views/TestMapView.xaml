@@ -1,0 +1,67 @@
+﻿<v:TabPageBase
+    x:Class="GTA3SaveEditor.GUI.Views.TestMapView"
+    x:TypeArguments="m:TestMap"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:v="clr-namespace:GTA3SaveEditor.GUI.Views"
+    xmlns:m="clr-namespace:GTA3SaveEditor.GUI.ViewModels"
+    mc:Ignorable="d" 
+    d:DesignHeight="500" d:DesignWidth="800"
+    d:DataContext="{d:DesignInstance m:TestMap}">
+
+    <UserControl.Resources>
+        <Style x:Key="IsMouseOverBlipStyle" TargetType="StackPanel">
+            <Setter Property="Background" Value="Beige"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsBlipSelected}" Value="True">
+                    <Setter Property="Background" Value="Red"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="25"/>
+        </Grid.RowDefinitions>
+
+        <v:MapView
+            Grid.Row="0"
+            x:Name="m_map"
+            Blips="{Binding Blips}"
+            MouseMove="m_map_MouseMove">
+
+            <v:MapView.ContextMenu>
+
+                <ContextMenu Opened="ContextMenu_Opened">
+                    <MenuItem Header="Add Blip">
+                        <MenuItem Header="Asuka" Command="{Binding AddAsukaBlipHereCommand}"/>
+                        <MenuItem Header="Center" Command="{Binding AddCenterBlipHereCommand}"/>
+                        <MenuItem Header="Cop Car" Command="{Binding AddCopCarBlipHereCommand}"/>
+                        <MenuItem Header="Save" Command="{Binding AddSaveBlipHereCommand}"/>
+                        <MenuItem Header="Bribe" Command="{Binding AddBribeBlipHereCommand}"/>
+                        <MenuItem Header="Medic" Command="{Binding AddMedicBlipHereCommand}"/>
+                        <MenuItem Header="Heart" Command="{Binding AddHeartBlipHereCommand}"/>
+                        <MenuItem Header="Rampage" Command="{Binding AddSkullBlipHereCommand}"/>
+                        <MenuItem Header="Package" Command="{Binding AddPackageBlipHereCommand}"/>
+                    </MenuItem>
+                    <MenuItem Header="Move Blip" Command="{Binding MoveBlipCommand}"/>
+                    <MenuItem Header="Remove Blip" Command="{Binding RemoveBlipCommand}"/>
+
+                </ContextMenu>
+
+            </v:MapView.ContextMenu>
+
+        </v:MapView>
+
+        <StackPanel
+            Grid.Row="1"
+            Style="{StaticResource IsMouseOverBlipStyle}"/>
+
+    </Grid>
+
+</v:TabPageBase>

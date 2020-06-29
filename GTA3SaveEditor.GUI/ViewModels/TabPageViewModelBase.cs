@@ -1,4 +1,5 @@
 ﻿using GTA3SaveEditor.GUI.Events;
+using System;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
@@ -7,6 +8,8 @@ namespace GTA3SaveEditor.GUI.ViewModels
     /// </summary>
     public abstract class TabPageViewModelBase : ViewModelBase
     {
+        public event EventHandler ShuttingDown;
+
         private bool m_isVisible;
 
         /// <summary>
@@ -15,7 +18,15 @@ namespace GTA3SaveEditor.GUI.ViewModels
         public bool IsVisible
         {
             get { return m_isVisible; }
-            set { m_isVisible = value; OnPropertyChanged(); }
+            set
+            {
+                bool wasVisible = m_isVisible;
+                m_isVisible = value;
+
+                if (wasVisible && !m_isVisible) Unload();
+                if (m_isVisible && !wasVisible) Load();
+                OnPropertyChanged();
+            }
         }
 
         /// <summary>
@@ -30,70 +41,63 @@ namespace GTA3SaveEditor.GUI.ViewModels
         public string Title { get; }
 
         /// <summary>
-        /// Gets the main window view model for accessing global functions.
+        /// Gets the main window data context for accessing global functions.
         /// </summary>
-        public Main MainWindow { get; }
+        public Main MainViewModel { get; }
 
+        /// <summary>
+        /// Creates a new <see cref="TabPageViewModelBase"/> instance.
+        /// </summary>
+        /// <param name="title">The tab name.</param>
+        /// <param name="visibility">The tab visibility setting.</param>
+        /// <param name="mainViewModel">The main window data context.</param>
         public TabPageViewModelBase(string title, TabPageVisibility visibility, Main mainViewModel)
         {
             Title = title;
             Visibility = visibility;
-
-            MainWindow = mainViewModel;
-            MainWindow.TabUpdate += MainViewModel_TabUpdate;
+            MainViewModel = mainViewModel;
         }
 
-        /// <summary>
-        /// Initializes the view when a <see cref="Main.TabUpdate"/> event
-        /// makes the view visible.
-        /// </summary>
-        protected virtual void Initialize()
+        public virtual void Initialize()
+        {
+            MainViewModel.TabUpdate += MainViewModel_TabUpdate;
+        }
+
+        public virtual void Shutdown()
+        {
+            MainViewModel.TabUpdate -= MainViewModel_TabUpdate;
+            ShuttingDown?.Invoke(this, EventArgs.Empty);
+        }
+
+        public virtual void Load()
         { }
 
-        /// <summary>
-        /// Uninitializes the view when a <see cref="Main.TabUpdate"/> event
-        /// hides the view.
-        /// </summary>
-        protected virtual void Shutdown()
+        public virtual void Unload()
         { }
 
-        /// <summary>
-        /// Refreshes the view content.
-        /// </summary>
         public virtual void Refresh()
         { }
 
+        /// <summary>
+        /// Handle TabUpdate events from the main view model.
+        /// </summary>
         private void MainViewModel_TabUpdate(object sender, TabUpdateEventArgs e)
         {
-            bool wasVisible = IsVisible;
-
-            if (Visibility == TabPageVisibility.Always)
+            switch (e.Trigger)
             {
-                IsVisible = true;
-            }
-            else
-            {
-                switch (e.Trigger)
-                {
-                    case TabUpdateTrigger.WindowLoaded:
-                    case TabUpdateTrigger.FileClosed:
-                        IsVisible = (Visibility == TabPageVisibility.WhenFileIsClosed);
-                        break;
-                    case TabUpdateTrigger.FileOpened:
-                        IsVisible = (Visibility == TabPageVisibility.WhenFileIsOpen);
-                        break;
-                }
-            }
-
-            if (wasVisible)
-            {
-                Shutdown();
-            }
-            if (IsVisible)
-            {
-                Initialize();
+                case TabUpdateTrigger.FileOpened:
+                    IsVisible = (Visibility == TabPageVisibility.Always) || (Visibility == TabPageVisibility.WhenFileIsOpen);
+                    break;
+                case TabUpdateTrigger.FileClosing:
+                case TabUpdateTrigger.WindowLoaded:
+                    IsVisible = (Visibility == TabPageVisibility.Always) || (Visibility == TabPageVisibility.WhenFileIsClosed);
+                    break;
+                case TabUpdateTrigger.WindowClosing:
+                    IsVisible = false;
+                    break;
             }
         }
+
     }
 
     /// <summary>

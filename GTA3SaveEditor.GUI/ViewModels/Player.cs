@@ -23,11 +23,11 @@ namespace GTA3SaveEditor.GUI.ViewModels
            : base("Player", TabPageVisibility.WhenFileIsOpen, mainViewModel)
         { }
 
-        protected override void Initialize()
+        public override void Load()
         {
-            base.Initialize();
-            PlayerPed = MainWindow.TheSave.PlayerPeds.GetPlayerPed();
-            PlayerInfo = MainWindow.TheSave.PlayerInfo;
+            base.Load();
+            PlayerPed = MainViewModel.TheSave.PlayerPeds.GetPlayerPed();
+            PlayerInfo = MainViewModel.TheSave.PlayerInfo;
         }
     }
 }

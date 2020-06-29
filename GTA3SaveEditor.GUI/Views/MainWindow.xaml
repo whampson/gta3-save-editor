@@ -10,9 +10,9 @@
     xmlns:v="clr-namespace:GTA3SaveEditor.GUI.Views"
     xmlns:m="clr-namespace:GTA3SaveEditor.GUI.ViewModels"
     mc:Ignorable="d"
-    Loaded="Window_Loaded" Closing="Window_Closing"
     d:DesignHeight="500" d:DesignWidth="800"
-    d:DataContext="{d:DesignInstance Type=m:Main}">
+    d:DataContext="{d:DesignInstance Type=m:Main}"
+    Loaded="Window_Loaded" Closing="Window_Closing">
 
     <Window.DataContext>
         <m:Main/>
@@ -33,9 +33,12 @@
         <DataTemplate DataType="{x:Type m:Player}">
             <v:PlayerView/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type m:MapViewer}">
-            <v:MapView/>
+        <DataTemplate DataType="{x:Type m:Radar}">
+            <v:RadarView/>
         </DataTemplate>
+        <!--<DataTemplate DataType="{x:Type m:TestMap}">
+            <v:TestMapView/>
+        </DataTemplate>-->
         <DataTemplate DataType="{x:Type m:JsonViewer}">
             <v:JsonView/>
         </DataTemplate>

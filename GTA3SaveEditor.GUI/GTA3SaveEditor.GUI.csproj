@@ -9,8 +9,8 @@
     <Description>Grand Theft Auto III save file editor graphical user interface.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>2.0.0-alpha</Version>
-    <AssemblyVersion>2.0.0.981</AssemblyVersion>
-    <FileVersion>2.0.0.981</FileVersion>
+    <AssemblyVersion>2.0.0.1152</AssemblyVersion>
+    <FileVersion>2.0.0.1152</FileVersion>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
@@ -18,7 +18,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Resources\armor.png" />
+    <None Remove="Resources\bribe.png" />
+    <None Remove="Resources\health.png" />
     <None Remove="Resources\map.png" />
+    <None Remove="Resources\medic.png" />
+    <None Remove="Resources\package.png" />
     <None Remove="Resources\radar_asuka.png" />
     <None Remove="Resources\radar_bomb.png" />
     <None Remove="Resources\radar_cat.png" />
@@ -39,6 +44,7 @@
     <None Remove="Resources\radar_spray.png" />
     <None Remove="Resources\radar_tony.png" />
     <None Remove="Resources\radar_weapon.png" />
+    <None Remove="Resources\rampage.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -57,6 +63,24 @@
 
   <ItemGroup>
     <Resource Include="Resources\map.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\medic.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\package.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\armor.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\bribe.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\health.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\rampage.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\radar_asuka.png">
@@ -119,6 +143,10 @@
     <Resource Include="Resources\radar_weapon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Helpers\" />
   </ItemGroup>
 
 </Project>

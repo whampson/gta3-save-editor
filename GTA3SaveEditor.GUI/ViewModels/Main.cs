@@ -2,6 +2,7 @@
 using GTA3SaveEditor.GUI.Events;
 using GTASaveData;
 using GTASaveData.GTA3;
+using Newtonsoft.Json.Bson;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -56,32 +57,74 @@ namespace GTA3SaveEditor.GUI.ViewModels
             Tabs.Add(new Welcome(this));
             Tabs.Add(new General(this));
             Tabs.Add(new Player(this));
-            Tabs.Add(new MapViewer(this));
+            Tabs.Add(new Radar(this));
+            //Tabs.Add(new TestMap(this));
             Tabs.Add(new JsonViewer(this));
-
-            TheEditor.FileOpened += TheEditor_FileOpened;
-            TheEditor.FileClosed += TheEditor_FileClosed;
-            TheEditor.FileSaved += TheEditor_FileSaved;
         }
 
         public void Initialize()
         {
+            TheEditor.FileOpening += TheEditor_FileOpening;
+            TheEditor.FileOpened += TheEditor_FileOpened;
+            TheEditor.FileClosing += TheEditor_FileClosing;
+            TheEditor.FileClosed += TheEditor_FileClosed;
+            TheEditor.FileSaving += TheEditor_FileSaving;
+            TheEditor.FileSaved += TheEditor_FileSaved;
+
+            LoadSettings();
+            InitializeTabs();
+            RefreshTabs(TabUpdateTrigger.WindowLoaded);
+
+            StatusText = "Ready.";
+        }
+
+        public void Shutdown()
+        {
+            TheEditor.FileOpening -= TheEditor_FileOpening;
+            TheEditor.FileOpened -= TheEditor_FileOpened;
+            TheEditor.FileClosing -= TheEditor_FileClosing;
+            TheEditor.FileClosed -= TheEditor_FileClosed;
+            TheEditor.FileSaving -= TheEditor_FileSaving;
+            TheEditor.FileSaved -= TheEditor_FileSaved;
+
+            RefreshTabs(TabUpdateTrigger.WindowClosing);
+            ShutdownTabs();
+            SaveSettings();
+        }
+
+        private void InitializeTabs()
+        {
+            foreach (var tab in Tabs)
+            {
+                tab.Initialize();
+            }
+        }
+
+        private void ShutdownTabs()
+        {
+            foreach (var tab in Tabs)
+            {
+                tab.Shutdown();
+            }
+        }
+
+        public void LoadSettings()
+        {
+            // Load settings file
             if (File.Exists(App.SettingsPath))
             {
                 TheSettings.LoadSettings(App.SettingsPath);
             }
 
+            // Initialize settings-dependent features
             if (!string.IsNullOrEmpty(TheSettings.GameDirectory))
             {
                 // TODO: select based on language
                 TheText = Gxt.LoadFromFile(TheSettings.GameDirectory + @"\TEXT\ENGLISH.GXT");
             }
-            
-            RefreshTabs(TabUpdateTrigger.WindowLoaded);
-            StatusText = "Ready.";
         }
 
-        public void Shutdown()
+        public void SaveSettings()
         {
             TheSettings.SaveSettings(App.SettingsPath);
         }
@@ -197,6 +240,11 @@ namespace GTA3SaveEditor.GUI.ViewModels
         #endregion
 
         #region Window Event Handlers
+        private void TheEditor_FileOpening(object sender, EventArgs e)
+        {
+            StatusText = "Opening file...";
+        }
+
         private void TheEditor_FileOpened(object sender, EventArgs e)
         {
             OnPropertyChanged(nameof(TheSave));
@@ -204,11 +252,24 @@ namespace GTA3SaveEditor.GUI.ViewModels
             StatusText = "File opened: " + TheSettings.MostRecentFile;
         }
 
+        private void TheEditor_FileClosing(object sender, EventArgs e)
+        {
+            StatusText = "Closing file...";
+            RefreshTabs(TabUpdateTrigger.FileClosing);
+        }
+
         private void TheEditor_FileClosed(object sender, EventArgs e)
         {
             OnPropertyChanged(nameof(TheSave));
-            RefreshTabs(TabUpdateTrigger.FileClosed);
             StatusText = "File closed.";
+        }
+        private void TheEditor_FileSaving(object sender, EventArgs e)
+        {
+            StatusText = "Saving file...";
+            if (TheSettings.UpdateTimeStampOnSave)
+            {
+                TheSave.TimeStamp = DateTime.Now;
+            }
         }
 
         private void TheEditor_FileSaved(object sender, EventArgs e)
@@ -237,75 +298,39 @@ namespace GTA3SaveEditor.GUI.ViewModels
         #endregion
 
         #region Commands
-        public ICommand FileOpenCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => ShowFileDialog(FileDialogType.OpenFileDialog, ShowFileDialog_Callback)
-                );
-            }
-        }
+        public ICommand FileOpenCommand => new RelayCommand
+        (
+            () => ShowFileDialog(FileDialogType.OpenFileDialog, ShowFileDialog_Callback)
+        );
 
-        public ICommand FileOpenRecentCommand
-        {
-            get
-            {
-                return new RelayCommand<string>
-                (
-                    (path) => OpenFile(path),
-                    (_) => TheSettings.RecentFiles.Count > 0
-                );
-            }
-        }
+        public ICommand FileOpenRecentCommand => new RelayCommand<string>
+        (
+            (x) => OpenFile(x),
+            (_) => TheSettings.RecentFiles.Count > 0
+        );
 
-        public ICommand FileCloseCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => TheEditor.CloseFile(),
-                    () => TheEditor.IsFileOpen
-                );
-            }
-        }
+        public ICommand FileCloseCommand => new RelayCommand
+        (
+            () => TheEditor.CloseFile(),
+            () => TheEditor.IsFileOpen
+        );
 
-        public ICommand FileSaveCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => SaveFile(TheSettings.MostRecentFile),
-                    () => TheEditor.IsFileOpen
-                );
-            }
-        }
+        public ICommand FileSaveCommand => new RelayCommand
+        (
+            () => SaveFile(TheSettings.MostRecentFile),
+            () => TheEditor.IsFileOpen
+        );
 
-        public ICommand FileSaveAsCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => ShowFileDialog(FileDialogType.SaveFileDialog, ShowFileDialog_Callback),
-                    () => TheEditor.IsFileOpen
-                );
-            }
-        }
+        public ICommand FileSaveAsCommand => new RelayCommand
+        (
+            () => ShowFileDialog(FileDialogType.SaveFileDialog, ShowFileDialog_Callback),
+            () => TheEditor.IsFileOpen
+        );
 
-        public ICommand FileExitCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => Application.Current.Shutdown()
-                );
-            }
-        }
+        public ICommand FileExitCommand => new RelayCommand
+        (
+            () => Application.Current.Shutdown()
+        );
         #endregion
     }
 }

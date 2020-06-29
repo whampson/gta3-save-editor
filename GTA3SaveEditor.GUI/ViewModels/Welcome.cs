@@ -21,14 +21,14 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         public string SelectedDirectory
         {
-            get { return MainWindow.TheSettings.WelcomePath; }
-            set { MainWindow.TheSettings.WelcomePath = value; OnPropertyChanged(); }
+            get { return MainViewModel.TheSettings.WelcomePath; }
+            set { MainViewModel.TheSettings.WelcomePath = value; OnPropertyChanged(); }
         }
 
         public bool SearchSubDirectories
         {
-            get { return MainWindow.TheSettings.WelcomePathRecursiveSearch; }
-            set { MainWindow.TheSettings.WelcomePathRecursiveSearch = value; OnPropertyChanged(); }
+            get { return MainViewModel.TheSettings.WelcomePathRecursiveSearch; }
+            set { MainViewModel.TheSettings.WelcomePathRecursiveSearch = value; OnPropertyChanged(); }
         }
 
         public ObservableCollection<ListItem> ListItems
@@ -46,19 +46,32 @@ namespace GTA3SaveEditor.GUI.ViewModels
             : base("Welcome", TabPageVisibility.WhenFileIsClosed, mainViewModel)
         {
             m_listItems = new ObservableCollection<ListItem>();
-            m_lukeFileWalker = new BackgroundWorker();
+            m_lukeFileWalker = new BackgroundWorker
+            {
+                WorkerSupportsCancellation = true,
+                WorkerReportsProgress = true
+            };
+        }
+
+        public override void Initialize()
+        {
+            base.Initialize();
             m_lukeFileWalker.DoWork += FileWalker_DoWork;
             m_lukeFileWalker.ProgressChanged += FileWalker_ProgressChanged;
             m_lukeFileWalker.RunWorkerCompleted += FileWalker_RunWorkerCompleted;
-            m_lukeFileWalker.WorkerSupportsCancellation = true;
-            m_lukeFileWalker.WorkerReportsProgress = true;
         }
 
-        protected override void Initialize()
+        public override void Shutdown()
         {
-            base.Initialize();
-            
+            base.Shutdown();
+            m_lukeFileWalker.DoWork -= FileWalker_DoWork;
+            m_lukeFileWalker.ProgressChanged -= FileWalker_ProgressChanged;
+            m_lukeFileWalker.RunWorkerCompleted -= FileWalker_RunWorkerCompleted;
+        }
 
+        public override void Load()
+        {
+            base.Load();
             if (!m_openedOnce)
             {
                 if (string.IsNullOrEmpty(SelectedDirectory))
@@ -73,29 +86,33 @@ namespace GTA3SaveEditor.GUI.ViewModels
             OnPropertyChanged(nameof(SearchSubDirectories));
         }
 
-        protected override void Shutdown()
+        public override void Unload()
         {
-            base.Shutdown();
+            base.Unload();
             m_lukeFileWalker.CancelAsync();
+        }
+
+        public override void Refresh()
+        {
+            base.Refresh();
         }
 
         public void RefreshList()
         {
             ListItems.Clear();
             m_lukeFileWalker.CancelAsync();
-
             if (Directory.Exists(SelectedDirectory))
             {
                 m_lukeFileWalker.RunWorkerAsync();
             }
         }
 
-        public void Load()
+        public void LoadSelectedItem()
         {
             if (SelectedItem != null)
             {
-                MainWindow.TheSettings.AddRecentFile(SelectedItem.Path);
-                MainWindow.TheEditor.ActiveFile = SelectedItem.SaveFile;
+                MainViewModel.TheSettings.AddRecentFile(SelectedItem.Path);
+                MainViewModel.TheEditor.ActiveFile = SelectedItem.SaveFile;
             }
         }
 
@@ -123,7 +140,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
                 if (currDir != lastDir)
                 {
                     lastDir = currDir;
-                    MainWindow.StatusText = $"Searching {currDir}...";   // TODO: path shortening func
+                    MainViewModel.StatusText = $"Searching {currDir}...";   // TODO: path shortening func
                 }
                 if (SaveEditor.TryOpenFile(path, out GTA3Save saveFile))
                 {
@@ -145,7 +162,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
                     if (item.Title.StartsWith('\uFFFF'))
                     {
                         string key = item.Title.Substring(1);
-                        if (MainWindow.TheText.TryGetValue(key, out string title))
+                        if (MainViewModel.TheText.TryGetValue(key, out string title))
                         {
                             item.Title = title;
                         }
@@ -183,44 +200,26 @@ namespace GTA3SaveEditor.GUI.ViewModels
                 ExceptionDispatchInfo.Capture(e.Error).Throw();
             }
 
-            MainWindow.StatusText = "Search complete.";
+            MainViewModel.StatusText = "Search complete.";
         }
         #endregion
 
         #region Commands
-        public ICommand RefreshCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => RefreshList()
-                );
-            }
-        }
+        public ICommand RefreshCommand =>  new RelayCommand
+        (
+            () => RefreshList()
+        );
 
-        public ICommand LoadCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => Load(),
-                    () => SelectedItem != null
-                );
-            }
-        }
+        public ICommand LoadCommand => new RelayCommand
+        (
+            () => LoadSelectedItem(),
+            () => SelectedItem != null
+        );
 
-        public ICommand BrowseCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => MainWindow.ShowFolderDialog(FileDialogType.OpenFileDialog, FolderDialogRequested_Callback)
-                );
-            }
-        }
+        public ICommand BrowseCommand => new RelayCommand
+        (
+            () => MainViewModel.ShowFolderDialog(FileDialogType.OpenFileDialog, FolderDialogRequested_Callback)
+        );
         #endregion
 
         public class ListItem

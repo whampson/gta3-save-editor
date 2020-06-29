@@ -10,8 +10,9 @@
     mc:Ignorable="d"
     Title="Selext GXT Entry"
     Height="350" Width="500"
-    WindowStartupLocation="CenterOwner"
-    d:DataContext="{d:DesignInstance m:GxtSelection}">
+    d:DataContext="{d:DesignInstance m:GxtSelection}"
+    Loaded="Dialog_Loaded" Closing="Dialog_Closing"
+    WindowStartupLocation="CenterOwner">
 
     <Window.DataContext>
         <m:GxtSelection/>

@@ -9,7 +9,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 {
     public class General : TabPageViewModelBase
     {
-        private bool m_isInitializing;
+        private bool m_isLoading;
         private SimpleVariables m_simpleVars;
         private string m_saveTitle;
         private string m_saveTitleGxtKey;
@@ -20,12 +20,12 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         public bool IsMobile
         {
-            get { return MainWindow.TheSave.FileFormat.IsMobile; }
+            get { return MainViewModel.TheSave.FileFormat.IsMobile; }
         }
 
         public bool IsPS2
         {
-            get { return MainWindow.TheSave.FileFormat.IsPS2; }
+            get { return MainViewModel.TheSave.FileFormat.IsPS2; }
         }
 
         public SimpleVariables SimpleVars
@@ -39,7 +39,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
             get { return m_saveTitle; }
             set
             {
-                if (!m_isInitializing && !IsSaveTitleFromGxt)
+                if (!m_isLoading && !IsSaveTitleFromGxt)
                 {
                     value = SetLastMissionPassedNameString(value);
                 }
@@ -53,7 +53,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
             get { return m_saveTitleGxtKey; }
             set
             {
-                if (!m_isInitializing && IsSaveTitleFromGxt)
+                if (!m_isLoading && IsSaveTitleFromGxt)
                 {
                     SaveTitle = SetLastMissionPassedNameGxt(value);
                 }
@@ -139,12 +139,12 @@ namespace GTA3SaveEditor.GUI.ViewModels
             : base("General", TabPageVisibility.WhenFileIsOpen, mainViewModel)
         { }
 
-        protected override void Initialize()
+        public override void Load()
         {
-            m_isInitializing = true;
-            base.Initialize();
-
-            SimpleVars = MainWindow.TheSave.SimpleVars;
+            m_isLoading = true;
+            base.Load();
+            
+            SimpleVars = MainViewModel.TheSave.SimpleVars;
 
             InitSaveTitle();
             DetectPurpleNinesGlitch();
@@ -157,8 +157,8 @@ namespace GTA3SaveEditor.GUI.ViewModels
             OnPropertyChanged(nameof(CurrentPadMode));
             OnPropertyChanged(nameof(OnFootCameraMode));
             OnPropertyChanged(nameof(InCarCameraMode));
-            
-            m_isInitializing = false;
+
+            m_isLoading = false;
         }
 
         private void InitSaveTitle()
@@ -167,7 +167,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
             if (!string.IsNullOrEmpty(name) && name[0] == '\uFFFF')
             {
                 string key = name.Substring(1);
-                if (MainWindow.TheText.TryGetValue(key, out string title))
+                if (MainViewModel.TheText.TryGetValue(key, out string title))
                 {
                     IsSaveTitleFromGxt = true;
                     SaveTitleGxtKey = key;
@@ -195,7 +195,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
         {
             if (key == null) return null;
 
-            if (MainWindow.TheText.TryGetValue(key, out string name))
+            if (MainViewModel.TheText.TryGetValue(key, out string name))
             {
                 SimpleVars.LastMissionPassedName = '\uFFFF' + key;
             }
@@ -206,7 +206,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
         private void DetectPurpleNinesGlitch()
         {
             // TODO: MainViewModel.TheSave.Gangs[GangType.Hoods]
-            Gang hoods = MainWindow.TheSave.Gangs.Gangs[(int) GangType.Hoods];
+            Gang hoods = MainViewModel.TheSave.Gangs.Gangs[(int) GangType.Hoods];
 
             if (hoods.PedModelOverride != -1)
             {
@@ -219,7 +219,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         private void FixPurpleNinesGlitch()
         {
-            Gang hoods = MainWindow.TheSave.Gangs.Gangs[(int) GangType.Hoods];
+            Gang hoods = MainViewModel.TheSave.Gangs.Gangs[(int) GangType.Hoods];
             hoods.PedModelOverride = -1;
 
             FixedPurpleNinesGlitch = true;
@@ -239,7 +239,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         private void DetectPercentageBug()
         {
-            Stats stats = MainWindow.TheSave.Stats;
+            Stats stats = MainViewModel.TheSave.Stats;
 
             // TODO: && ScmVersion == 1
             if (stats.TotalProgressInGame == 156)
@@ -254,7 +254,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         private void FixPercentageBug()
         {
-            Stats stats = MainWindow.TheSave.Stats;
+            Stats stats = MainViewModel.TheSave.Stats;
             stats.TotalProgressInGame = 154;
 
             FixedPercentageBug = true;
@@ -273,61 +273,31 @@ namespace GTA3SaveEditor.GUI.ViewModels
             }
         }
 
-        public ICommand SelectGxtKeyCommand
-        {
-            get
-            {
-                return new RelayCommand<Action<bool?, GxtSelectionEventArgs>>
-                (
-                    (_) => MainWindow.ShowGxtSelectionDialog(GxtSelectionDialog_Callback),
-                    (_) => IsSaveTitleFromGxt
-                );
-            }
-        }
+        public ICommand SelectGxtKeyCommand => new RelayCommand<Action<bool?, GxtSelectionEventArgs>>
+        (
+            (_) => MainViewModel.ShowGxtSelectionDialog(GxtSelectionDialog_Callback),
+            (_) => IsSaveTitleFromGxt
+        );
 
-        public ICommand FixPurpleNinesGlitchCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => FixPurpleNinesGlitch()
-                );
-            }
-        }
+        public ICommand FixPurpleNinesGlitchCommand => new RelayCommand
+        (
+            () => FixPurpleNinesGlitch()
+        );
 
-        public ICommand FixHostilePedsCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => FixHostilePeds()
-                );
-            }
-        }
+        public ICommand FixHostilePedsCommand => new RelayCommand
+        (
+            () => FixHostilePeds()
+        );
 
-        public ICommand FixPercentageBugCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => FixPercentageBug()
-                );
-            }
-        }
+        public ICommand FixPercentageBugCommand => new RelayCommand
+        (
+            () => FixPercentageBug()
+        );
 
-        public ICommand ResetTimersCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => ResetTimers()
-                );
-            }
-        }
+        public ICommand ResetTimersCommand => new RelayCommand
+        (
+            () => ResetTimers()
+        );
     }
 
     public enum PadMode

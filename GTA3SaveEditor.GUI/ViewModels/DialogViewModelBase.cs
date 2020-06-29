@@ -18,26 +18,14 @@ namespace GTA3SaveEditor.GUI.ViewModels
             DialogCloseRequest?.Invoke(this, new DialogCloseEventArgs(result));
         }
 
-        public ICommand CloseCommand
-        {
-            get
-            {
-                return new RelayCommand<bool?>
-                (
-                    (result) => CloseDialog(result)
-                );
-            }
-        }
+        public ICommand CloseCommand => new RelayCommand<bool?>
+        (
+            (result) => CloseDialog(result)
+        );
 
-        public ICommand CancelCommand
-        {
-            get
-            {
-                return new RelayCommand
-                (
-                    () => CloseDialog(false)
-                );
-            }
-        }
+        public ICommand CancelCommand => new RelayCommand
+        (
+            () => CloseDialog(false)
+        );
     }
 }

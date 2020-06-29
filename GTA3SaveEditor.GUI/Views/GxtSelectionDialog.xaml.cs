@@ -2,6 +2,8 @@
 using GTA3SaveEditor.GUI.Events;
 using GTA3SaveEditor.GUI.ViewModels;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Windows;
 
 namespace GTA3SaveEditor.GUI.Views
 {
@@ -24,8 +26,16 @@ namespace GTA3SaveEditor.GUI.Views
         public GxtSelectionDialog()
         {
             InitializeComponent();
+        }
 
+        private void Dialog_Loaded(object sender, RoutedEventArgs e)
+        {
             ViewModel.DialogCloseRequest += ViewModel_DialogCloseRequest;
+        }
+
+        private void Dialog_Closing(object sender, CancelEventArgs e)
+        {
+            ViewModel.DialogCloseRequest -= ViewModel_DialogCloseRequest;
         }
 
         private void ViewModel_DialogCloseRequest(object sender, DialogCloseEventArgs e)

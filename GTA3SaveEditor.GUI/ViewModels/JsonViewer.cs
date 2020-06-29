@@ -32,18 +32,16 @@ namespace GTA3SaveEditor.GUI.ViewModels
             : base("JSON Viewer", TabPageVisibility.WhenFileIsOpen, mainViewModel)
         { }
 
-        protected override void Initialize()
+        public override void Load()
         {
-            base.Initialize();
-
+            base.Load();
             SelectedBlockIndex = 0;
             UpdateTextBox();
         }
 
-        protected override void Shutdown()
+        public override void Unload()
         {
-            base.Shutdown();
-
+            base.Unload();
             SelectedBlockIndex = -1;
             UpdateTextBox();
         }
@@ -51,19 +49,18 @@ namespace GTA3SaveEditor.GUI.ViewModels
         public override void Refresh()
         {
             base.Refresh();
-
             UpdateTextBox();
         }
 
         public void UpdateTextBox()
         {
-            if (!MainWindow.TheEditor.IsFileOpen || SelectedBlockIndex < 0)
+            if (!MainViewModel.TheEditor.IsFileOpen || SelectedBlockIndex < 0)
             {
                 Text = "";
                 return;
             }
 
-            IReadOnlyList<ISaveDataObject> blocks = (MainWindow.TheSave as ISaveData).Blocks;
+            IReadOnlyList<ISaveDataObject> blocks = (MainViewModel.TheSave as ISaveData).Blocks;
             Text = (blocks[SelectedBlockIndex] as SaveDataObject).ToJsonString();
         }
     }

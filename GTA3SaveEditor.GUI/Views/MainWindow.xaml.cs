@@ -13,8 +13,9 @@ namespace GTA3SaveEditor.GUI.Views
     /// </summary>
     public partial class MainWindow : Window
     {
-        private bool m_isInitializing;
-
+        private bool m_initialized;
+        private bool m_initializing;
+        
         public Main ViewModel
         {
             get { return (Main) DataContext; }
@@ -23,51 +24,48 @@ namespace GTA3SaveEditor.GUI.Views
 
         public MainWindow()
         {
+            m_initializing = true;
             InitializeComponent();
-
-            ViewModel.MessageBoxRequest += ViewModel_MessageBoxRequested;
-            ViewModel.FileDialogRequest += ViewModel_FileDialogRequested;
-            ViewModel.FolderDialogRequest += ViewModel_FolderDialogRequested;
-            ViewModel.GxtSelectionDialogRequest += ViewModel_GxtSelectionDialogRequest;
         }
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            m_isInitializing = true;
+            if (m_initialized) return;
+
             ViewModel.Initialize();
-            m_isInitializing = false;
+            ViewModel.MessageBoxRequest += ViewModel_MessageBoxRequest;
+            ViewModel.FileDialogRequest += ViewModel_FileDialogRequest;
+            ViewModel.FolderDialogRequest += ViewModel_FolderDialogRequest;
+            ViewModel.GxtSelectionDialogRequest += ViewModel_GxtSelectionDialogRequest;
+
+            m_initializing = false;
+            m_initialized = true;
         }
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
+            // TODO: pop a dialog if changes not saved
+
             ViewModel.Shutdown();
+            ViewModel.MessageBoxRequest -= ViewModel_MessageBoxRequest;
+            ViewModel.FileDialogRequest -= ViewModel_FileDialogRequest;
+            ViewModel.FolderDialogRequest -= ViewModel_FolderDialogRequest;
+            ViewModel.GxtSelectionDialogRequest -= ViewModel_GxtSelectionDialogRequest;
+
+            m_initialized = false;
         }
 
-        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (m_isInitializing || !(e.OriginalSource is TabControl))
-            {
-                return;
-            }
-
-            object tabPage = e.AddedItems[0];
-            if (tabPage is TabPageViewModelBase page)
-            {
-                page.Refresh();
-            }
-        }
-
-        private void ViewModel_MessageBoxRequested(object sender, MessageBoxEventArgs e)
+        private void ViewModel_MessageBoxRequest(object sender, MessageBoxEventArgs e)
         {
             e.Show(this);
         }
 
-        private void ViewModel_FileDialogRequested(object sender, FileDialogEventArgs e)
+        private void ViewModel_FileDialogRequest(object sender, FileDialogEventArgs e)
         {
             e.ShowDialog(this);
         }
 
-        private void ViewModel_FolderDialogRequested(object sender, FileDialogEventArgs e)
+        private void ViewModel_FolderDialogRequest(object sender, FileDialogEventArgs e)
         {
             VistaFolderBrowserDialog d = new VistaFolderBrowserDialog();
             bool? r = d.ShowDialog(this);
@@ -88,6 +86,23 @@ namespace GTA3SaveEditor.GUI.Views
             e.SelectedKey = d.SelectedItem.Key;
             e.SelectedValue = d.SelectedItem.Value;
             e.Callback?.Invoke(r, e);
+        }
+
+
+        private void TabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (m_initializing || !(e.OriginalSource is TabControl))
+            {
+                return;
+            }
+
+            foreach (var item in e.AddedItems)
+            {
+                if (item is TabPageViewModelBase tabPageViewModel)
+                {
+                    tabPageViewModel.Refresh();
+                }
+            }
         }
     }
 }

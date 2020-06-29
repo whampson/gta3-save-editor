@@ -27,9 +27,7 @@ namespace GTA3SaveEditor.GUI.Controls
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-
             m_itemsHolder = GetTemplateChild("PART_ItemsHolder") as Panel;
-            UpdateSelectedItem();
         }
 
         protected override void OnItemsChanged(NotifyCollectionChangedEventArgs e)
@@ -98,11 +96,6 @@ namespace GTA3SaveEditor.GUI.Controls
 
         private ContentPresenter CreateChildContentPresenter(object item)
         {
-            if (item == null)
-            {
-                return null;
-            }
-
             ContentPresenter cp = FindChildContentPresenter(item);
             if (cp != null)
             {
@@ -126,9 +119,9 @@ namespace GTA3SaveEditor.GUI.Controls
 
         private ContentPresenter FindChildContentPresenter(object data)
         {
-            if (data is TabItem)
+            if (data is TabItem tabItem)
             {
-                data = (data as TabItem).Content;
+                data = tabItem.Content;
             }
 
             if (data == null || m_itemsHolder == null)

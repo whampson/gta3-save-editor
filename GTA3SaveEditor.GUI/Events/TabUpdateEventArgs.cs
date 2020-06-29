@@ -24,18 +24,23 @@ namespace GTA3SaveEditor.GUI.Events
     public enum TabUpdateTrigger
     {
         /// <summary>
-        /// Update occurred as a result of the window loading.
+        /// Update due to the window loading.
         /// </summary>
         WindowLoaded,
 
         /// <summary>
-        /// Update occurred as a result of a file being opened.
+        /// Update due to the window closing.
+        /// </summary>
+        WindowClosing,
+
+        /// <summary>
+        /// Update due to a file being opened.
         /// </summary>
         FileOpened,
 
         /// <summary>
-        /// Update occurred as a result a file being closed.
+        /// Update due to a file closing.
         /// </summary>
-        FileClosed
+        FileClosing
     }
 }

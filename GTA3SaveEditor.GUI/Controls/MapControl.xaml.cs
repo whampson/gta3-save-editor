@@ -1,12 +1,12 @@
 ﻿using System;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using WpfEssentials.Win32;
-using Xceed.Wpf.Toolkit.Zoombox;
 
 namespace GTA3SaveEditor.GUI.Controls
 {
@@ -16,7 +16,6 @@ namespace GTA3SaveEditor.GUI.Controls
     public partial class MapControl : UserControl
     {
         #region Defaults
-        public static readonly Vector DefaultScale = new Vector(1, 1);
         public const double DefaultZoom = 1.0;
         public const double DefaultMinimumZoom = 0.1;
         public const double DefaultMaximumZoom = 5.0;
@@ -32,6 +31,7 @@ namespace GTA3SaveEditor.GUI.Controls
         public const Key DefaultPanRightKey = Key.Right;
         public const Key DefaultZoomInKey = Key.OemPlus;
         public const Key DefaultZoomOutKey = Key.OemMinus;
+        public static readonly Vector DefaultScale = new Vector(1, 1);
         #endregion
 
         #region Properties
@@ -311,33 +311,49 @@ namespace GTA3SaveEditor.GUI.Controls
             get { return (Point) GetValue(MouseOverCoordsProperty); }
             set { SetValue(MouseOverCoordsProperty, value); }
         }
+
+        /// <summary>
+        /// Gets or sets a collection containing map overlays, such as labels or blips.
+        /// </summary>
+        public ObservableCollection<UIElement> Overlays
+        {
+            get { return (ObservableCollection<UIElement>) GetValue(OverlaysProperty); }
+            set { SetValue(OverlaysProperty, value); }
+        }
         #endregion
 
         #region Dependency Properties
         public static readonly DependencyProperty RenderMatrixProperty = DependencyProperty.Register(
-            nameof(RenderMatrix), typeof(Matrix), typeof(MapControl), new PropertyMetadata(default(Matrix)));
+            nameof(RenderMatrix), typeof(Matrix), typeof(MapControl),
+            new PropertyMetadata(default(Matrix)));
 
         public static readonly DependencyProperty ImageProperty = DependencyProperty.Register(
-            nameof(Image), typeof(BitmapImage), typeof(MapControl), new PropertyMetadata(default(BitmapImage)));
+            nameof(Image), typeof(BitmapImage), typeof(MapControl),
+            new PropertyMetadata(default(BitmapImage)));
 
         public static readonly DependencyProperty ScaleProperty = DependencyProperty.Register(
-            nameof(Scale), typeof(Vector), typeof(MapControl), new PropertyMetadata(DefaultScale));
+            nameof(Scale), typeof(Vector), typeof(MapControl),
+            new PropertyMetadata(DefaultScale));
 
         public static readonly DependencyProperty OriginProperty = DependencyProperty.Register(
-            nameof(Origin), typeof(Point), typeof(MapControl), new PropertyMetadata(default(Point)));
+            nameof(Origin), typeof(Point), typeof(MapControl),
+            new PropertyMetadata(default(Point)));
 
         public static readonly DependencyProperty CenterProperty = DependencyProperty.Register(
-            nameof(Center), typeof(Point), typeof(MapControl), new FrameworkPropertyMetadata(
+            nameof(Center), typeof(Point), typeof(MapControl),
+            new FrameworkPropertyMetadata(
                 default(Point),
                 FrameworkPropertyMetadataOptions.AffectsRender |
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
                 OffsetPropertyChanged));
 
         public static readonly DependencyProperty InitialCenterProperty = DependencyProperty.Register(
-            nameof(InitialCenter), typeof(Point), typeof(MapControl), new PropertyMetadata(default(Point)));
+            nameof(InitialCenter), typeof(Point), typeof(MapControl),
+            new PropertyMetadata(default(Point)));
 
         public static readonly DependencyProperty ZoomProperty = DependencyProperty.Register(
-            nameof(Zoom), typeof(double), typeof(MapControl), new FrameworkPropertyMetadata(
+            nameof(Zoom), typeof(double), typeof(MapControl),
+            new FrameworkPropertyMetadata(
                 DefaultZoom,
                 FrameworkPropertyMetadataOptions.AffectsRender |
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
@@ -345,82 +361,112 @@ namespace GTA3SaveEditor.GUI.Controls
                 new CoerceValueCallback(ZoomCoerceValue)));
 
         public static readonly DependencyProperty InitialZoomProperty = DependencyProperty.Register(
-            nameof(InitialZoom), typeof(double), typeof(MapControl), new PropertyMetadata(DefaultZoom));
+            nameof(InitialZoom), typeof(double), typeof(MapControl),
+            new PropertyMetadata(DefaultZoom));
 
         public static readonly DependencyProperty MinimumZoomProperty = DependencyProperty.Register(
-            nameof(MinimumZoom), typeof(double), typeof(MapControl), new PropertyMetadata(DefaultMinimumZoom));
+            nameof(MinimumZoom), typeof(double), typeof(MapControl),
+            new PropertyMetadata(DefaultMinimumZoom));
 
         public static readonly DependencyProperty MaximumZoomProperty = DependencyProperty.Register(
-            nameof(MaximumZoom), typeof(double), typeof(MapControl), new PropertyMetadata(DefaultMaximumZoom));
+            nameof(MaximumZoom), typeof(double), typeof(MapControl),
+            new PropertyMetadata(DefaultMaximumZoom));
 
         public static readonly DependencyProperty ZoomDeltaProperty = DependencyProperty.Register(
-            nameof(ZoomDelta), typeof(double), typeof(MapControl), new PropertyMetadata(DefaultZoomDelta));
+            nameof(ZoomDelta), typeof(double), typeof(MapControl),
+            new PropertyMetadata(DefaultZoomDelta));
 
         public static readonly DependencyProperty ZoomWithKeyboardProperty = DependencyProperty.Register(
-            nameof(ZoomWithKeyboard), typeof(bool), typeof(MapControl), new PropertyMetadata(DefaultZoomWithKeyboard));
+            nameof(ZoomWithKeyboard), typeof(bool), typeof(MapControl),
+            new PropertyMetadata(DefaultZoomWithKeyboard));
 
         public static readonly DependencyProperty ZoomWithMouseWheelProperty = DependencyProperty.Register(
-            nameof(ZoomWithMouseWheel), typeof(bool), typeof(MapControl), new PropertyMetadata(DefaultZoomWithMouseWheel));
+            nameof(ZoomWithMouseWheel), typeof(bool), typeof(MapControl),
+            new PropertyMetadata(DefaultZoomWithMouseWheel));
 
         public static readonly DependencyProperty PanDeltaProperty = DependencyProperty.Register(
-            nameof(PanDelta), typeof(double), typeof(MapControl), new PropertyMetadata(DefaultPanDelta));
+            nameof(PanDelta), typeof(double), typeof(MapControl),
+            new PropertyMetadata(DefaultPanDelta));
 
         public static readonly DependencyProperty PanWithKeyboardProperty = DependencyProperty.Register(
-            nameof(PanWithKeyboard), typeof(bool), typeof(MapControl), new PropertyMetadata(DefaultPanWithKeyboard));
+            nameof(PanWithKeyboard), typeof(bool), typeof(MapControl),
+            new PropertyMetadata(DefaultPanWithKeyboard));
 
         public static readonly DependencyProperty PanWithMouseDragProperty = DependencyProperty.Register(
-            nameof(PanWithMouseDrag), typeof(bool), typeof(MapControl), new PropertyMetadata(DefaultPanWithMouseDrag));
+            nameof(PanWithMouseDrag), typeof(bool), typeof(MapControl),
+            new PropertyMetadata(DefaultPanWithMouseDrag));
 
         public static readonly DependencyProperty PanUpKeyProperty = DependencyProperty.Register(
-            nameof(PanUpKey), typeof(Key), typeof(MapControl), new PropertyMetadata(DefaultPanUpKey));
+            nameof(PanUpKey), typeof(Key), typeof(MapControl),
+            new PropertyMetadata(DefaultPanUpKey));
 
         public static readonly DependencyProperty PanDownKeyProperty = DependencyProperty.Register(
-            nameof(PanDownKey), typeof(Key), typeof(MapControl), new PropertyMetadata(DefaultPanDownKey));
+            nameof(PanDownKey), typeof(Key), typeof(MapControl),
+            new PropertyMetadata(DefaultPanDownKey));
 
         public static readonly DependencyProperty PanLeftKeyProperty = DependencyProperty.Register(
-            nameof(PanLeftKey), typeof(Key), typeof(MapControl), new PropertyMetadata(DefaultPanLeftKey));
+            nameof(PanLeftKey), typeof(Key), typeof(MapControl),
+            new PropertyMetadata(DefaultPanLeftKey));
 
         public static readonly DependencyProperty PanRightKeyProperty = DependencyProperty.Register(
-            nameof(PanRightKey), typeof(Key), typeof(MapControl), new PropertyMetadata(DefaultPanRightKey));
+            nameof(PanRightKey), typeof(Key), typeof(MapControl),
+            new PropertyMetadata(DefaultPanRightKey));
 
         public static readonly DependencyProperty ZoomInKeyProperty = DependencyProperty.Register(
-            nameof(ZoomInKey), typeof(Key), typeof(MapControl), new PropertyMetadata(DefaultZoomInKey));
+            nameof(ZoomInKey), typeof(Key), typeof(MapControl),
+            new PropertyMetadata(DefaultZoomInKey));
 
         public static readonly DependencyProperty ZoomOutKeyProperty = DependencyProperty.Register(
-            nameof(ZoomOutKey), typeof(Key), typeof(MapControl), new PropertyMetadata(DefaultZoomOutKey));
+            nameof(ZoomOutKey), typeof(Key), typeof(MapControl),
+            new PropertyMetadata(DefaultZoomOutKey));
 
         public static readonly DependencyProperty PanWithMouseDragButtonProperty = DependencyProperty.Register(
-            nameof(PanWithMouseDragButton), typeof(MouseButton), typeof(MapControl), new PropertyMetadata(default(MouseButton)));
+            nameof(PanWithMouseDragButton), typeof(MouseButton), typeof(MapControl),
+            new PropertyMetadata(default(MouseButton)));
 
         private static readonly DependencyProperty MouseClickPointProperty = DependencyProperty.Register(
-            nameof(MouseClickPoint), typeof(Point), typeof(MapControl), new FrameworkPropertyMetadata(
+            nameof(MouseClickPoint), typeof(Point), typeof(MapControl),
+            new FrameworkPropertyMetadata(
                 default(Point),
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
         private static readonly DependencyProperty MouseClickOffsetProperty = DependencyProperty.Register(
-            nameof(MouseClickOffset), typeof(Point), typeof(MapControl), new FrameworkPropertyMetadata(
+            nameof(MouseClickOffset), typeof(Point), typeof(MapControl),
+            new FrameworkPropertyMetadata(
                 default(Point),
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
         private static readonly DependencyProperty MouseClickCoordsProperty = DependencyProperty.Register(
-            nameof(MouseClickCoords), typeof(Point), typeof(MapControl), new FrameworkPropertyMetadata(
+            nameof(MouseClickCoords), typeof(Point), typeof(MapControl),
+            new FrameworkPropertyMetadata(
                 default(Point),
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
         private static readonly DependencyProperty MouseOverPointProperty = DependencyProperty.Register(
-            nameof(MouseOverPoint), typeof(Point), typeof(MapControl), new FrameworkPropertyMetadata(
+            nameof(MouseOverPoint), typeof(Point), typeof(MapControl),
+            new FrameworkPropertyMetadata(
                 default(Point),
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
         private static readonly DependencyProperty MouseOverOffsetProperty = DependencyProperty.Register(
-            nameof(MouseOverOffset), typeof(Point), typeof(MapControl), new FrameworkPropertyMetadata(
+            nameof(MouseOverOffset), typeof(Point), typeof(MapControl),
+            new FrameworkPropertyMetadata(
                 default(Point),
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
 
         private static readonly DependencyProperty MouseOverCoordsProperty = DependencyProperty.Register(
-            nameof(MouseOverCoords), typeof(Point), typeof(MapControl), new FrameworkPropertyMetadata(
+            nameof(MouseOverCoords), typeof(Point), typeof(MapControl),
+            new FrameworkPropertyMetadata(
                 default(Point),
                 FrameworkPropertyMetadataOptions.BindsTwoWayByDefault));
+
+        public static readonly DependencyProperty OverlaysProperty = DependencyProperty.Register(
+            nameof(Overlays), typeof(ObservableCollection<UIElement>), typeof(MapControl),
+            new FrameworkPropertyMetadata(
+                new ObservableCollection<UIElement>(),
+                FrameworkPropertyMetadataOptions.AffectsRender |
+                FrameworkPropertyMetadataOptions.BindsTwoWayByDefault,
+                new PropertyChangedCallback(OverlaysPropertyChanged)));
         #endregion
 
         #region Private Fields
@@ -450,6 +496,16 @@ namespace GTA3SaveEditor.GUI.Controls
             Zoom = InitialZoom;
         }
 
+        public void ZoomIn()
+        {
+            ZoomCenter(ZoomDelta);
+        }
+
+        public void ZoomOut()
+        {
+            ZoomCenter(-ZoomDelta);
+        }
+
         /// <summary>
         /// Translates a set of pixel coordinates into a set of world coordinates.
         /// </summary>
@@ -458,28 +514,12 @@ namespace GTA3SaveEditor.GUI.Controls
         /// World coordinates are determined based on the <see cref="Origin"/>
         /// and <see cref="Scale"/> properties.
         /// </remarks>
-        public Point PixelToWorldCoords(Point pixel)
+        public Point PixelToWorld(Point pixel)
         {
             return new Point()
             {
                 X = (pixel.X - Origin.X) / Scale.X,
                 Y = (pixel.Y - Origin.Y) / Scale.Y,
-            };
-        }
-
-        /// <summary>
-        /// Translates a set of pixel coordinates into a set of map coordinates.
-        /// </summary>
-        /// <remarks>
-        /// Pixel coordinates are measured from the top-left of the map image.
-        /// Map coordinates are pixel coordinates centered about the <see cref="Origin"/>.
-        /// </remarks>
-        public Point PixelToMapCoords(Point pixel)
-        {
-            return new Point()
-            {
-                X = pixel.X - Origin.X,
-                Y = pixel.Y - Origin.Y
             };
         }
 
@@ -491,12 +531,28 @@ namespace GTA3SaveEditor.GUI.Controls
         /// World coordinates are determined based on the <see cref="Origin"/>
         /// and <see cref="Scale"/> properties.
         /// </remarks>
-        public Point WorldCoordsToPixel(Point world)
+        public Point WorldToPixel(Point world)
         {
             return new Point()
             {
                 X = (world.X * Scale.X) + Origin.X,
                 Y = (world.Y * Scale.Y) + Origin.Y,
+            };
+        }
+
+        /// <summary>
+        /// Translates a set of pixel coordinates into a set of map coordinates.
+        /// </summary>
+        /// <remarks>
+        /// Pixel coordinates are measured from the top-left of the map image.
+        /// Map coordinates are pixel coordinates centered about the <see cref="Origin"/>.
+        /// </remarks>
+        public Point PixelToMap(Point pixel)
+        {
+            return new Point()
+            {
+                X = pixel.X - Origin.X,
+                Y = pixel.Y - Origin.Y
             };
         }
 
@@ -507,7 +563,7 @@ namespace GTA3SaveEditor.GUI.Controls
         /// Pixel coordinates are measured from the top-left of the map image.
         /// Map coordinates are pixel coordinates centered about the <see cref="Origin"/>.
         /// </remarks>
-        public Point MapCoordsToPixel(Point map)
+        public Point MapToPixel(Point map)
         {
             return new Point()
             {
@@ -515,28 +571,48 @@ namespace GTA3SaveEditor.GUI.Controls
                 Y = map.Y + Origin.Y,
             };
         }
-        #endregion
 
-        public void DrawBlip(Point p)
+        public Point WorldToMap(Point world)
         {
-            Image i = new Image();
-            i.Width = 16;
-            i.Height = 16;
-
-            BitmapImage bi = new BitmapImage();
-            bi.BeginInit();
-            bi.UriSource = new Uri(@"/GTA3SaveEditor.GUI;component/Resources/radar_asuka.png", UriKind.Relative);
-            bi.DecodePixelWidth = 16;
-            bi.EndInit();
-
-            i.Source = bi;
-
-            Canvas.SetLeft(i, p.X + Origin.X);
-            Canvas.SetTop(i, p.Y + Origin.Y);
-            m_canvas.Children.Add(i);
+            return new Point()
+            {
+                X = world.X * Scale.X,
+                Y = world.Y * Scale.Y,
+            };
         }
 
+        public Point MapToWorld(Point map)
+        {
+            return new Point()
+            {
+                X = map.X / Scale.X,
+                Y = map.Y / Scale.Y,
+            };
+        }
+        #endregion
+
         #region Private Functions
+        private void AddOverlay(UIElement overlay)
+        {
+            m_canvas.Children.Add(overlay);
+        }
+
+        private void AddAllOverlays()
+        {
+            foreach (var item in Overlays) AddOverlay(item);
+        }
+
+        private void RemoveOverlay(UIElement overlay)
+        {
+            m_canvas.Children.Remove(overlay);
+        }
+
+        private void RemoveAllOverlays()
+        {
+            // Map lives at index 0, keep that!
+            m_canvas.Children.RemoveRange(1, m_canvas.Children.Count - 1);
+        }
+
         private double GetZoomScale(double delta)
         {
             double scale = 1;
@@ -579,7 +655,7 @@ namespace GTA3SaveEditor.GUI.Controls
             UpdateCenter();
         }
 
-        public void ZoomCenter(double delta)
+        private void ZoomCenter(double delta)
         {
             double scale = GetZoomScale(delta);
             double newZoom = Zoom * scale;
@@ -592,7 +668,7 @@ namespace GTA3SaveEditor.GUI.Controls
         /// <summary>
         /// Pans the map by an X and Y amount.
         /// </summary>
-        public void Pan(double xDelta, double yDelta)
+        private void Pan(double xDelta, double yDelta)
         {
             Point p = Center;
             p.X += xDelta;
@@ -648,7 +724,10 @@ namespace GTA3SaveEditor.GUI.Controls
         #region Event Handlers
         private void MapControl_Loaded(object sender, RoutedEventArgs e)
         {
-            Keyboard.Focus(m_canvas);
+            if (PanWithKeyboard || ZoomWithKeyboard)
+            {
+                Keyboard.Focus(m_canvas);
+            }
 
             Reset();
             ApplyZoom();
@@ -662,7 +741,10 @@ namespace GTA3SaveEditor.GUI.Controls
 
         private void MapControl_MouseDown(object sender, MouseButtonEventArgs e)
         {
-            Keyboard.Focus(m_canvas);
+            if (PanWithKeyboard || ZoomWithKeyboard)
+            {
+                Keyboard.Focus(m_canvas);
+            }
 
             if (!m_canvas.IsMouseCaptured)
             {
@@ -670,8 +752,8 @@ namespace GTA3SaveEditor.GUI.Controls
                 Point imagePos = e.MouseDevice.GetPosition(m_image);
 
                 MouseClickPoint = borderPos;
-                MouseClickOffset = PixelToMapCoords(imagePos);
-                MouseClickCoords = PixelToWorldCoords(imagePos);
+                MouseClickOffset = PixelToMap(imagePos);
+                MouseClickCoords = PixelToWorld(imagePos);
 
                 if (PanWithMouseDrag && PanWithMouseDragButton == e.ChangedButton)
                 {
@@ -706,8 +788,8 @@ namespace GTA3SaveEditor.GUI.Controls
             }
             else
             {
-                MouseOverOffset = PixelToMapCoords(imagePos);
-                MouseOverCoords = PixelToWorldCoords(imagePos);
+                MouseOverOffset = PixelToMap(imagePos);
+                MouseOverCoords = PixelToWorld(imagePos);
             }
         }
 
@@ -757,6 +839,47 @@ namespace GTA3SaveEditor.GUI.Controls
 
             throw new ArgumentException();
         }
+
+        private static void OverlaysPropertyChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
+        {
+            if (sender is MapControl view)
+            {
+                var collectionChangedAction = new NotifyCollectionChangedEventHandler((sender, e) =>
+                {
+                    switch (e.Action)
+                    {
+                        case NotifyCollectionChangedAction.Add:
+                            foreach (var item in e.NewItems) view.AddOverlay(item as UIElement);
+                            break;
+                        case NotifyCollectionChangedAction.Remove:
+                            foreach (var item in e.OldItems) view.RemoveOverlay(item as UIElement);
+                            break;
+                        case NotifyCollectionChangedAction.Replace:
+                            foreach (var item in e.OldItems) view.RemoveOverlay(item as UIElement);
+                            foreach (var item in e.NewItems) view.AddOverlay(item as UIElement);
+                            break;
+                        case NotifyCollectionChangedAction.Reset:
+                            view.RemoveAllOverlays();
+                            if (e.NewItems != null)
+                                foreach (var item in e.NewItems) view.AddOverlay(item as UIElement);
+                            break;
+                    }
+                });
+
+                if (e.OldValue != null)
+                {
+                    var oldCollection = (INotifyCollectionChanged) e.OldValue;
+                    oldCollection.CollectionChanged -= collectionChangedAction;
+                    view.RemoveAllOverlays();
+                }
+                if (e.NewValue != null)
+                {
+                    var newCollection = (INotifyCollectionChanged) e.NewValue;
+                    newCollection.CollectionChanged += collectionChangedAction;
+                    view.AddAllOverlays();
+                }
+            }
+        }
         #endregion
 
         #region Commands
@@ -786,13 +909,13 @@ namespace GTA3SaveEditor.GUI.Controls
 
         public ICommand ZoomInCommand => new RelayCommand
         (
-            () => ZoomCenter(ZoomDelta),
+            () => ZoomIn(),
             () => ZoomWithKeyboard
         );
 
         public ICommand ZoomOutCommand => new RelayCommand
         (
-            () => ZoomCenter(-ZoomDelta),
+            () => ZoomOut(),
             () => ZoomWithKeyboard
         );
         #endregion

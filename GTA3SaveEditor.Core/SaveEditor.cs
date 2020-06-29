@@ -9,9 +9,12 @@ namespace GTA3SaveEditor.Core
 {
     public class SaveEditor : ObservableObject
     {
+        public event EventHandler FileOpening;
         public event EventHandler FileOpened;
-        public event EventHandler FileSaved;
+        public event EventHandler FileClosing;
         public event EventHandler FileClosed;
+        public event EventHandler FileSaving;
+        public event EventHandler FileSaved;
 
         private Settings m_settings;
         private GTA3Save m_activeFile;
@@ -29,12 +32,9 @@ namespace GTA3SaveEditor.Core
             get { return m_activeFile; } 
             set {
                 CloseFile();
-
+                if (value != null) OnFileOpening();
                 m_activeFile = value;
-                if (m_activeFile != null)
-                {
-                    OnFileOpened();
-                }
+                if (value != null) OnFileOpened();
                 OnPropertyChanged();
             }
         }
@@ -52,16 +52,14 @@ namespace GTA3SaveEditor.Core
                 throw FileAlreadyLoaded();
             }
 
+            OnFileOpening();
             ActiveFile = ((Settings.AutoDetectFileType)
                 ? SaveData.Load<GTA3Save>(path)
                 : SaveData.Load<GTA3Save>(path, Settings.ForcedFileType))
                 ?? throw BadSaveData();
-
             Settings.AddRecentFile(path);
             OnFileOpened();
         }
-
-
 
         public void SaveFile(string path)
         {
@@ -70,11 +68,7 @@ namespace GTA3SaveEditor.Core
                 throw NoFileLoaded();
             }
 
-            if (Settings.UpdateTimeStampOnSave)
-            {
-                ActiveFile.TimeStamp = DateTime.Now;
-            }
-
+            OnFileSaving();
             ActiveFile.Save(path);
             Settings.AddRecentFile(path);
             OnFileSaved();
@@ -84,11 +78,17 @@ namespace GTA3SaveEditor.Core
         {
             if (IsFileOpen)
             {
+                OnFileClosing();
                 m_activeFile.Dispose();
                 m_activeFile = null;
                 OnFileClosed();
                 OnPropertyChanged(nameof(ActiveFile));
             }
+        }
+
+        private void OnFileOpening()
+        {
+            FileOpening?.Invoke(this, EventArgs.Empty);
         }
 
         private void OnFileOpened()
@@ -97,15 +97,25 @@ namespace GTA3SaveEditor.Core
             FileOpened?.Invoke(this, EventArgs.Empty);
         }
 
-        private void OnFileSaved()
+        private void OnFileClosing()
         {
-            FileSaved?.Invoke(this, EventArgs.Empty);
+            FileClosing?.Invoke(this, EventArgs.Empty);
         }
 
         private void OnFileClosed()
         {
             OnPropertyChanged(nameof(IsFileOpen));
             FileClosed?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnFileSaving()
+        {
+            FileSaving?.Invoke(this, EventArgs.Empty);
+        }
+
+        private void OnFileSaved()
+        {
+            FileSaved?.Invoke(this, EventArgs.Empty);
         }
 
         private InvalidOperationException FileAlreadyLoaded()
