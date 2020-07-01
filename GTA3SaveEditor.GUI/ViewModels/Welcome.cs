@@ -95,10 +95,12 @@ namespace GTA3SaveEditor.GUI.ViewModels
         public override void Refresh()
         {
             base.Refresh();
+            RefreshList();
         }
 
         public void RefreshList()
         {
+            // TODO: detect external changes
             ListItems.Clear();
             m_lukeFileWalker.CancelAsync();
             if (Directory.Exists(SelectedDirectory))

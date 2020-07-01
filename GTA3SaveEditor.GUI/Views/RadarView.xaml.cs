@@ -39,7 +39,7 @@ namespace GTA3SaveEditor.GUI.Views
             set { SetValue(BlipsProperty, value); }
         }
 
-        private Dictionary<int, UIElement> m_blipUIElementMap;
+        private readonly Dictionary<int, UIElement> m_blipUIElementMap;
 
         public RadarView()
         {
@@ -94,7 +94,7 @@ namespace GTA3SaveEditor.GUI.Views
 
         private UIElement MakeBlip(RadarBlip blip)
         {
-            const int Size = 2;
+            const double Size = 2;
 
             Rectangle rect = new Rectangle();
             SolidColorBrush brush = new SolidColorBrush();
@@ -103,23 +103,19 @@ namespace GTA3SaveEditor.GUI.Views
             if (colorId >= 0 && colorId < BlipColors.Count)
             {
                 var c = BlipColors[blip.ColorId];
-                brush.Color = (blip.Dim) ? c.Item1 : c.Item2;       // TODO: BUG: blip.Dim is inverted?
+                brush.Color = (blip.Dim) ? c.Item1 : c.Item2;       // TODO: BUG: blip.Dim is inverted
             }
             else
             {
-                // TOOD: test this in-game
-                byte a = (byte) (blip.ColorId >> 24);
-                byte r = (byte) (blip.ColorId >> 16);
-                byte g = (byte) (blip.ColorId >> 8);
-                byte b = (byte) blip.ColorId;
-                brush.Color = Color.FromArgb(a, r, g, b);
+                byte r = (byte) (blip.ColorId >> 24);
+                byte g = (byte) (blip.ColorId >> 16);
+                byte b = (byte) (blip.ColorId >> 8);
+                brush.Color = Color.FromRgb(r, g, b);
             }
 
             rect.Fill = brush;
             rect.StrokeThickness = 0.5;
             rect.Stroke = Brushes.Black;
-
-            // TODO: test scale
             rect.Width = Size * blip.Scale;
             rect.Height = Size * blip.Scale;
 
@@ -127,7 +123,7 @@ namespace GTA3SaveEditor.GUI.Views
 
             Matrix m = Matrix.Identity;
             m.OffsetX = p.X - (rect.Width / 2);
-            m.OffsetY = p.Y - (rect.Width / 2);
+            m.OffsetY = p.Y - (rect.Height / 2);
 
             rect.RenderTransform = new MatrixTransform(m);
             return rect;

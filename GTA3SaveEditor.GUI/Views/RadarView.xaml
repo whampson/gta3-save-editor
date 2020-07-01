@@ -22,7 +22,7 @@
 
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="150"/>
+            <ColumnDefinition Width="200"/>
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Column="0">
@@ -38,7 +38,7 @@
                 Focusable="True"
                 Background="Black"
                 Cursor="Cross"
-                Origin="512,512"
+                Origin="510,512"
                 Scale="0.256,-0.256"
                 MaximumZoom="5"
                 MinimumZoom="0.3"

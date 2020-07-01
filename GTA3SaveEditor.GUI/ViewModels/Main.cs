@@ -24,6 +24,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
         private ObservableCollection<TabPageViewModelBase> m_tabs;
         private int m_selectedTabIndex;
         private string m_statusText;
+        private bool m_isRefreshingFile;
 
         public SaveEditor TheEditor { get; private set; }
         public Gxt TheText { get; private set; }
@@ -179,6 +180,31 @@ namespace GTA3SaveEditor.GUI.ViewModels
             }
         }
 
+        public void RefreshFile()
+        {
+            // TODO: warn before refresh
+            m_isRefreshingFile = true;
+            foreach (var tab in Tabs)
+            {
+                if (tab.Visibility == TabPageVisibility.WhenFileIsOpen)
+                {
+                    tab.Unload();
+                }
+            }
+
+            TheEditor.CloseFile();
+            TheEditor.OpenFile(TheSettings.MostRecentFile);
+
+            foreach (var tab in Tabs)
+            {
+                if (tab.Visibility == TabPageVisibility.WhenFileIsOpen)
+                {
+                    tab.Load();
+                }
+            }
+            m_isRefreshingFile = false;
+        }
+
         #region Window Actions
         public void ShowMessageBoxInfo(string text, string title = "Information")
         {
@@ -242,20 +268,30 @@ namespace GTA3SaveEditor.GUI.ViewModels
         #region Window Event Handlers
         private void TheEditor_FileOpening(object sender, EventArgs e)
         {
-            StatusText = "Opening file...";
+            if (!m_isRefreshingFile)
+            {
+                StatusText = "Opening file...";
+            }
         }
 
         private void TheEditor_FileOpened(object sender, EventArgs e)
         {
             OnPropertyChanged(nameof(TheSave));
-            RefreshTabs(TabUpdateTrigger.FileOpened);
-            StatusText = "File opened: " + TheSettings.MostRecentFile;
+
+            if (!m_isRefreshingFile)
+            {
+                RefreshTabs(TabUpdateTrigger.FileOpened);
+                StatusText = "File opened: " + TheSettings.MostRecentFile;
+            }
         }
 
         private void TheEditor_FileClosing(object sender, EventArgs e)
         {
-            StatusText = "Closing file...";
-            RefreshTabs(TabUpdateTrigger.FileClosing);
+            if (!m_isRefreshingFile)
+            {
+                StatusText = "Closing file...";
+                RefreshTabs(TabUpdateTrigger.FileClosing);
+            }
         }
 
         private void TheEditor_FileClosed(object sender, EventArgs e)
@@ -324,6 +360,12 @@ namespace GTA3SaveEditor.GUI.ViewModels
         public ICommand FileSaveAsCommand => new RelayCommand
         (
             () => ShowFileDialog(FileDialogType.SaveFileDialog, ShowFileDialog_Callback),
+            () => TheEditor.IsFileOpen
+        );
+
+        public ICommand FileRefreshCommand => new RelayCommand
+        (
+            () => RefreshFile(),
             () => TheEditor.IsFileOpen
         );
 

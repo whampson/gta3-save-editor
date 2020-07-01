@@ -102,6 +102,7 @@
         <KeyBinding Modifiers="Ctrl" Key="O" Command="{Binding FileOpenCommand}"/>
         <KeyBinding Modifiers="Ctrl" Key="S" Command="{Binding FileSaveCommand}"/>
         <KeyBinding Modifiers="Ctrl" Key="W" Command="{Binding FileCloseCommand}"/>
+        <KeyBinding Key="F5" Command="{Binding FileRefreshCommand}"/>
         <KeyBinding Modifiers="Ctrl+Shift" Key="S" Command="{Binding FileSaveAsCommand}"/>
         <KeyBinding Modifiers="Alt" Key="F4" Command="{Binding FileExitCommand}"/>
     </Window.InputBindings>
@@ -124,6 +125,10 @@
                 <MenuItem Header="_Save As..."
                     InputGestureText="Ctrl+Shift+S"
                     Command="{Binding FileSaveAsCommand}"/>
+                <Separator/>
+                <MenuItem Header="_Refresh"
+                    InputGestureText="F5"
+                    Command="{Binding FileRefreshCommand}"/>
                 <Separator/>
                 <MenuItem Header="_Recent Files"
                     IsEnabled="{Binding TheSettings.RecentFiles.Count, Converter={StaticResource IsNotZeroConverter}}"
