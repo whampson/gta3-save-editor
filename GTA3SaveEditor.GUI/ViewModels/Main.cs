@@ -10,6 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using System.Windows.Threading;
 using WpfEssentials;
 using WpfEssentials.Win32;
 
@@ -25,10 +26,15 @@ namespace GTA3SaveEditor.GUI.ViewModels
         public event EventHandler<GxtSelectionEventArgs> GxtSelectionDialogRequest;
         public event EventHandler<TabUpdateEventArgs> TabUpdate;
 
+        private readonly DispatcherTimer m_statusTextTimer;
         private ObservableCollection<TabPageViewModelBase> m_tabs;
         private int m_selectedTabIndex;
         private string m_title;
         private string m_statusText;
+        private string m_defaultStatusText;
+        private string m_timedStatusText;
+        private int m_timedStatusTextTime;
+        private int m_timedStatusTextTick;
         private bool m_isRefreshingFile;
         private bool m_isDirty;
 
@@ -61,6 +67,31 @@ namespace GTA3SaveEditor.GUI.ViewModels
             set { m_statusText = value; OnPropertyChanged(); }
         }
 
+        public string DefaultStatusText
+        {
+            get { return m_defaultStatusText; }
+            set { m_defaultStatusText = value; OnPropertyChanged(); }
+        }
+
+        public string TimedStatusText
+        {
+            get { return m_timedStatusText; }
+            set
+            {
+                m_timedStatusText = value;
+                m_timedStatusTextTick = TimedStatusTextTime;
+                m_statusTextTimer.Interval = TimeSpan.Zero;
+                m_statusTextTimer.Start();
+                OnPropertyChanged();
+            }
+        }
+
+        public int TimedStatusTextTime
+        {
+            get { return m_timedStatusTextTime; }
+            set { m_timedStatusTextTime = value; OnPropertyChanged(); }
+        }
+
         public bool IsDirty
         {
             get { return m_isDirty; }
@@ -79,6 +110,8 @@ namespace GTA3SaveEditor.GUI.ViewModels
             Tabs.Add(new Radar(this));
             Tabs.Add(new JsonViewer(this));
 
+            m_statusTextTimer = new DispatcherTimer();
+
             UpdateTitle();
         }
 
@@ -90,12 +123,14 @@ namespace GTA3SaveEditor.GUI.ViewModels
             TheEditor.FileClosed += TheEditor_FileClosed;
             TheEditor.FileSaving += TheEditor_FileSaving;
             TheEditor.FileSaved += TheEditor_FileSaved;
+            m_statusTextTimer.Tick += StatusTimer_Tick;
 
             LoadSettings();
             InitializeTabs();
             RefreshTabs(TabUpdateTrigger.WindowLoaded);
 
-            StatusText = "Ready.";
+            DefaultStatusText = "Ready.";
+            StatusText = DefaultStatusText;
         }
 
         public void Shutdown()
@@ -106,6 +141,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
             TheEditor.FileClosed -= TheEditor_FileClosed;
             TheEditor.FileSaving -= TheEditor_FileSaving;
             TheEditor.FileSaved -= TheEditor_FileSaved;
+            m_statusTextTimer.Tick -= StatusTimer_Tick;
 
             RefreshTabs(TabUpdateTrigger.WindowClosing);
             ShutdownTabs();
@@ -153,7 +189,6 @@ namespace GTA3SaveEditor.GUI.ViewModels
         {
             if (TheEditor.IsFileOpen)
             {
-                // TODO: save/discard message
                 ShowMessageBoxError("Please close the current file before opening a new one.");
                 return;
             }
@@ -206,7 +241,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         public void RefreshFile()
         {
-            if (IsDirty) ShowConfirmationDialog("Do you want to save your changes?", "Save", RefreshFileDialog_Callback);
+            if (IsDirty) ShowSaveConfirmationDialog(RefreshFileDialog_Callback);
             else DoRefresh();
         }
 
@@ -228,13 +263,18 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         public void CloseFile()
         {
-            if (IsDirty) ShowConfirmationDialog("Do you want to save your changes?", "Save", CloseFileDialog_Callback);
+            if (IsDirty) ShowSaveConfirmationDialog(CloseFileDialog_Callback);
             else DoClose();
         }
 
         private void DoClose()
         {
             TheEditor.CloseFile();
+        }
+
+        private void DoExit()
+        {
+            Application.Current.Shutdown();
         }
 
         private void UpdateTitle()
@@ -280,10 +320,11 @@ namespace GTA3SaveEditor.GUI.ViewModels
             ShowMessageBoxError(text, title);
         }
 
-        public void ShowConfirmationDialog(string text, string title, Action<MessageBoxResult> callback)
+        public void ShowSaveConfirmationDialog(Action<MessageBoxResult> callback)
         {
             MessageBoxRequest?.Invoke(this, new MessageBoxEventArgs(
-                text, title, MessageBoxButton.YesNoCancel, MessageBoxImage.Question, callback: callback));
+                "Do you want to save your changes?", "Save", 
+                MessageBoxButton.YesNoCancel, MessageBoxImage.Question, callback: callback));
         }
 
         public void ShowFileDialog(FileDialogType type, Action<bool?, FileDialogEventArgs> callback)
@@ -322,6 +363,24 @@ namespace GTA3SaveEditor.GUI.ViewModels
         #endregion
 
         #region Window Event Handlers
+        private void StatusTimer_Tick(object sender, EventArgs e)
+        {
+            if (m_timedStatusTextTick == TimedStatusTextTime)
+            {
+                m_statusTextTimer.Interval = TimeSpan.FromSeconds(1);
+            }
+            if (m_timedStatusTextTick <= 0)
+            {
+                m_statusTextTimer.Stop();
+                StatusText = DefaultStatusText;
+            }
+            else
+            {
+                StatusText = TimedStatusText;
+                m_timedStatusTextTick--;
+            }
+        }
+
         private void TheEditor_FileOpening(object sender, EventArgs e)
         {
             if (!m_isRefreshingFile)
@@ -340,7 +399,13 @@ namespace GTA3SaveEditor.GUI.ViewModels
             if (!m_isRefreshingFile)
             {
                 RefreshTabs(TabUpdateTrigger.FileOpened);
-                StatusText = "File opened successfully.";
+                TimedStatusTextTime = 5;
+                TimedStatusText = "File opened successfully.";
+            }
+            else
+            {
+                TimedStatusTextTime = 5;
+                TimedStatusText = "File refreshed.";
             }
         }
 
@@ -360,7 +425,8 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
             UnregisterDirtyHandlers(TheSave);
             OnPropertyChanged(nameof(TheSave));
-            StatusText = "File closed.";
+            TimedStatusTextTime = 5;
+            TimedStatusText = "File closed.";
         }
 
         private void TheEditor_FileSaving(object sender, EventArgs e)
@@ -376,7 +442,8 @@ namespace GTA3SaveEditor.GUI.ViewModels
         {
             IsDirty = false;
             UpdateTitle();
-            StatusText = "File saved successfully.";
+            TimedStatusTextTime = 5;
+            TimedStatusText = "File saved successfully.";
         }
 
         void RefreshFileDialog_Callback(MessageBoxResult r)
@@ -513,7 +580,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         public ICommand FileExitCommand => new RelayCommand
         (
-            () => Application.Current.Shutdown()
+            () => Application.Current.MainWindow.Close()
         );
         #endregion
     }

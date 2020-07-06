@@ -44,7 +44,12 @@ namespace GTA3SaveEditor.GUI.Views
 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            // TODO: pop a dialog if changes not saved
+            if (ViewModel.IsDirty)
+            {
+                e.Cancel = true;
+                ViewModel.ShowSaveConfirmationDialog(ExitAppConfirmationDialog_Callback);
+                return;
+            }
 
             ViewModel.Shutdown();
             ViewModel.MessageBoxRequest -= ViewModel_MessageBoxRequest;
@@ -53,6 +58,17 @@ namespace GTA3SaveEditor.GUI.Views
             ViewModel.GxtSelectionDialogRequest -= ViewModel_GxtSelectionDialogRequest;
 
             m_initialized = false;
+        }
+
+        private void ExitAppConfirmationDialog_Callback(MessageBoxResult r)
+        {
+            if (r != MessageBoxResult.Cancel)
+            {
+                if (r == MessageBoxResult.Yes) ViewModel.SaveFile();
+                ViewModel.IsDirty = false;
+                ViewModel.CloseFile();
+                Application.Current.Shutdown();
+            }
         }
 
         private void ViewModel_MessageBoxRequest(object sender, MessageBoxEventArgs e)

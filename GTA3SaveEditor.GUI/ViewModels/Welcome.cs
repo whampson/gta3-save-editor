@@ -202,7 +202,8 @@ namespace GTA3SaveEditor.GUI.ViewModels
                 ExceptionDispatchInfo.Capture(e.Error).Throw();
             }
 
-            MainViewModel.StatusText = "Search complete.";
+            MainViewModel.TimedStatusTextTime = 5;
+            MainViewModel.TimedStatusText = "Search complete.";
         }
         #endregion
 
