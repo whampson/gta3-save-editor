@@ -10,9 +10,7 @@ namespace GTA3SaveEditor.Core
     {
         public const int DefaultRecentFilesCapacity = 10;
 
-        [JsonProperty(PropertyName = "RecentFiles")]
         private ObservableCollection<string> m_recentFiles;
-
         private int m_recentFilesCapacity;
         private string m_lastDirectoryBrowsed;
         private string m_gameDirectory;
@@ -22,10 +20,10 @@ namespace GTA3SaveEditor.Core
         private bool m_autoDetectFileType;
         private FileFormat m_forcedFileType;
 
-        [JsonIgnore]
-        public ReadOnlyObservableCollection<string> RecentFiles
+        public ObservableCollection<string> RecentFiles
         {
-            get { return new ReadOnlyObservableCollection<string>(m_recentFiles); }
+            get { return m_recentFiles; }
+            set { m_recentFiles = value; OnPropertyChanged(); }
         }
 
         [JsonIgnore]

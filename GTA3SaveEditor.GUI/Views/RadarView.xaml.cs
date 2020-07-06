@@ -1,25 +1,19 @@
-﻿using GTA3SaveEditor.GUI.Controls;
-using GTA3SaveEditor.GUI.Events;
+﻿using GTA3SaveEditor.GUI.Events;
 using GTA3SaveEditor.GUI.ViewModels;
-using GTASaveData;
 using GTASaveData.GTA3;
+using GTASaveData.Types;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.ComponentModel;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
 using System.Windows.Shapes;
-using WpfEssentials;
+using WpfEssentials.Win32;
+using Xceed.Wpf.Toolkit;
+using Xceed.Wpf.Toolkit.Core;
 
 namespace GTA3SaveEditor.GUI.Views
 {
@@ -28,10 +22,75 @@ namespace GTA3SaveEditor.GUI.Views
     /// </summary>
     public partial class RadarView : TabPageBase<Radar>
     {
+        public const int NumStandardColorTypes = 7;
+
+        public static readonly DependencyProperty MapZoomProperty = DependencyProperty.Register(
+            nameof(MapZoom), typeof(double), typeof(RadarView));
+
+        public static readonly DependencyProperty MapPanProperty = DependencyProperty.Register(
+            nameof(MapPan), typeof(Point), typeof(RadarView));
+
+        public static readonly DependencyProperty MouseCursorProperty = DependencyProperty.Register(
+            nameof(MouseCursor), typeof(Cursor), typeof(RadarView));
+
+        public static readonly DependencyProperty MouseOverMapCoordsProperty = DependencyProperty.Register(
+            nameof(MouseOverMapCoords), typeof(Point), typeof(RadarView));
+
+        public static readonly DependencyProperty MouseOverWorldCoordsProperty = DependencyProperty.Register(
+            nameof(MouseOverWorldCoords), typeof(Point), typeof(RadarView));
+
+        public static readonly DependencyProperty MouseOverBlipProperty = DependencyProperty.Register(
+            nameof(MouseOverBlip), typeof(RadarBlip), typeof(RadarView));
+
+        public static readonly DependencyProperty MouseClickWorldCoordsProperty = DependencyProperty.Register(
+            nameof(MouseClickWorldCoords), typeof(Point), typeof(RadarView));
+
         public static readonly DependencyProperty BlipsProperty = DependencyProperty.Register(
-            nameof(Blips), typeof(ObservableCollection<UIElement>), typeof(MapControl),
+            nameof(Blips), typeof(ObservableCollection<UIElement>), typeof(RadarView),
             new PropertyMetadata(
                 new ObservableCollection<UIElement>()));
+
+        public double MapZoom
+        {
+            get { return (double) GetValue(MapZoomProperty); }
+            set { SetValue(MapZoomProperty, value); }
+        }
+
+        public Point MapPan
+        {
+            get { return (Point) GetValue(MapPanProperty); }
+            set { SetValue(MapPanProperty, value); }
+        }
+
+        public Cursor MouseCursor
+        {
+            get { return (Cursor) GetValue(MouseCursorProperty); }
+            set { SetValue(MouseCursorProperty, value); }
+        }
+
+        public Point MouseOverMapCoords
+        {
+            get { return (Point) GetValue(MouseOverMapCoordsProperty); }
+            set { SetValue(MouseOverMapCoordsProperty, value); }
+        }
+
+        public Point MouseOverWorldCoords
+        {
+            get { return (Point) GetValue(MouseOverWorldCoordsProperty); }
+            set { SetValue(MouseOverWorldCoordsProperty, value); }
+        }
+
+        public RadarBlip MouseOverBlip
+        {
+            get { return (RadarBlip) GetValue(MouseOverBlipProperty); }
+            set { SetValue(MouseOverBlipProperty, value); }
+        }
+
+        public Point MouseClickWorldCoords
+        {
+            get { return (Point) GetValue(MouseClickWorldCoordsProperty); }
+            set { SetValue(MouseClickWorldCoordsProperty, value); }
+        }
 
         public ObservableCollection<UIElement> Blips
         {
@@ -39,12 +98,18 @@ namespace GTA3SaveEditor.GUI.Views
             set { SetValue(BlipsProperty, value); }
         }
 
-        private readonly Dictionary<int, UIElement> m_blipUIElementMap;
+        private readonly Dictionary<RadarBlip, UIElement> m_blipUIElementMap;
+        private bool m_suppressContextMenuOnce;
+        private bool m_isContextMenuVisible;
+        private bool m_wasContextMenuOpenedOnBlip;
+        private RadarBlip m_grabbedBlip;
 
         public RadarView()
         {
-            m_blipUIElementMap = new Dictionary<int, UIElement>();
+            m_blipUIElementMap = new Dictionary<RadarBlip, UIElement>();
             InitializeComponent();
+
+            MouseCursor = Cursors.Cross;
         }
 
         protected override void OnInitialize()
@@ -60,64 +125,28 @@ namespace GTA3SaveEditor.GUI.Views
             ViewModel.BlipUpdate -= ViewModel_BlipUpdate;
         }
 
-        private void ViewModel_BlipUpdate(object sender, RadarBlipEventArgs e)
+        protected override void OnLoad()
         {
-            switch (e.Action)
-            {
-                case BlipAction.Add:
-                    foreach (RadarBlip blip in e.NewItems) AddBlip(blip);
-                    break;
-                case BlipAction.Remove:
-                    foreach (RadarBlip blip in e.OldItems) RemoveBlip(blip);
-                    break;
-                case BlipAction.Replace:
-                    for (int i = 0; i < e.NewItems.Count; i++) ReplaceBlip(e.OldStartingIndex + i, e.NewItems[i]);
-                    break;
-                case BlipAction.Reset:
-                    RemoveAllBlips();
-                    break;
-            }
-        }
-
-        private void AddBlip(RadarBlip blip)
-        {
-            if (blip.InUse)
-            {
-                UIElement e = (blip.Sprite == RadarBlipSprite.None)
-                    ? MakeBlip(blip)
-                    : MakeSpriteBlip(blip, SpriteURIs[blip.Sprite]);
-                
-                Blips.Add(e);
-                m_blipUIElementMap[blip.BlipIndex] = e;
-            }
+            base.OnLoad();
+            m_map.Reset();
         }
 
         private UIElement MakeBlip(RadarBlip blip)
         {
             const double Size = 2;
 
-            Rectangle rect = new Rectangle();
-            SolidColorBrush brush = new SolidColorBrush();
-
-            int colorId = blip.ColorId;
-            if (colorId >= 0 && colorId < BlipColors.Count)
+            SolidColorBrush brush = new SolidColorBrush
             {
-                var c = BlipColors[blip.ColorId];
-                brush.Color = (blip.Dim) ? c.Item1 : c.Item2;       // TODO: BUG: blip.Dim is inverted
-            }
-            else
+                Color = GetBlipColor(blip.Color, blip.IsBright)
+            };
+            Rectangle rect = new Rectangle
             {
-                byte r = (byte) (blip.ColorId >> 24);
-                byte g = (byte) (blip.ColorId >> 16);
-                byte b = (byte) (blip.ColorId >> 8);
-                brush.Color = Color.FromRgb(r, g, b);
-            }
-
-            rect.Fill = brush;
-            rect.StrokeThickness = 0.5;
-            rect.Stroke = Brushes.Black;
-            rect.Width = Size * blip.Scale;
-            rect.Height = Size * blip.Scale;
+                Fill = brush,
+                StrokeThickness = 0.5,
+                Stroke = Brushes.Black,
+                Width = Size * blip.Scale,
+                Height = Size * blip.Scale
+            };
 
             Point p = m_map.WorldToPixel(new Point(blip.RadarPosition.X, blip.RadarPosition.Y));
 
@@ -151,25 +180,9 @@ namespace GTA3SaveEditor.GUI.Views
             Matrix m = Matrix.Identity;
             m.OffsetX = p.X - (Size / 2);
             m.OffsetY = p.Y - (Size / 2);
-            m.ScalePrepend(blip.Scale, blip.Scale);
 
             img.RenderTransform = new MatrixTransform(m);
             return img;
-        }
-
-        private void ReplaceBlip(int index, RadarBlip newBlip)
-        {
-            Blips.Remove(m_blipUIElementMap[index]);
-            AddBlip(newBlip);
-        }
-
-        private void RemoveBlip(RadarBlip blip)
-        {
-            if (m_blipUIElementMap.TryGetValue(blip.BlipIndex, out UIElement e))
-            {
-                Blips.Remove(e);
-                m_blipUIElementMap.Remove(blip.BlipIndex);
-            }
         }
 
         private void RemoveAllBlips()
@@ -178,12 +191,212 @@ namespace GTA3SaveEditor.GUI.Views
             m_blipUIElementMap.Clear();
         }
 
+        private void UpdateBlip(RadarBlip blip)
+        {
+            if (m_blipUIElementMap.TryGetValue(blip, out UIElement oldElement))
+            {
+                Blips.Remove(oldElement);
+                m_blipUIElementMap.Remove(blip);
+            }
+
+            if (blip.IsVisible)
+            {
+                UIElement newElement = (blip.Sprite == RadarBlipSprite.None)
+                    ? MakeBlip(blip)
+                    : MakeSpriteBlip(blip, SpriteURIs[blip.Sprite]);
+
+                Blips.Add(newElement);
+                m_blipUIElementMap[blip] = newElement;
+            }
+        }
+
+        private void LocateBlip(RadarBlip blip)
+        {
+            MapPan = m_map.WorldToMap(new Point(-blip.RadarPosition.X, -blip.RadarPosition.Y));
+            MapZoom = 4.5;
+        }
+
+        private void GrabBlip(RadarBlip blip)
+        {
+            m_grabbedBlip = blip;
+            UpdateCursor();
+        }
+
+        private void DropBlip(Point loc)
+        {
+            ViewModel.MoveBlip(m_grabbedBlip, loc);
+            m_grabbedBlip = null;
+            UpdateCursor();
+        }
+
+        private void CancelMove()
+        {
+            m_grabbedBlip = null;
+            UpdateCursor();
+        }
+
+        private void UpdateCursor()
+        {
+            if (m_grabbedBlip != null)
+            {
+                MouseCursor = Cursors.ScrollAll;
+            }
+            else if (MouseOverBlip != null)
+            {
+                MouseCursor = Cursors.Hand;
+            }
+            else
+            {
+                MouseCursor = Cursors.Cross;
+            }
+        }
+
+        public ICommand NewBlipCommand => new RelayCommand
+        (
+            () => ViewModel.CreateBlip(MouseClickWorldCoords),
+            () => !m_wasContextMenuOpenedOnBlip && ViewModel.NextAvailableSlot != null
+        );
+
+        public ICommand MoveBlipCommand => new RelayCommand
+        (
+            () => GrabBlip(ViewModel.ActiveBlip),
+            () => m_wasContextMenuOpenedOnBlip
+        );
+
+        public ICommand CancelMoveBlipCommand => new RelayCommand
+        (
+            () => CancelMove(),
+            () => m_grabbedBlip != null
+        );
+
+        public ICommand DeleteBlipCommand => new RelayCommand
+        (
+            () => ViewModel.DeleteBlip(ViewModel.ActiveBlip),
+            () => (m_isContextMenuVisible && m_wasContextMenuOpenedOnBlip) ||
+                  (!m_isContextMenuVisible && ViewModel.ActiveBlip != null)
+        );
+
+        public ICommand LocateBlipCommand => new RelayCommand
+        (
+            () => LocateBlip(ViewModel.ActiveBlip),
+            () => ViewModel.ActiveBlip != null
+        );
+
+        private void ViewModel_BlipUpdate(object sender, RadarBlipEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case BlipAction.Update:
+                    foreach (var blip in e.Items) UpdateBlip(blip);
+                    break;
+                case BlipAction.Reset:
+                    RemoveAllBlips();
+                    break;
+            }
+        }
+
+        private void Map_MouseMove(object sender, MouseEventArgs e)
+        {
+            if (m_grabbedBlip != null)
+            {
+                return;
+            }
+
+            MouseOverBlip = null;
+
+            foreach (var item in ViewModel.RadarBlips)
+            {
+                if (!item.IsVisible)
+                {
+                    continue;
+                }
+
+                UIElement el = m_blipUIElementMap[item];
+                Matrix m = el.RenderTransform.Value;
+                Point p0 = m_map.PixelToMap(new Point(m.OffsetX, m.OffsetY));
+                Point p1 = MouseOverMapCoords;
+                double h = (el as FrameworkElement).Height;
+                double w = (el as FrameworkElement).Width;
+
+                if ((p0.X + w >= p1.X && p0.X <= p1.X) &&
+                    (p0.Y + h >= p1.Y && p0.Y <= p1.Y))
+                {
+                    MouseOverBlip = item;
+                    break;
+                }
+            }
+
+            UpdateCursor();
+        }
+
+        private void Map_MouseDown(object sender, MouseButtonEventArgs e)
+        {
+            MouseClickWorldCoords = MouseOverWorldCoords;
+
+            if (m_grabbedBlip != null && e.ChangedButton == MouseButton.Right)
+            {
+                DropBlip(MouseClickWorldCoords);
+                m_suppressContextMenuOnce = true;
+            }
+
+            if (MouseOverBlip != null)
+            {
+                ViewModel.ActiveBlip = MouseOverBlip;
+            }
+        }
+
+        private void Location_ValueChanged(object sender, RoutedEventArgs e)
+        {
+            if (m_mapTab.IsSelected && ViewModel.ActiveBlip != null)
+            {
+                if (e is PropertyChangedEventArgs<Vector3D> args)
+                {
+                    Vector3D oldV3 = ViewModel.ActiveBlip.MarkerPosition;
+                    Vector3D newV3 = args.NewValue;
+                    if (oldV3 != newV3) ViewModel.ActiveBlip.MarkerPosition = newV3;
+
+                    Vector2D oldV2 = ViewModel.ActiveBlip.RadarPosition;
+                    Vector2D newV2 = args.NewValue.Get2DComponent();
+                    if (oldV2 != newV2) ViewModel.ActiveBlip.RadarPosition = newV2;
+                }
+            }
+        }
+
+        private void Table_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (!m_mapTab.IsSelected && ViewModel.ActiveBlip != null)
+            {
+                LocateBlip(ViewModel.ActiveBlip);
+            }
+        }
+
+        private void ContextMenu_Opening(object sender, ContextMenuEventArgs e)
+        {
+            if (m_suppressContextMenuOnce)
+            {
+                e.Handled = true;
+                m_suppressContextMenuOnce = false;
+            }
+        }
+
+        private void ContextMenu_Opened(object sender, RoutedEventArgs e)
+        {
+            m_isContextMenuVisible = true;
+            m_wasContextMenuOpenedOnBlip = (MouseOverBlip != null);
+        }
+
+
+        private void ContextMenu_Closed(object sender, RoutedEventArgs e)
+        {
+            m_isContextMenuVisible = false;
+        }
+
         private static readonly Dictionary<RadarBlipSprite, string> SpriteURIs = new Dictionary<RadarBlipSprite, string>()
         {
             { RadarBlipSprite.Asuka,    @"pack://application:,,,/Resources/radar_asuka.png"  },
             { RadarBlipSprite.Bomb,     @"pack://application:,,,/Resources/radar_bomb.png"   },
             { RadarBlipSprite.Cat,      @"pack://application:,,,/Resources/radar_cat.png"    },
-            { RadarBlipSprite.Center,   @"pack://application:,,,/Resources/radar_centre.png" },
+            { RadarBlipSprite.Centre,   @"pack://application:,,,/Resources/radar_centre.png" },
             { RadarBlipSprite.Copcar,   @"pack://application:,,,/Resources/radar_copcar.png" },
             { RadarBlipSprite.Don,      @"pack://application:,,,/Resources/radar_don.png"    },
             { RadarBlipSprite.Eight,    @"pack://application:,,,/Resources/radar_eight.png"  },
@@ -202,16 +415,37 @@ namespace GTA3SaveEditor.GUI.Views
             { RadarBlipSprite.Weapon,   @"pack://application:,,,/Resources/radar_weapon.png" },
         };
 
-        private static readonly List<(Color, Color)> BlipColors = new List<(Color, Color)>()
+        public static ObservableCollection<ColorItem> StandardBlipColors => new ObservableCollection<ColorItem>()
         {
-            // Bright                         Dim
-            (Color.FromRgb(0x71, 0x2B, 0x49), Color.FromRgb(0x7F, 0x00, 0x00)), // Red
-            (Color.FromRgb(0x5F, 0xA0, 0x6A), Color.FromRgb(0x00, 0x7F, 0x00)), // Green
-            (Color.FromRgb(0x80, 0xA7, 0xF3), Color.FromRgb(0x00, 0x00, 0x7F)), // Blue
-            (Color.FromRgb(0xE1, 0xE1, 0xE1), Color.FromRgb(0x7F, 0x7F, 0x7F)), // White
-            (Color.FromRgb(0xFF, 0xFF, 0x00), Color.FromRgb(0x7F, 0x7F, 0x00)), // Yellow
-            (Color.FromRgb(0xFF, 0x00, 0xFF), Color.FromRgb(0x7F, 0x00, 0x7F)), // Purple
-            (Color.FromRgb(0x00, 0xFF, 0xFF), Color.FromRgb(0x00, 0x7F, 0x7F)), // Cyan
+            new ColorItem(Color.FromRgb(0x7F, 0x00, 0x00), "Dark Red"),
+            new ColorItem(Color.FromRgb(0x71, 0x2B, 0x49), "Red"),
+            new ColorItem(Color.FromRgb(0x00, 0x7F, 0x00), "Dark Green"),
+            new ColorItem(Color.FromRgb(0x5F, 0xA0, 0x6A), "Green"),
+            new ColorItem(Color.FromRgb(0x00, 0x00, 0x7F), "Dark Blue"),
+            new ColorItem(Color.FromRgb(0x80, 0xA7, 0xF3), "Blue"),
+            new ColorItem(Color.FromRgb(0x7F, 0x7F, 0x7F), "Gray"),
+            new ColorItem(Color.FromRgb(0xE1, 0xE1, 0xE1), "White"),
+            new ColorItem(Color.FromRgb(0x7F, 0x7F, 0x00), "Dark Yellow"),
+            new ColorItem(Color.FromRgb(0xFF, 0xFF, 0x00), "Yellow"),
+            new ColorItem(Color.FromRgb(0x7F, 0x00, 0x7F), "Purple"),
+            new ColorItem(Color.FromRgb(0xFF, 0x00, 0xFF), "Pink"),
+            new ColorItem(Color.FromRgb(0x00, 0x7F, 0x7F), "Teal"),
+            new ColorItem(Color.FromRgb(0x00, 0xFF, 0xFF), "Cyan"),
         };
+
+        public static Color GetBlipColor(int colorId, bool isBright)
+        {
+            if (colorId >= 0 && colorId < NumStandardColorTypes)
+            {
+                int colorIndex = (isBright) ? (colorId * 2) + 1 : colorId * 2;
+                return (Color) StandardBlipColors[colorIndex].Color;
+            }
+
+            // Interesting "feature" in the game
+            byte r = (byte) (colorId >> 24);
+            byte g = (byte) (colorId >> 16);
+            byte b = (byte) (colorId >> 8);
+            return Color.FromRgb(r, g, b);
+        }
     }
 }

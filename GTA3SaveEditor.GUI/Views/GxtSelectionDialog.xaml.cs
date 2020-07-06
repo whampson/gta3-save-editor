@@ -10,7 +10,7 @@ namespace GTA3SaveEditor.GUI.Views
     /// <summary>
     /// Interaction logic for GxtSelectionDialog.xaml
     /// </summary>
-    public partial class GxtSelectionDialog : DialogBase<GxtSelection>
+    public partial class GxtSelectionDialog : DialogBase<GxtSelector>
     {
         public Gxt GxtTable
         {

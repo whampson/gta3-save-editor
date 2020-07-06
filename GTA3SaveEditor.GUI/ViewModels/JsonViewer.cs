@@ -46,9 +46,9 @@ namespace GTA3SaveEditor.GUI.ViewModels
             UpdateTextBox();
         }
 
-        public override void Refresh()
+        public override void Update()
         {
-            base.Refresh();
+            base.Update();
             UpdateTextBox();
         }
 

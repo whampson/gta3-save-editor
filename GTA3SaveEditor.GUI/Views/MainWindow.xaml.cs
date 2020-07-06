@@ -100,7 +100,7 @@ namespace GTA3SaveEditor.GUI.Views
             {
                 if (item is TabPageViewModelBase tabPageViewModel)
                 {
-                    tabPageViewModel.Refresh();
+                    tabPageViewModel.Update();
                 }
             }
         }

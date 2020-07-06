@@ -1,6 +1,7 @@
 ﻿using GTA3SaveEditor.GUI.Events;
 using GTASaveData;
 using GTASaveData.GTA3;
+using GTASaveData.Types;
 using System;
 using System.Collections.Specialized;
 using System.Linq;
@@ -13,9 +14,9 @@ namespace GTA3SaveEditor.GUI.ViewModels
     {
         public event EventHandler<RadarBlipEventArgs> BlipUpdate;
 
+        private readonly Random m_rand;
         private Array<RadarBlip> m_radarBlips;
-        private Point m_mouseOverMapCoords;
-        private Point m_mouseOverWorldCoords;
+        private RadarBlip m_activeBlip;
 
         public Array<RadarBlip> RadarBlips
         {
@@ -23,21 +24,26 @@ namespace GTA3SaveEditor.GUI.ViewModels
             set { m_radarBlips = value; OnPropertyChanged(); }
         }
 
-        public Point MouseOverMapCoords
+        public RadarBlip ActiveBlip
         {
-            get { return m_mouseOverMapCoords; }
-            set { m_mouseOverMapCoords = value; OnPropertyChanged(); }
+            get { return m_activeBlip; }
+            set { m_activeBlip = value; OnPropertyChanged(); }
         }
 
-        public Point MouseOverWorldCoords
+        public RadarBlip NextAvailableSlot
         {
-            get { return m_mouseOverWorldCoords; }
-            set { m_mouseOverWorldCoords = value; OnPropertyChanged(); }
+            get
+            {
+                if (RadarBlips == null) return null;
+                return RadarBlips.FirstOrDefault(x => !x.IsVisible);
+            }
         }
 
         public Radar(Main mainViewModel)
             : base("Radar", TabPageVisibility.WhenFileIsOpen, mainViewModel)
-        { }
+        {
+            m_rand = new Random((int) DateTime.Now.Ticks);
+        }
 
         public override void Load()
         {
@@ -53,22 +59,63 @@ namespace GTA3SaveEditor.GUI.ViewModels
         {
             base.Unload();
 
-            EraseAllBlips();
+            RemoveAllBlips();
             RadarBlips.ItemStateChanged -= RadarBlips_ItemStateChanged;
             RadarBlips.CollectionChanged -= RadarBlips_CollectionChanged;
             RadarBlips = null;
+        }
+
+        public void CreateBlip(Point loc)
+        {
+            RadarBlip blip = NextAvailableSlot;
+            blip.Display = RadarBlipDisplay.Blip;
+            blip.Type = RadarBlipType.Coord;
+            blip.Sprite = RadarBlipSprite.None;
+            blip.Scale = 3;
+            blip.Color = 1;
+            blip.IsBright = true;
+            blip.IsInUse = true;
+            blip.Index = GenerateNewIndex();
+            MoveBlip(blip, loc);
+
+            ActiveBlip = blip;
+        }
+
+        public void MoveBlip(RadarBlip blip, Point loc)
+        {
+            Vector3D old = blip.MarkerPosition;
+
+            Vector2D r = new Vector2D() { X = (float) loc.X, Y = (float) loc.Y };
+            Vector3D m = new Vector3D() { X = (float) loc.X, Y = (float) loc.Y, Z = old.Z };
+
+            blip.RadarPosition = r;
+            blip.MarkerPosition = m;
+        }
+
+        public void DeleteBlip(RadarBlip blip)
+        {
+            blip.Invalidate();
+        }
+
+        private void UpdateBlip(RadarBlip newBlip)
+        {
+            BlipUpdate?.Invoke(this, new RadarBlipEventArgs()
+            {
+                Action = BlipAction.Update,
+                Items = { newBlip }
+            });
         }
 
         public void DrawAllBlips()
         {
             BlipUpdate?.Invoke(this, new RadarBlipEventArgs()
             {
-                Action = BlipAction.Add,
-                NewItems = RadarBlips
+                Action = BlipAction.Update,
+                Items = RadarBlips
             });
         }
 
-        public void EraseAllBlips()
+        public void RemoveAllBlips()
         {
             BlipUpdate?.Invoke(this, new RadarBlipEventArgs()
             {
@@ -76,69 +123,34 @@ namespace GTA3SaveEditor.GUI.ViewModels
             });
         }
 
-        //private void DrawBlip(RadarBlip blip)
-        //{
-        //    BlipUpdate?.Invoke(this, new RadarBlipEventArgs()
-        //    {
-        //        Action = BlipAction.Add,
-        //        NewItems = { blip }
-        //    });
-        //}
-
-        //private void EraseBlip(RadarBlip blip)
-        //{
-        //    BlipUpdate?.Invoke(this, new RadarBlipEventArgs()
-        //    {
-        //        Action = BlipAction.Remove,
-        //        OldItems = { blip }
-        //    });
-        //}
-
-        private void ReplaceBlip(int index, RadarBlip newBlip)
+        private short GenerateNewIndex()
         {
-            BlipUpdate?.Invoke(this, new RadarBlipEventArgs()
+            short index;
+            do
             {
-                Action = BlipAction.Replace,
-                OldStartingIndex = index,
-                NewItems = { newBlip }
-            });
+                index = (short) m_rand.Next(1, short.MaxValue);
+            } while (RadarBlips.Any(x => x.Index == index));
+
+            return index;
         }
 
         private void RadarBlips_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
             {
-                case NotifyCollectionChangedAction.Add:
-                {
-                    BlipUpdate?.Invoke(this, new RadarBlipEventArgs()
-                    {
-                        Action = BlipAction.Remove,
-                        NewItems = e.NewItems.Cast<RadarBlip>().ToList(),
-                    });
-                    break;
-                }
-                case NotifyCollectionChangedAction.Remove:
-                {
-                    BlipUpdate?.Invoke(this, new RadarBlipEventArgs()
-                    {
-                        Action = BlipAction.Remove,
-                        OldItems = e.OldItems.Cast<RadarBlip>().ToList()
-                    });
-                    break;
-                }
                 case NotifyCollectionChangedAction.Replace:
                 case NotifyCollectionChangedAction.Move:
                 {
                     BlipUpdate?.Invoke(this, new RadarBlipEventArgs()
                     {
-                        Action = BlipAction.Replace,
-                        OldItems = e.NewItems.Cast<RadarBlip>().ToList()
+                        Action = BlipAction.Update,
+                        Items = e.NewItems.Cast<RadarBlip>().ToList()
                     });
                     break;
                 }
                 case NotifyCollectionChangedAction.Reset:
                 {
-                    EraseAllBlips();
+                    RemoveAllBlips();
                     break;
                 }
             }
@@ -146,7 +158,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         private void RadarBlips_ItemStateChanged(object sender, ItemStateChangedEventArgs e)
         {
-            ReplaceBlip(e.ItemIndex, RadarBlips[e.ItemIndex]);
+            UpdateBlip(RadarBlips[e.ItemIndex]);
         }
     }
 }

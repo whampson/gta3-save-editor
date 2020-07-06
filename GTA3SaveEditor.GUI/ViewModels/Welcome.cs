@@ -92,9 +92,9 @@ namespace GTA3SaveEditor.GUI.ViewModels
             m_lukeFileWalker.CancelAsync();
         }
 
-        public override void Refresh()
+        public override void Update()
         {
-            base.Refresh();
+            base.Update();
             RefreshList();
         }
 

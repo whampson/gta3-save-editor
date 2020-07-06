@@ -9,15 +9,18 @@
     <Description>The Grand Theft Auto III save file editor.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>2.0.0-alpha</Version>
-    <AssemblyVersion>2.0.0.88</AssemblyVersion>
-    <FileVersion>2.0.0.88</FileVersion>
+    <AssemblyVersion>2.0.0.125</AssemblyVersion>
+    <FileVersion>2.0.0.125</FileVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="GTASaveData.GTA3" Version="1.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="WpfEssentials" Version="1.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\gta-save-data\GTASaveData.GTA3\GTASaveData.GTA3.csproj" />
   </ItemGroup>
 
 </Project>

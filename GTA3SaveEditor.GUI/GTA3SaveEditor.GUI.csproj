@@ -9,8 +9,8 @@
     <Description>Grand Theft Auto III save file editor graphical user interface.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>2.0.0-alpha</Version>
-    <AssemblyVersion>2.0.0.1187</AssemblyVersion>
-    <FileVersion>2.0.0.1187</FileVersion>
+    <AssemblyVersion>2.0.0.1539</AssemblyVersion>
+    <FileVersion>2.0.0.1539</FileVersion>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
@@ -21,6 +21,7 @@
     <None Remove="Resources\armor.png" />
     <None Remove="Resources\bribe.png" />
     <None Remove="Resources\health.png" />
+    <None Remove="Resources\idaho.png" />
     <None Remove="Resources\map.png" />
     <None Remove="Resources\medic.png" />
     <None Remove="Resources\package.png" />
@@ -58,10 +59,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\gta-save-data\GTASaveData.GTA3\GTASaveData.GTA3.csproj" />
     <ProjectReference Include="..\GTA3SaveEditor.Core\GTA3SaveEditor.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\idaho.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\map.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
@@ -143,10 +148,6 @@
     <Resource Include="Resources\radar_weapon.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Helpers\" />
   </ItemGroup>
 
 </Project>

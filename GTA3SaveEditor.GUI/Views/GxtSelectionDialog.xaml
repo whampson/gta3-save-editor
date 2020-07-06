@@ -1,6 +1,6 @@
 ﻿<v:DialogBase
     x:Class="GTA3SaveEditor.GUI.Views.GxtSelectionDialog"
-    x:TypeArguments="m:GxtSelection"
+    x:TypeArguments="m:GxtSelector"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -10,12 +10,12 @@
     mc:Ignorable="d"
     Title="Selext GXT Entry"
     Height="350" Width="500"
-    d:DataContext="{d:DesignInstance m:GxtSelection}"
+    d:DataContext="{d:DesignInstance m:GxtSelector}"
     Loaded="Dialog_Loaded" Closing="Dialog_Closing"
     WindowStartupLocation="CenterOwner">
 
     <Window.DataContext>
-        <m:GxtSelection/>
+        <m:GxtSelector/>
     </Window.DataContext>
 
     <Window.Resources>

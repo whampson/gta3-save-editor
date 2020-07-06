@@ -1,14 +1,24 @@
 ﻿using GTA3SaveEditor.GUI.Events;
 using System;
+using System.Windows.Input;
+using WpfEssentials;
+using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
+    public abstract class ViewModelBase : ObservableObject
+    { }
+
     /// <summary>
     /// The view model base for tab pages.
     /// </summary>
     public abstract class TabPageViewModelBase : ViewModelBase
     {
+        public event EventHandler Initializing;
+        public event EventHandler Loading;
+        public event EventHandler Unloading;
         public event EventHandler ShuttingDown;
+        public event EventHandler Updating;
 
         private bool m_isVisible;
 
@@ -58,25 +68,47 @@ namespace GTA3SaveEditor.GUI.ViewModels
             MainViewModel = mainViewModel;
         }
 
+        /// <summary>
+        /// Called when the tab page is created.
+        /// </summary>
         public virtual void Initialize()
         {
             MainViewModel.TabUpdate += MainViewModel_TabUpdate;
+            Initializing?.Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// Called when the tab page is being destroyed.
+        /// </summary>
         public virtual void Shutdown()
         {
             MainViewModel.TabUpdate -= MainViewModel_TabUpdate;
             ShuttingDown?.Invoke(this, EventArgs.Empty);
         }
 
+        /// <summary>
+        /// Called when the tab page's content is loading.
+        /// </summary>
         public virtual void Load()
-        { }
+        {
+            Loading?.Invoke(this, EventArgs.Empty);
+        }
 
+        /// <summary>
+        /// Called when the tab page's content is unloading.
+        /// </summary>
         public virtual void Unload()
-        { }
+        {
+            Unloading?.Invoke(this, EventArgs.Empty);
+        }
 
-        public virtual void Refresh()
-        { }
+        /// <summary>
+        /// Called when the tab page's content is updating.
+        /// </summary>
+        public virtual void Update()
+        {
+            Updating?.Invoke(this, EventArgs.Empty);
+        }
 
         /// <summary>
         /// Handle TabUpdate events from the main view model.
@@ -98,6 +130,30 @@ namespace GTA3SaveEditor.GUI.ViewModels
             }
         }
 
+    }
+
+    public abstract class DialogViewModelBase : ViewModelBase
+    {
+        public event EventHandler<DialogCloseEventArgs> DialogCloseRequest;
+
+        public DialogViewModelBase()
+            : base()
+        { }
+
+        public void CloseDialog(bool? result = null)
+        {
+            DialogCloseRequest?.Invoke(this, new DialogCloseEventArgs(result));
+        }
+
+        public ICommand CloseCommand => new RelayCommand<bool?>
+        (
+            (result) => CloseDialog(result)
+        );
+
+        public ICommand CancelCommand => new RelayCommand
+        (
+            () => CloseDialog(false)
+        );
     }
 
     /// <summary>

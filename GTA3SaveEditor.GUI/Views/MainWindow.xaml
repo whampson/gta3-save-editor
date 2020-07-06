@@ -19,8 +19,6 @@
     </Window.DataContext>
 
     <Window.Resources>
-
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <conv:IsZeroConverter x:Key="IsNotZeroConverter" Invert="True"/>
         <conv2:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
 
@@ -43,47 +41,67 @@
             <v:JsonView/>
         </DataTemplate>
 
-        <Style TargetType="{x:Type ctrl:TabControlEx}" x:Key="TabControlStyle">
+        <Style x:Key="TabControlStyle" TargetType="{x:Type ctrl:TabControlEx}">
+
+            <Setter Property="ItemContainerStyle">
+                <Setter.Value>
+                    <Style TargetType="TabItem" BasedOn="{StaticResource TabItemStyle}">
+                        <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                    </Style>
+                </Setter.Value>
+            </Setter>
+
+            <Setter Property="ItemTemplate">
+                <Setter.Value>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title, Mode=OneWay}"/>
+                    </DataTemplate>
+                </Setter.Value>
+            </Setter>
 
             <Setter Property="Template">
                 <Setter.Value>
-                    <!-- Template code to render TabControlEx. Adapted from http://stackoverflow.com/a/9802346. -->
                     <ControlTemplate TargetType="{x:Type TabControl}">
                         <Grid
                             Background="{TemplateBinding Background}"
-                            ClipToBounds="True"
-                            KeyboardNavigation.TabNavigation="Local"
-                            SnapsToDevicePixels="True">
+                            SnapsToDevicePixels="True"
+                            Panel.ZIndex="2"
+                            KeyboardNavigation.TabNavigation="Local">
 
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition/>
-                                <ColumnDefinition Width="0"/>
                             </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
 
-                            <DockPanel Margin="2,2,0,0" LastChildFill="False">
-                                <TabPanel
-                                    x:Name="HeaderPanel"
-                                    Margin="0,0,0,-1"
-                                    VerticalAlignment="Bottom"
-                                    Panel.ZIndex="1"
-                                    DockPanel.Dock="Left"
-                                    IsItemsHost="True"
-                                    KeyboardNavigation.TabIndex="1"/>
-                            </DockPanel>
+                            <Grid
+                                Grid.Row="0" Grid.Column="0"
+                                SnapsToDevicePixels="True"
+                                Panel.ZIndex="1">
+                                <Border
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="0,0,0,0">
+                                    <TabPanel
+                                        Margin="2,2,0,0"
+                                        VerticalAlignment="Bottom"
+                                        DockPanel.Dock="Left"
+                                        IsItemsHost="True"
+                                        KeyboardNavigation.TabIndex="1"/>
+                                </Border>
+                            </Grid>
+
                             <Border
-                                x:Name="ContentPanel"
                                 Grid.Row="1" Grid.Column="0"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderThickness="1,1,1,1"
                                 KeyboardNavigation.DirectionalNavigation="Contained"
                                 KeyboardNavigation.TabIndex="2"
-                                KeyboardNavigation.TabNavigation="Local">
-
+                                KeyboardNavigation.TabNavigation="Local"
+                                Panel.ZIndex="0">
                                 <Grid
                                     x:Name="PART_ItemsHolder"
                                     Margin="{TemplateBinding Padding}"
@@ -156,27 +174,16 @@
             </Grid.RowDefinitions>
 
             <ctrl:TabControlEx
-                DockPanel.Dock="Top"
+                Grid.Row="0"
+                Margin="-0.5,2,-0.5,-0.5"
                 Style="{StaticResource TabControlStyle}"
                 ItemsSource="{Binding Tabs}"
                 IsSynchronizedWithCurrentItem="True"
                 SelectedIndex="{Binding SelectedTabIndex}"
-                SelectionChanged="TabControl_SelectionChanged">
+                SelectionChanged="TabControl_SelectionChanged"/>
 
-                <TabControl.ItemContainerStyle>
-                    <Style TargetType="{x:Type TabItem}">
-                        <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                    </Style>
-                </TabControl.ItemContainerStyle>
 
-                <TabControl.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Title, Mode=OneWay}"/>
-                    </DataTemplate>
-                </TabControl.ItemTemplate>
-            </ctrl:TabControlEx>
-
-            <StatusBar Grid.Row="2" Grid.ColumnSpan="5">
+            <StatusBar Grid.Row="1" Grid.ColumnSpan="5">
 
                 <StatusBar.ItemsPanel>
                     <ItemsPanelTemplate>

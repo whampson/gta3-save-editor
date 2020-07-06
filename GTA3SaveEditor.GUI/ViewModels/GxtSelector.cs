@@ -5,7 +5,7 @@ using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
-    public class GxtSelection : DialogViewModelBase
+    public class GxtSelector : DialogViewModelBase
     {
         private Gxt m_gxtTable;
         private KeyValuePair<string, string> m_selectedItem;
@@ -29,7 +29,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
             set { m_selectedIndex = value; OnPropertyChanged(); }
         }
 
-        public GxtSelection()
+        public GxtSelector()
             : base()
         {
             SelectedIndex = -1;

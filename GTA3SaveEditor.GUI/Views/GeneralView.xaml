@@ -40,7 +40,8 @@
                 Header="Save Info"
                 Margin="5"
                 IsEnabled="{Binding IsPS2, Mode=OneWay,
-                    Converter={StaticResource InvertBooleanConverter}}">
+                    Converter={StaticResource InvertBooleanConverter}}"
+                Style="{StaticResource GroupBoxStyle}">
 
                 <Grid>
 
@@ -105,7 +106,8 @@
             <GroupBox
                 Grid.Row="1"
                 Header="Time"
-                Margin="5,0,5,5">
+                Margin="5,0,5,5"
+                Style="{StaticResource GroupBoxStyle}">
 
                 <Grid>
 
@@ -171,7 +173,8 @@
             <GroupBox
                 Grid.Row="2"
                 Header="Weather"
-                Margin="5,0,5,5">
+                Margin="5,0,5,5"
+                Style="{StaticResource GroupBoxStyle}">
 
                 <Grid>
 
@@ -220,7 +223,8 @@
             <GroupBox
                 Grid.Row="0"
                 Header="Game Settings"
-                Margin="5">
+                Margin="5"
+                Style="{StaticResource GroupBoxStyle}">
 
                 <StackPanel
                     Margin="5"
@@ -254,7 +258,8 @@
                 Grid.Row="1"
                 Margin="5,0,5,5"
                 Header="PS2 Game Settings"
-                IsEnabled="{Binding IsPS2, Mode=OneWay}">
+                IsEnabled="{Binding IsPS2, Mode=OneWay}"
+                Style="{StaticResource GroupBoxStyle}">
 
                 <Grid>
 
@@ -270,23 +275,23 @@
                         Orientation="Vertical">
 
                         <TextBlock
-                                Margin="5,0,0,0"
-                                Style="{StaticResource LabelStyle}"
-                                Text="Language:"/>
+                            Margin="5,0,0,0"
+                            Style="{StaticResource LabelStyle}"
+                            Text="Language:"/>
                         <ComboBox
-                                Margin="5,5,5,10"
-                                Style="{StaticResource EnumComboBoxStyle}"
-                                ItemsSource="{ext:EnumValueCollection EnumType=gta3:Language}"
-                                SelectedItem="{Binding SimpleVars.PrefsLanguage}"/>
+                            Margin="5,5,5,10"
+                            Style="{StaticResource EnumComboBoxStyle}"
+                            ItemsSource="{ext:EnumValueCollection EnumType=gta3:Language}"
+                            SelectedItem="{Binding SimpleVars.PrefsLanguage}"/>
                         <TextBlock
-                                Margin="5,0,0,0"
-                                Style="{StaticResource LabelStyle}"
-                                Text="Controller Mode:"/>
+                            Margin="5,0,0,0"
+                            Style="{StaticResource LabelStyle}"
+                            Text="Controller Mode:"/>
                         <ComboBox
-                                Margin="5,5,5,15"
-                                Style="{StaticResource EnumComboBoxStyle}"
-                                ItemsSource="{ext:EnumValueCollection EnumType=m:PadMode}"
-                                SelectedItem="{Binding CurrentPadMode}"/>
+                            Margin="5,5,5,15"
+                            Style="{StaticResource EnumComboBoxStyle}"
+                            ItemsSource="{ext:EnumValueCollection EnumType=m:PadMode}"
+                            SelectedItem="{Binding CurrentPadMode}"/>
 
                     </StackPanel>
 
@@ -373,13 +378,14 @@
 
             <GroupBox
                 Header="Fixes"
-                Margin="5">
+                Margin="5"
+                Style="{StaticResource GroupBoxStyle}">
 
                 <StackPanel
                     Margin="5"
                     Orientation="Vertical">
 
-                    <GroupBox Header="Purple Nines Glitch">
+                    <GroupBox Header="Purple Nines Glitch" Style="{StaticResource GroupBoxStyle}">
 
                         <Grid Margin="0,10,0,15">
 
@@ -414,7 +420,7 @@
 
                     </GroupBox>
 
-                    <GroupBox Header="Hostile Peds">
+                    <GroupBox Header="Hostile Peds" Style="{StaticResource GroupBoxStyle}">
 
                         <Grid Margin="0,10,0,15">
 
@@ -449,7 +455,7 @@
 
                     </GroupBox>
 
-                    <GroupBox Header="Percentage Bug">
+                    <GroupBox Header="Percentage Bug" Style="{StaticResource GroupBoxStyle}">
 
                         <Grid Margin="0,10,0,15">
 
@@ -484,7 +490,7 @@
 
                     </GroupBox>
 
-                    <GroupBox Header="Timer-Related Bugs">
+                    <GroupBox Header="Timer-Related Bugs" Style="{StaticResource GroupBoxStyle}">
 
                         <Grid Margin="0,10,0,15">
 

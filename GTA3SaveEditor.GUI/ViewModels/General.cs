@@ -205,21 +205,16 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         private void DetectPurpleNinesGlitch()
         {
-            // TODO: MainViewModel.TheSave.Gangs[GangType.Hoods]
-            Gang hoods = MainViewModel.TheSave.Gangs.Gangs[(int) GangType.Hoods];
+            // TODO: ensure mission not yet completed
+            Gang hoods = MainViewModel.TheSave.Gangs[GangType.Hoods];
 
-            if (hoods.PedModelOverride != -1)
-            {
-                FixedPurpleNinesGlitch = false;
-            }
-            {
-                FixedPurpleNinesGlitch = null;
-            }
+            FixedPurpleNinesGlitch = (hoods.PedModelOverride != -1)
+                ? (bool?) false : null;
         }
 
         private void FixPurpleNinesGlitch()
         {
-            Gang hoods = MainViewModel.TheSave.Gangs.Gangs[(int) GangType.Hoods];
+            Gang hoods = MainViewModel.TheSave.Gangs[GangType.Hoods];
             hoods.PedModelOverride = -1;
 
             FixedPurpleNinesGlitch = true;
