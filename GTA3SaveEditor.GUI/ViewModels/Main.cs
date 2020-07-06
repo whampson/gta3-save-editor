@@ -2,19 +2,23 @@
 using GTA3SaveEditor.GUI.Events;
 using GTASaveData;
 using GTASaveData.GTA3;
-using Newtonsoft.Json.Bson;
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using WpfEssentials;
 using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
     public class Main : ViewModelBase
     {
+        public const string ProgramTitle = "Grand Theft Auto III Save Editor";
+
         public event EventHandler<MessageBoxEventArgs> MessageBoxRequest;
         public event EventHandler<FileDialogEventArgs> FileDialogRequest;
         public event EventHandler<FileDialogEventArgs> FolderDialogRequest;
@@ -23,8 +27,10 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         private ObservableCollection<TabPageViewModelBase> m_tabs;
         private int m_selectedTabIndex;
+        private string m_title;
         private string m_statusText;
         private bool m_isRefreshingFile;
+        private bool m_isDirty;
 
         public SaveEditor TheEditor { get; private set; }
         public Gxt TheText { get; private set; }
@@ -43,10 +49,22 @@ namespace GTA3SaveEditor.GUI.ViewModels
             set { m_selectedTabIndex = value; OnPropertyChanged(); }
         }
 
+        public string Title
+        {
+            get { return m_title; }
+            set { m_title = value; OnPropertyChanged(); }
+        }
+
         public string StatusText
         {
             get { return m_statusText; }
             set { m_statusText = value; OnPropertyChanged(); }
+        }
+
+        public bool IsDirty
+        {
+            get { return m_isDirty; }
+            set { m_isDirty = value; OnPropertyChanged(); }
         }
 
         public Main()
@@ -59,8 +77,9 @@ namespace GTA3SaveEditor.GUI.ViewModels
             Tabs.Add(new General(this));
             Tabs.Add(new Player(this));
             Tabs.Add(new Radar(this));
-            //Tabs.Add(new TestMap(this));
             Tabs.Add(new JsonViewer(this));
+
+            UpdateTitle();
         }
 
         public void Initialize()
@@ -161,6 +180,11 @@ namespace GTA3SaveEditor.GUI.ViewModels
             }
         }
 
+        public void SaveFile()
+        {
+            SaveFile(TheSettings.MostRecentFile);
+        }
+
         public void SaveFile(string path)
         {
             try
@@ -182,27 +206,53 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         public void RefreshFile()
         {
-            // TODO: warn before refresh
+            if (IsDirty) ShowConfirmationDialog("Do you want to save your changes?", "Save", RefreshFileDialog_Callback);
+            else DoRefresh();
+        }
+
+        public void DoRefresh()
+        {
             m_isRefreshingFile = true;
-            foreach (var tab in Tabs)
-            {
-                if (tab.Visibility == TabPageVisibility.WhenFileIsOpen)
-                {
-                    tab.Unload();
-                }
-            }
+
+            Tabs.Where(t => t.Visibility == TabPageVisibility.WhenFileIsOpen).ToList()
+                .ForEach(t => t.Unload());
 
             TheEditor.CloseFile();
             TheEditor.OpenFile(TheSettings.MostRecentFile);
 
-            foreach (var tab in Tabs)
-            {
-                if (tab.Visibility == TabPageVisibility.WhenFileIsOpen)
-                {
-                    tab.Load();
-                }
-            }
+            Tabs.Where(t => t.Visibility == TabPageVisibility.WhenFileIsOpen).ToList()
+                .ForEach(t => t.Load());
+
             m_isRefreshingFile = false;
+        }
+
+        public void CloseFile()
+        {
+            if (IsDirty) ShowConfirmationDialog("Do you want to save your changes?", "Save", CloseFileDialog_Callback);
+            else DoClose();
+        }
+
+        private void DoClose()
+        {
+            TheEditor.CloseFile();
+        }
+
+        private void UpdateTitle()
+        {
+            string title = ProgramTitle;
+            if (IsDirty) title = $"*{title}";
+            if (TheSave != null) title += $" - {TheSettings.MostRecentFile}";
+
+            Title = title;
+        }
+
+        private void SetDirty()
+        {
+            if (!IsDirty)
+            {
+                IsDirty = true;
+                UpdateTitle();
+            }
         }
 
         #region Window Actions
@@ -228,6 +278,12 @@ namespace GTA3SaveEditor.GUI.ViewModels
         {
             text += $"\n\n{e.GetType().Name}: {e.Message}";
             ShowMessageBoxError(text, title);
+        }
+
+        public void ShowConfirmationDialog(string text, string title, Action<MessageBoxResult> callback)
+        {
+            MessageBoxRequest?.Invoke(this, new MessageBoxEventArgs(
+                text, title, MessageBoxButton.YesNoCancel, MessageBoxImage.Question, callback: callback));
         }
 
         public void ShowFileDialog(FileDialogType type, Action<bool?, FileDialogEventArgs> callback)
@@ -276,12 +332,15 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         private void TheEditor_FileOpened(object sender, EventArgs e)
         {
+            UpdateTitle();
+
+            RegisterDirtyHandlers(TheSave);
             OnPropertyChanged(nameof(TheSave));
 
             if (!m_isRefreshingFile)
             {
                 RefreshTabs(TabUpdateTrigger.FileOpened);
-                StatusText = "File opened: " + TheSettings.MostRecentFile;
+                StatusText = "File opened successfully.";
             }
         }
 
@@ -296,9 +355,14 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         private void TheEditor_FileClosed(object sender, EventArgs e)
         {
+            IsDirty = false;
+            UpdateTitle();
+
+            UnregisterDirtyHandlers(TheSave);
             OnPropertyChanged(nameof(TheSave));
             StatusText = "File closed.";
         }
+
         private void TheEditor_FileSaving(object sender, EventArgs e)
         {
             StatusText = "Saving file...";
@@ -310,15 +374,32 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         private void TheEditor_FileSaved(object sender, EventArgs e)
         {
-            StatusText = "File saved: " + TheSettings.MostRecentFile;
+            IsDirty = false;
+            UpdateTitle();
+            StatusText = "File saved successfully.";
+        }
+
+        void RefreshFileDialog_Callback(MessageBoxResult r)
+        {
+            if (r != MessageBoxResult.Cancel)
+            {
+                if (r == MessageBoxResult.Yes) SaveFile();
+                DoRefresh();
+            }
+        }
+
+        void CloseFileDialog_Callback(MessageBoxResult r)
+        {
+            if (r != MessageBoxResult.Cancel)
+            {
+                if (r == MessageBoxResult.Yes) SaveFile();
+                DoClose();
+            }
         }
 
         private void ShowFileDialog_Callback(bool? result, FileDialogEventArgs e)
         {
-            if (result != true)
-            {
-                return;
-            }
+            if (result != true) return;
 
             TheSettings.LastDirectoryBrowsed = Path.GetDirectoryName(Path.GetFullPath(e.FileName));
             switch (e.DialogType)
@@ -330,6 +411,67 @@ namespace GTA3SaveEditor.GUI.ViewModels
                     SaveFile(e.FileName);
                     break;
             }
+        }
+
+        private void RegisterDirtyHandlers(INotifyPropertyChanged o)
+        {
+            if (o == null) return;
+
+            foreach (var p in o.GetType().GetProperties().Where(x => x.GetIndexParameters().Length == 0))
+            {
+                object v = p.GetValue(o, null);
+                if (p.PropertyType.GetInterface(nameof(INotifyItemStateChanged)) != null)
+                {
+                    (v as INotifyItemStateChanged).ItemStateChanged += TheSave_CollectionElementDirty;
+                }
+                if (p.PropertyType.GetInterface(nameof(INotifyCollectionChanged)) != null)
+                {
+                    (v as INotifyCollectionChanged).CollectionChanged += TheSave_CollectionDirty;
+                }
+                if (p.PropertyType.GetInterface(nameof(INotifyPropertyChanged)) != null)
+                {
+                    RegisterDirtyHandlers(v as INotifyPropertyChanged);
+                }
+            }
+            o.PropertyChanged += TheSave_PropertyDirty;
+        }
+
+        private void UnregisterDirtyHandlers(INotifyPropertyChanged o)
+        {
+            if (o == null) return;
+
+            foreach (var p in o.GetType().GetProperties().Where(x => x.GetIndexParameters().Length == 0))
+            {
+                object v = p.GetValue(o, null);
+                if (p.PropertyType.GetInterface(nameof(INotifyItemStateChanged)) != null)
+                {
+                    (v as INotifyItemStateChanged).ItemStateChanged -= TheSave_CollectionElementDirty;
+                }
+                if (p.PropertyType.GetInterface(nameof(INotifyCollectionChanged)) != null)
+                {
+                    (v as INotifyCollectionChanged).CollectionChanged -= TheSave_CollectionDirty;
+                }
+                if (p.PropertyType.GetInterface(nameof(INotifyPropertyChanged)) != null)
+                {
+                    RegisterDirtyHandlers(v as INotifyPropertyChanged);
+                }
+            }
+            o.PropertyChanged -= TheSave_PropertyDirty;
+        }
+
+        private void TheSave_PropertyDirty(object sender, PropertyChangedEventArgs e)
+        {
+            SetDirty();
+        }
+
+        private void TheSave_CollectionDirty(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            SetDirty();
+        }
+
+        private void TheSave_CollectionElementDirty(object sender, ItemStateChangedEventArgs e)
+        {
+            SetDirty();
         }
         #endregion
 
@@ -347,13 +489,13 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         public ICommand FileCloseCommand => new RelayCommand
         (
-            () => TheEditor.CloseFile(),
+            () => CloseFile(),
             () => TheEditor.IsFileOpen
         );
 
         public ICommand FileSaveCommand => new RelayCommand
         (
-            () => SaveFile(TheSettings.MostRecentFile),
+            () => SaveFile(),
             () => TheEditor.IsFileOpen
         );
 

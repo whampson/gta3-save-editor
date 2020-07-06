@@ -21,7 +21,6 @@ namespace GTA3SaveEditor.GUI
 
             TheWindow = new MainWindow
             {
-                Title = "Grand Theft Auto III Save Editor",
                 Height = 600,
                 Width = 800
             };

@@ -12,7 +12,8 @@
     mc:Ignorable="d"
     d:DesignHeight="500" d:DesignWidth="800"
     d:DataContext="{d:DesignInstance Type=m:Main}"
-    Loaded="Window_Loaded" Closing="Window_Closing">
+    Loaded="Window_Loaded" Closing="Window_Closing"
+    Title="{Binding Title}">
 
     <Window.DataContext>
         <m:Main/>
@@ -34,9 +35,6 @@
         <DataTemplate DataType="{x:Type m:Radar}">
             <v:RadarView/>
         </DataTemplate>
-        <!--<DataTemplate DataType="{x:Type m:TestMap}">
-            <v:TestMapView/>
-        </DataTemplate>-->
         <DataTemplate DataType="{x:Type m:JsonViewer}">
             <v:JsonView/>
         </DataTemplate>
