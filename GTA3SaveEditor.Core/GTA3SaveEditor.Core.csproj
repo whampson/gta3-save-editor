@@ -9,8 +9,8 @@
     <Description>The Grand Theft Auto III save file editor.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>2.0.0-alpha</Version>
-    <AssemblyVersion>2.0.0.128</AssemblyVersion>
-    <FileVersion>2.0.0.128</FileVersion>
+    <AssemblyVersion>2.0.0.134</AssemblyVersion>
+    <FileVersion>2.0.0.134</FileVersion>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 

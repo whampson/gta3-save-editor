@@ -1,4 +1,5 @@
 ﻿using GTASaveData.GTA3;
+using System.Collections.Generic;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
@@ -6,6 +7,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
     {
         private PlayerPed m_playerPed;
         private PlayerInfo m_playerInfo;
+        private GarageData m_garages;
 
         public PlayerPed PlayerPed
         {
@@ -19,6 +21,12 @@ namespace GTA3SaveEditor.GUI.ViewModels
             set { m_playerInfo = value; OnPropertyChanged(); }
         }
 
+        public GarageData Garages
+        {
+            get { return m_garages; }
+            set { m_garages = value; OnPropertyChanged(); }
+        }
+
         public Player(Main mainViewModel)
            : base("Player", TabPageVisibility.WhenFileIsOpen, mainViewModel)
         { }
@@ -28,6 +36,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
             base.Load();
             PlayerPed = MainViewModel.TheSave.PlayerPeds.GetPlayerPed();
             PlayerInfo = MainViewModel.TheSave.PlayerInfo;
+            Garages = MainViewModel.TheSave.Garages;
         }
     }
 }

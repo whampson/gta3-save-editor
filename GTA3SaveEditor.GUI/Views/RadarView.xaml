@@ -11,7 +11,7 @@
     xmlns:conv="clr-namespace:GTA3SaveEditor.GUI.Converters"
     xmlns:ext="clr-namespace:WpfEssentials.Win32.Extensions;assembly=WpfEssentials.Win32"
     xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"    
-    xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"    
+    xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=Xceed.Wpf.Toolkit"
     mc:Ignorable="d"
     d:DesignHeight="500" d:DesignWidth="800"
     d:DataContext="{d:DesignInstance m:Radar}"
@@ -20,7 +20,7 @@
     <UserControl.Resources>
         <BitmapImage
             x:Key="MapImage"
-            UriSource="/GTA3SaveEditor.GUI;component/Resources/map.png"/>
+            UriSource="/GTA3SaveEditor.GUI;component/Resources/Map/map.png"/>
         <conv:RadarBlipColorConverter x:Key="ColorConverter"/>
     </UserControl.Resources>
 
