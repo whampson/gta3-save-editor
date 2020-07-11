@@ -1,4 +1,5 @@
-﻿using GTA3SaveEditor.GUI.Views;
+﻿using GTA3SaveEditor.GUI.Helpers;
+using GTA3SaveEditor.GUI.Views;
 using System;
 using System.Globalization;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace GTA3SaveEditor.GUI.Converters
 
             if (colorId != null && isBright != null && isVisible == true && hasSprite == false)
             {
-                return RadarView.GetBlipColor((int) colorId, (bool) isBright);
+                return MapHelper.GetBlipColor((int) colorId, (bool) isBright);
             }
 
             return DependencyProperty.UnsetValue;
@@ -35,7 +36,7 @@ namespace GTA3SaveEditor.GUI.Converters
                 colorId = 0;
                 isBright = false;
 
-                var colors = RadarView.StandardBlipColors.Select(x => x.Color).ToList();
+                var colors = MapHelper.StandardBlipColors.Select(x => x.Color).ToList();
                 int index = colors.IndexOf(color);
 
                 if (index > -1)

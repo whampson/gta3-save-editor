@@ -38,80 +38,6 @@
         <DataTemplate DataType="{x:Type m:JsonViewer}">
             <v:JsonView/>
         </DataTemplate>
-
-        <Style x:Key="TabControlStyle" TargetType="{x:Type ctrl:TabControlEx}">
-
-            <Setter Property="ItemContainerStyle">
-                <Setter.Value>
-                    <Style TargetType="TabItem" BasedOn="{StaticResource TabItemStyle}">
-                        <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                    </Style>
-                </Setter.Value>
-            </Setter>
-
-            <Setter Property="ItemTemplate">
-                <Setter.Value>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Title, Mode=OneWay}"/>
-                    </DataTemplate>
-                </Setter.Value>
-            </Setter>
-
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type TabControl}">
-                        <Grid
-                            Background="{TemplateBinding Background}"
-                            SnapsToDevicePixels="True"
-                            Panel.ZIndex="2"
-                            KeyboardNavigation.TabNavigation="Local">
-
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
-
-                            <Grid
-                                Grid.Row="0" Grid.Column="0"
-                                SnapsToDevicePixels="True"
-                                Panel.ZIndex="1">
-                                <Border
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="0,0,0,0">
-                                    <TabPanel
-                                        Margin="2,2,0,0"
-                                        VerticalAlignment="Bottom"
-                                        DockPanel.Dock="Left"
-                                        IsItemsHost="True"
-                                        KeyboardNavigation.TabIndex="1"/>
-                                </Border>
-                            </Grid>
-
-                            <Border
-                                Grid.Row="1" Grid.Column="0"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1,1,1,1"
-                                KeyboardNavigation.DirectionalNavigation="Contained"
-                                KeyboardNavigation.TabIndex="2"
-                                KeyboardNavigation.TabNavigation="Local"
-                                Panel.ZIndex="0">
-                                <Grid
-                                    x:Name="PART_ItemsHolder"
-                                    Margin="{TemplateBinding Padding}"
-                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                            </Border>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-
-        </Style>
-
     </Window.Resources>
 
     <Window.InputBindings>
@@ -178,8 +104,16 @@
                 ItemsSource="{Binding Tabs}"
                 IsSynchronizedWithCurrentItem="True"
                 SelectedIndex="{Binding SelectedTabIndex}"
-                SelectionChanged="TabControl_SelectionChanged"/>
+                SelectionChanged="TabControl_SelectionChanged">
 
+                <ctrl:TabControlEx.ItemTemplate>
+
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Title, Mode=OneWay}"/>
+                    </DataTemplate>
+
+                </ctrl:TabControlEx.ItemTemplate>
+            </ctrl:TabControlEx>
 
             <StatusBar Grid.Row="1" Grid.ColumnSpan="5">
 

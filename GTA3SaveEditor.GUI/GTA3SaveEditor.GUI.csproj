@@ -9,8 +9,8 @@
     <Description>Grand Theft Auto III save file editor graphical user interface.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>2.0.0-alpha</Version>
-    <AssemblyVersion>2.0.0.1628</AssemblyVersion>
-    <FileVersion>2.0.0.1628</FileVersion>
+    <AssemblyVersion>2.0.0.1704</AssemblyVersion>
+    <FileVersion>2.0.0.1704</FileVersion>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>

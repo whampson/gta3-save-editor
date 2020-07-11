@@ -22,19 +22,8 @@
     </UserControl.Resources>
 
     <DockPanel>
-        <TabControl>
-            <TabControl.Resources>
-                <Style TargetType="TabControl">
-                    <Setter Property="ItemContainerStyle">
-                        <Setter.Value>
-                            <Style TargetType="TabItem" BasedOn="{StaticResource TabItemStyle}">
-                                <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                            </Style>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-
-            </TabControl.Resources>
+        <c:TabControlEx
+            Style="{StaticResource TabControlStyle}">
 
             <TabItem Header="Player Info">
                 <DockPanel Name="Panel">
@@ -45,18 +34,19 @@
                         MaxHeight="500"
                         Width="{Binding MaxWidth, ElementName=Panel}"
                         Height="{Binding ActualHeight, ElementName=Panel}">
+
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Grid Grid.Column="0">
+                        <Grid Grid.Column="0" Margin="5,5">
                             <Grid.RowDefinitions>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition/>
                             </Grid.RowDefinitions>
-                            <GroupBox Grid.Row="0" Header="General" Margin="5">
+                            <GroupBox Grid.Row="0" Header="General">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="110"/>
@@ -82,18 +72,18 @@
                                     <TextBlock Grid.Row="5" Grid.Column="0" Margin="5" Text="Max Wanted Level:" Style="{StaticResource LabelStyleRight}"/>
                                     <TextBlock Grid.Row="6" Grid.Column="0" Margin="5" Text="Max Chaos Level:" Style="{StaticResource LabelStyleRight}"/>
 
-                                    <xctk:SingleUpDown Grid.Row="0" Grid.Column="1" Margin="5" Height="25" MinWidth="115" HorizontalAlignment="Stretch"  Value="{Binding PlayerPed.Health}"/>
-                                    <xctk:SingleUpDown Grid.Row="1" Grid.Column="1" Margin="5" Height="25" MinWidth="115" HorizontalAlignment="Stretch"  Value="{Binding PlayerPed.Armor}"/>
-                                    <xctk:IntegerUpDown Grid.Row="2" Grid.Column="1" Margin="5" Height="25" MinWidth="115" HorizontalAlignment="Stretch"  Value="{Binding PlayerInfo.Money}"/>
-                                    <xctk:IntegerUpDown Grid.Row="3" Grid.Column="1" Margin="5" Height="25" MinWidth="115" HorizontalAlignment="Stretch"  Value="{Binding PlayerInfo.MoneyOnScreen}"/>
-                                    <xctk:SingleUpDown Grid.Row="4" Grid.Column="1" Margin="5" Height="25" MinWidth="115" HorizontalAlignment="Stretch"  Value="{Binding PlayerPed.MaxStamina}"/>
-                                    <xctk:IntegerUpDown Grid.Row="5" Grid.Column="1" Margin="5" Height="25" MinWidth="115" HorizontalAlignment="Stretch"  Value="{Binding PlayerPed.MaxWantedLevel}"/>
-                                    <xctk:IntegerUpDown Grid.Row="6" Grid.Column="1" Margin="5" Height="25" MinWidth="115" HorizontalAlignment="Stretch"  Value="{Binding PlayerPed.MaxChaosLevel}"/>
+                                    <xctk:SingleUpDown Grid.Row="0" Grid.Column="1" Margin="5" Height="25" MinWidth="115" HorizontalAlignment="Stretch" Minimum="0" Value="{Binding PlayerPed.Health}"/>
+                                    <xctk:SingleUpDown Grid.Row="1" Grid.Column="1" Margin="5" Height="25" MinWidth="115" HorizontalAlignment="Stretch" Minimum="0" Value="{Binding PlayerPed.Armor}"/>
+                                    <xctk:IntegerUpDown Grid.Row="2" Grid.Column="1" Margin="5" Height="25" MinWidth="115" HorizontalAlignment="Stretch" Minimum="0" Value="{Binding PlayerInfo.Money}"/>
+                                    <xctk:IntegerUpDown Grid.Row="3" Grid.Column="1" Margin="5" Height="25" MinWidth="115" HorizontalAlignment="Stretch" Minimum="0" Value="{Binding PlayerInfo.MoneyOnScreen}"/>
+                                    <xctk:SingleUpDown Grid.Row="4" Grid.Column="1" Margin="5" Height="25" MinWidth="115" HorizontalAlignment="Stretch" Minimum="0" Value="{Binding PlayerPed.MaxStamina}"/>
+                                    <xctk:IntegerUpDown Grid.Row="5" Grid.Column="1" Margin="5" Height="25" MinWidth="115" HorizontalAlignment="Stretch" Minimum="0" Maximum="6" Value="{Binding PlayerPed.MaxWantedLevel}"/>
+                                    <xctk:IntegerUpDown Grid.Row="6" Grid.Column="1" Margin="5" Height="25" MinWidth="115" HorizontalAlignment="Stretch" Minimum="0" Value="{Binding PlayerPed.MaxChaosLevel}"/>
 
                                 </Grid>
                             </GroupBox>
 
-                            <GroupBox Grid.Row="1" Header="Perks" Margin="5,0,5,5">
+                            <GroupBox Grid.Row="1" Header="Perks">
                                 <Grid>
                                     <Grid.RowDefinitions>
                                         <RowDefinition Height="Auto"/>
@@ -109,13 +99,13 @@
                                     <CheckBox Grid.Row="2" Grid.Column="1" Height="20" Margin="15,5,5,5" Content="Free Arrests" Style="{StaticResource CheckBoxStyle}" IsChecked="{Binding PlayerInfo.GetOutOfJailFree}"/>
                                     <CheckBox Grid.Row="3" Grid.Column="1" Height="20" Margin="15,5,5,5" Content="Free Healthcare" Style="{StaticResource CheckBoxStyle}" IsChecked="{Binding PlayerInfo.GetOutOfHospitalFree}"/>
                                     <CheckBox Grid.Row="4" Grid.Column="1" Height="20" Margin="15,5,5,5" Content="Free Resprays" Style="{StaticResource CheckBoxStyle}" IsChecked="{Binding Garages.RespraysAreFree}"/>
-                                    <CheckBox Grid.Row="5" Grid.Column="1" Height="20" Margin="15,5,5,5" Content="Free bombs" Style="{StaticResource CheckBoxStyle}" IsChecked="{Binding Garages.BombsAreFree}"/>
+                                    <CheckBox Grid.Row="5" Grid.Column="1" Height="20" Margin="15,5,5,5" Content="Free Bombs" Style="{StaticResource CheckBoxStyle}" IsChecked="{Binding Garages.BombsAreFree}"/>
 
                                 </Grid>
                             </GroupBox>
                         </Grid>
 
-                        <GroupBox Grid.Column="1" Header="Weapons" Margin="5">
+                        <GroupBox Grid.Column="1" Header="Weapons" Margin="5,5">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="110"/>
@@ -150,41 +140,39 @@
 
                                 <!-- TODO: assumes correct order -->
                                 <xctk:IntegerUpDown Grid.Row="0" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Minimum="0" Maximum="1"
-                                Value="{Binding PlayerPed.Weapons[1].Type, Converter={StaticResource EnumValueToInt}, ConverterParameter={x:Type gta3:WeaponType}}"/>
-                                <xctk:IntegerUpDown Grid.Row="1" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Value="{Binding PlayerPed.Weapons[2].AmmoTotal}"/>
-                                <xctk:IntegerUpDown Grid.Row="2" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Value="{Binding PlayerPed.Weapons[3].AmmoTotal}"/>
-                                <xctk:IntegerUpDown Grid.Row="3" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Value="{Binding PlayerPed.Weapons[4].AmmoTotal}"/>
-                                <xctk:IntegerUpDown Grid.Row="4" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Value="{Binding PlayerPed.Weapons[5].AmmoTotal}"/>
-                                <xctk:IntegerUpDown Grid.Row="5" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Value="{Binding PlayerPed.Weapons[6].AmmoTotal}"/>
-                                <xctk:IntegerUpDown Grid.Row="6" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Value="{Binding PlayerPed.Weapons[7].AmmoTotal}"/>
-                                <xctk:IntegerUpDown Grid.Row="7" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Value="{Binding PlayerPed.Weapons[8].AmmoTotal}"/>
-                                <xctk:IntegerUpDown Grid.Row="8" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Value="{Binding PlayerPed.Weapons[9].AmmoTotal}"/>
-                                <xctk:IntegerUpDown Grid.Row="9" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Value="{Binding PlayerPed.Weapons[10].AmmoTotal}"/>
-                                <xctk:IntegerUpDown Grid.Row="10" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Value="{Binding PlayerPed.Weapons[11].AmmoTotal}"/>
+                                    Value="{Binding PlayerPed.Weapons[1].Type, Converter={StaticResource EnumValueToInt}, ConverterParameter={x:Type gta3:WeaponType}}"/>
+                                <xctk:IntegerUpDown Grid.Row="1" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Minimum="0" Value="{Binding PlayerPed.Weapons[2].AmmoTotal}"/>
+                                <xctk:IntegerUpDown Grid.Row="2" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Minimum="0" Value="{Binding PlayerPed.Weapons[3].AmmoTotal}"/>
+                                <xctk:IntegerUpDown Grid.Row="3" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Minimum="0" Value="{Binding PlayerPed.Weapons[4].AmmoTotal}"/>
+                                <xctk:IntegerUpDown Grid.Row="4" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Minimum="0" Value="{Binding PlayerPed.Weapons[5].AmmoTotal}"/>
+                                <xctk:IntegerUpDown Grid.Row="5" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Minimum="0" Value="{Binding PlayerPed.Weapons[6].AmmoTotal}"/>
+                                <xctk:IntegerUpDown Grid.Row="6" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Minimum="0" Value="{Binding PlayerPed.Weapons[7].AmmoTotal}"/>
+                                <xctk:IntegerUpDown Grid.Row="7" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Minimum="0" Value="{Binding PlayerPed.Weapons[8].AmmoTotal}"/>
+                                <xctk:IntegerUpDown Grid.Row="8" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Minimum="0" Value="{Binding PlayerPed.Weapons[9].AmmoTotal}"/>
+                                <xctk:IntegerUpDown Grid.Row="9" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Minimum="0" Value="{Binding PlayerPed.Weapons[10].AmmoTotal}"/>
+                                <xctk:IntegerUpDown Grid.Row="10" Grid.Column="1" Margin="5" Height="25" MinWidth="115" Minimum="0" Value="{Binding PlayerPed.Weapons[11].AmmoTotal}"/>
 
                             </Grid>
                         </GroupBox>
 
-                        <DockPanel Grid.Column="2" LastChildFill="False">
+                        <DockPanel Grid.Column="2" LastChildFill="False" Margin="5,5">
                             <GroupBox
-                        Header="Skin"
-                        Margin="5"
-                        Width="245"
-                        MaxWidth="500">
+                                Header="Skin"
+                                MaxWidth="500">
                                 <DockPanel>
                                     <ComboBox
-                                DockPanel.Dock="Top"
-                                Height="25"
-                                Margin="5"
-                                    IsEditable="True"
-                                    ItemsSource="{x:Static v:PlayerView.ModelNames}"
-                                    Text="{Binding PlayerPed.ModelName}"
-                                    TextBoxBase.TextChanged="SkinComboBox_TextChanged"/>
+                                        DockPanel.Dock="Top"
+                                        Height="25"
+                                        Margin="5"
+                                        IsEditable="True"
+                                        ItemsSource="{x:Static v:PlayerView.ModelNames}"
+                                        Text="{Binding PlayerPed.ModelName}"
+                                        TextBoxBase.TextChanged="SkinComboBox_TextChanged"/>
                                     <Viewbox
-                                    Stretch="UniformToFill"
-                                    Margin="5"
-                                    MaxHeight="425"
-                                    MaxWidth="245">
+                                        Stretch="UniformToFill"
+                                        Margin="5"
+                                        MaxHeight="425"
+                                        MaxWidth="245">
                                         <Image Source="{Binding Skin, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type v:PlayerView}}}"/>
                                     </Viewbox>
                                 </DockPanel>
@@ -195,13 +183,14 @@
             </TabItem>
 
             <TabItem Header="Spawn Point">
+
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="185"/>
                     </Grid.ColumnDefinitions>
 
-                    <Grid Grid.Column="0">
+                    <Grid Grid.Column="0" x:Name="m_mapPanel">
                         <c:MapControl
                             x:Name="m_map"
                             Grid.Row="0"
@@ -217,6 +206,7 @@
                             Tag="{Binding ElementName=m_theView}"
                             Image="{StaticResource MapImage}"
                             MouseOverCoords="{Binding MouseOverCoords, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type v:PlayerView}}}"
+                            Overlays="{Binding Blips, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type v:PlayerView}}}"
                             MouseDown="Map_MouseDown">
 
                             <c:MapControl.ContextMenu>
@@ -231,25 +221,33 @@
                         </c:MapControl>
                     </Grid>
 
-                    <Grid Grid.Column="1">
+                    <Grid Grid.Column="1" Margin="5,0">
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <GroupBox Grid.Row="0" Header="Player Spawn">
-
-                            <DockPanel>
+                        <GroupBox Grid.Row="0" Header="Location">
+                            <DockPanel Margin="5">
                                 <c:LocationPicker
                                     DockPanel.Dock="Top"
-                                    Margin="40,5,0,0"
-                                    Value="{Binding PlayerPed.Position}"/>
-
+                                    Value="{Binding PlayerPed.Position}"
+                                    ValueChanged="PlayerPostionPicker_ValueChanged"/>
                             </DockPanel>
-
                         </GroupBox>
 
-                        <Grid Grid.Row="1">
+                        <GroupBox Grid.Row="1" Header="Point of Interest">
+                            <DockPanel Margin="5">
+                                <ComboBox
+                                    ItemsSource="{x:Static v:PlayerView.PointOfInterestNames}"
+                                    SelectedItem="{Binding SelectedPointOfInterest, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type v:PlayerView}}}"
+                                    SelectionChanged="PointOfInterest_SelectionChanged"/>
+                            </DockPanel>
+                        </GroupBox>
+
+                        <Grid Grid.Row="3">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="65"/>
@@ -275,7 +273,7 @@
 
             </TabItem>
 
-        </TabControl>
+        </c:TabControlEx>
     </DockPanel>
 
 </v:TabPageBase>

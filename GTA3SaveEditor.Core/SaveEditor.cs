@@ -1,5 +1,6 @@
 ﻿using GTASaveData;
 using GTASaveData.GTA3;
+using GTASaveData.Types;
 using System;
 using System.IO;
 using System.Security;
@@ -44,6 +45,20 @@ namespace GTA3SaveEditor.Core
             Settings = new Settings();
             ActiveFile = null;
         }
+
+        public void SetPlayerSpawnPoint(Vector3D loc)
+        {
+            ActiveFile.PlayerPeds.GetPlayerPed().Position = loc;
+
+            // Reset save threads so new spawn location isn't overridden
+            // TOOD: offsets for other SCM versions (this is v2)
+            RunningScript iSave = ActiveFile.Scripts.GetRunningScript("i_save");
+            RunningScript cSave = ActiveFile.Scripts.GetRunningScript("c_save");
+            RunningScript sSave = ActiveFile.Scripts.GetRunningScript("s_save");
+            if (iSave != null) iSave.IP = 60371;
+            if (cSave != null) cSave.IP = 62138;
+            if (sSave != null) sSave.IP = 63554;
+        } 
 
         public void OpenFile(string path)
         {

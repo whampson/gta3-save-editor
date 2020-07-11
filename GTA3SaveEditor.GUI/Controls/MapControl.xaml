@@ -6,7 +6,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:l="clr-namespace:GTA3SaveEditor.GUI.Controls"
     mc:Ignorable="d" 
-    Loaded="MapControl_Loaded">
+    Loaded="MapControl_Loaded"
+    LayoutUpdated="MapControl_LayoutUpdated">
 
     <Border
         x:Name="m_border"

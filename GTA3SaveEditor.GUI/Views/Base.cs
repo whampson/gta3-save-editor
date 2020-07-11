@@ -1,4 +1,6 @@
-﻿using GTA3SaveEditor.GUI.ViewModels;
+﻿using GTA3SaveEditor.Core;
+using GTA3SaveEditor.GUI.ViewModels;
+using GTASaveData.GTA3;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -19,6 +21,9 @@ namespace GTA3SaveEditor.GUI.Views
         {
             Loaded += View_Loaded;
         }
+
+        public SaveEditor TheEditor => ViewModel.MainViewModel.TheEditor;
+        public GTA3Save TheSave => ViewModel.MainViewModel.TheSave;
 
         private void View_Loaded(object sender, RoutedEventArgs e)
         {

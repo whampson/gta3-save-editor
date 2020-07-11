@@ -8,6 +8,7 @@
     xmlns:c="clr-namespace:GTA3SaveEditor.GUI.Controls"
     xmlns:v="clr-namespace:GTA3SaveEditor.GUI.Views"
     xmlns:m="clr-namespace:GTA3SaveEditor.GUI.ViewModels"
+    xmlns:h="clr-namespace:GTA3SaveEditor.GUI.Helpers"
     xmlns:conv="clr-namespace:GTA3SaveEditor.GUI.Converters"
     xmlns:ext="clr-namespace:WpfEssentials.Win32.Extensions;assembly=WpfEssentials.Win32"
     xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"    
@@ -36,19 +37,7 @@
     </UserControl.InputBindings>
 
     <DockPanel>
-        <TabControl>
-            <TabControl.Resources>
-            <Style TargetType="TabControl">
-                <Setter Property="ItemContainerStyle">
-                    <Setter.Value>
-                        <Style TargetType="TabItem" BasedOn="{StaticResource TabItemStyle}">
-                            <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                        </Style>
-                    </Setter.Value>
-                </Setter>
-            </Style>
-            </TabControl.Resources>
-
+        <c:TabControlEx Style="{StaticResource TabControlStyle}">
             <TabItem x:Name="m_mapTab" Header="Map">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -104,6 +93,7 @@
 
                     <Grid Grid.Column="1">
                         <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
@@ -111,6 +101,7 @@
                         <GroupBox
                                 Grid.Row="0"
                                 Header="Blip Properties"
+                                Margin="5,0"
                                 IsEnabled="{Binding ActiveBlip, Converter={StaticResource IsNotNullConverter}}"
                                 Style="{StaticResource GroupBoxStyle}">
 
@@ -204,9 +195,7 @@
                                     UsingAlphaChannel="False"
                                     ShowAvailableColors="False"
                                     ShowStandardColors="True"
-                                    StandardColors="{Binding StandardBlipColors,
-                                        Mode=OneWay,
-                                        RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type v:RadarView}}}">
+                                    StandardColors="{x:Static h:MapHelper.StandardBlipColors}">
                                     <xctk:ColorPicker.SelectedColor>
                                         <MultiBinding Converter="{StaticResource ColorConverter}">
                                             <Binding Path="ActiveBlip.Color"/>
@@ -431,7 +420,7 @@
                 </DataGrid>
             </TabItem>
 
-        </TabControl>
+        </c:TabControlEx>
     </DockPanel>
 
 </v:TabPageBase>

@@ -1,5 +1,4 @@
 ﻿using GTASaveData.GTA3;
-using System.Collections.Generic;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {

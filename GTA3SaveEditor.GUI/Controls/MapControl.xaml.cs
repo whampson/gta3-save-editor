@@ -473,7 +473,7 @@ namespace GTA3SaveEditor.GUI.Controls
         private Point m_prePanRenderOffset;
         private bool m_suppressZoomChangedHandler;
         private bool m_suppressOffsetChangedHandler;
-        private bool m_loadedOnce;
+        private bool m_initialResetDone;
         #endregion
 
         #region Constructors
@@ -497,7 +497,6 @@ namespace GTA3SaveEditor.GUI.Controls
             Zoom = InitialZoom;
 
             ApplyZoom();
-            PanToCenter();
         }
 
         public void ZoomIn()
@@ -732,14 +731,19 @@ namespace GTA3SaveEditor.GUI.Controls
             {
                 Keyboard.Focus(m_canvas);
             }
-
-            if (!m_loadedOnce)
-            {
-                Reset();
-                m_loadedOnce = true;
-            }
         }
 
+        private void MapControl_LayoutUpdated(object sender, EventArgs e)
+        {
+            if (ActualHeight > 0 || ActualWidth > 0)
+            {
+                if (!m_initialResetDone)
+                {
+                    Reset();
+                    m_initialResetDone = true;
+                }
+            }
+        }
         private void MapControl_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             UpdateCenter();

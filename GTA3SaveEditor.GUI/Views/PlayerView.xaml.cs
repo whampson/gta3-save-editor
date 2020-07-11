@@ -1,13 +1,19 @@
-﻿using GTA3SaveEditor.GUI.ViewModels;
+﻿using GTA3SaveEditor.GUI.Helpers;
+using GTA3SaveEditor.GUI.ViewModels;
 using GTASaveData.GTA3;
 using GTASaveData.Types;
+using Ookii.Dialogs.Wpf;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using WpfEssentials.Win32;
+using Xceed.Wpf.Toolkit.Core;
 
 namespace GTA3SaveEditor.GUI.Views
 {
@@ -16,8 +22,13 @@ namespace GTA3SaveEditor.GUI.Views
     /// </summary>
     public partial class PlayerView : TabPageBase<Player>
     {
+        public const double PointOfInterestRadius = 10;
+
         public static readonly DependencyProperty SkinProperty = DependencyProperty.Register(
             nameof(Skin), typeof(BitmapImage), typeof(PlayerView));
+
+        public static readonly DependencyProperty SelectedPointOfInterestProperty = DependencyProperty.Register(
+            nameof(SelectedPointOfInterest), typeof(string), typeof(PlayerView));
 
         public static readonly DependencyProperty MouseClickCoordsProperty = DependencyProperty.Register(
             nameof(MouseClickCoords), typeof(Point), typeof(PlayerView));
@@ -25,11 +36,21 @@ namespace GTA3SaveEditor.GUI.Views
         public static readonly DependencyProperty MouseOverCoordsProperty = DependencyProperty.Register(
             nameof(MouseOverCoords), typeof(Point), typeof(PlayerView));
 
+        public static readonly DependencyProperty BlipsProperty = DependencyProperty.Register(
+            nameof(Blips), typeof(ObservableCollection<UIElement>), typeof(PlayerView),
+            new PropertyMetadata(
+                new ObservableCollection<UIElement>()));
 
         public BitmapImage Skin
         {
             get { return (BitmapImage) GetValue(SkinProperty); }
             set { SetValue(SkinProperty, value); }
+        }
+
+        public string SelectedPointOfInterest
+        {
+            get { return (string) GetValue(SelectedPointOfInterestProperty); }
+            set { SetValue(SelectedPointOfInterestProperty, value); }
         }
 
         public Point MouseClickCoords
@@ -44,9 +65,23 @@ namespace GTA3SaveEditor.GUI.Views
             set { SetValue(MouseOverCoordsProperty, value); }
         }
 
+        public ObservableCollection<UIElement> Blips
+        {
+            get { return (ObservableCollection<UIElement>) GetValue(BlipsProperty); }
+            set { SetValue(BlipsProperty, value); }
+        }
+
+        private bool m_suppressPointOfInterestSelectionChangedHandler;
+
         public PlayerView()
         {
             InitializeComponent();
+        }
+
+        protected override void OnLoad()
+        {
+            base.OnLoad();
+            m_map.Reset();
         }
 
         private void LoadSkin(string model)
@@ -66,12 +101,62 @@ namespace GTA3SaveEditor.GUI.Views
             }
         }
 
-        private void SetSpawnPoint(Point p)
+        private void UpdateBlip()
+        {
+            UIElement blip = MapHelper.MakeBlip(
+                ViewModel.PlayerPed.Position.Get2DComponent(),
+                scale: 6, thickness: 1.5,
+                color: 6
+            );
+
+            if (Blips.Count == 0) Blips.Add(blip);
+            else Blips[0] = blip;
+        }
+
+        private void UpdatePointOfInterest()
+        {
+            m_suppressPointOfInterestSelectionChangedHandler = true;
+            SelectedPointOfInterest = PointsOfInterest
+                .Where(x => Vector3D.Distance(x.Value, ViewModel.PlayerPed.Position) < PointOfInterestRadius)
+                .Select(x => x.Key)
+                .FirstOrDefault();
+            m_suppressPointOfInterestSelectionChangedHandler = false;
+        }
+
+        private void SetSpawnPoint2D(Point p)
         {
             Vector3D oldPos = ViewModel.PlayerPed.Position;
             Vector3D newPos = new Vector3D((float) p.X, (float) p.Y, (float) oldPos.Z);
 
-            ViewModel.PlayerPed.Position = newPos;
+            TheEditor.SetPlayerSpawnPoint(newPos);
+        }
+
+        private void PlayerPostionPicker_ValueChanged(object sender, RoutedEventArgs e)
+        {
+            if (e is PropertyChangedEventArgs<Vector3D> args)
+            {
+                Vector3D oldPos = ViewModel.PlayerPed.Position;
+                Vector3D newPos = args.NewValue;
+                if (oldPos != newPos)
+                {
+                    TheEditor.SetPlayerSpawnPoint(newPos);
+                }
+            }
+
+            UpdateBlip();
+            UpdatePointOfInterest();
+        }
+
+        private void PointOfInterest_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count != 0 && !m_suppressPointOfInterestSelectionChangedHandler)
+            {
+                Vector3D loc = PointsOfInterest[e.AddedItems[0] as string];
+                if (Vector3D.Distance(loc, ViewModel.PlayerPed.Position) > PointOfInterestRadius)
+                {
+                    TheEditor.SetPlayerSpawnPoint(loc);
+                }
+            }
         }
 
         private void Map_MouseDown(object sender, MouseButtonEventArgs e)
@@ -86,7 +171,7 @@ namespace GTA3SaveEditor.GUI.Views
 
         public ICommand SpawnHereCommand => new RelayCommand
         (
-            () => SetSpawnPoint(MouseClickCoords)
+            () => SetSpawnPoint2D(MouseClickCoords)
         );
 
         private static readonly Dictionary<string, string> SkinUriMap = new Dictionary<string, string>()
@@ -136,5 +221,17 @@ namespace GTA3SaveEditor.GUI.Views
         };
 
         public static IEnumerable<string> ModelNames => SkinUriMap.Keys;
+
+        public static readonly Dictionary<string, Vector3D> PointsOfInterest = new Dictionary<string, Vector3D>()
+        {
+            { "Portland Safehouse", new Vector3D(888.5625f, -308.375f, 8.0f) },
+            { "Staunton Safehouse", new Vector3D(103.0f, -478.5f, 14.875f) },
+            { "Shoreside Safehouse", new Vector3D(-666.75f, -1.75f, 18.0f) },
+            { "Love Media Rooftop", new Vector3D(100.0f, -1555.0f, 245.0f) },
+            { "Kenji's Rooftop", new Vector3D(474.5f, -1383.5f, 69.0f) },
+            { "Lift Bridge", new Vector3D(-266.5f, -631.5f, 72.5f) }
+        };
+
+        public static IEnumerable<string> PointOfInterestNames => PointsOfInterest.Keys;
     }
 }

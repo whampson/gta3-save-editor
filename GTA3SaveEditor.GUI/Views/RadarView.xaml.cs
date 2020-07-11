@@ -1,4 +1,5 @@
 ﻿using GTA3SaveEditor.GUI.Events;
+using GTA3SaveEditor.GUI.Helpers;
 using GTA3SaveEditor.GUI.ViewModels;
 using GTASaveData.GTA3;
 using GTASaveData.Types;
@@ -22,8 +23,6 @@ namespace GTA3SaveEditor.GUI.Views
     /// </summary>
     public partial class RadarView : TabPageBase<Radar>
     {
-        public const int NumStandardColorTypes = 7;
-
         public static readonly DependencyProperty MapZoomProperty = DependencyProperty.Register(
             nameof(MapZoom), typeof(double), typeof(RadarView));
 
@@ -131,60 +130,6 @@ namespace GTA3SaveEditor.GUI.Views
             m_map.Reset();
         }
 
-        private UIElement MakeBlip(RadarBlip blip)
-        {
-            const double Size = 2;
-
-            SolidColorBrush brush = new SolidColorBrush
-            {
-                Color = GetBlipColor(blip.Color, blip.IsBright)
-            };
-            Rectangle rect = new Rectangle
-            {
-                Fill = brush,
-                StrokeThickness = 0.5,
-                Stroke = Brushes.Black,
-                Width = Size * blip.Scale,
-                Height = Size * blip.Scale
-            };
-
-            Point p = m_map.WorldToPixel(new Point(blip.RadarPosition.X, blip.RadarPosition.Y));
-
-            Matrix m = Matrix.Identity;
-            m.OffsetX = p.X - (rect.Width / 2);
-            m.OffsetY = p.Y - (rect.Height / 2);
-
-            rect.RenderTransform = new MatrixTransform(m);
-            return rect;
-        }
-
-        private UIElement MakeSpriteBlip(RadarBlip blip, string uri)
-        {
-            const int Size = 16;
-
-            BitmapImage bmp = new BitmapImage();
-            bmp.BeginInit();
-            bmp.UriSource = new Uri(uri);
-            bmp.DecodePixelWidth = Size;
-            bmp.EndInit();
-
-            Image img = new Image()
-            {
-                Source = bmp,
-                Width = bmp.Width,
-                Height = bmp.Height,
-            };
-
-            Point p = m_map.WorldToPixel(new Point(blip.RadarPosition.X, blip.RadarPosition.Y));
-
-            Matrix m = Matrix.Identity;
-            m.OffsetX = p.X - (Size / 2);
-            m.OffsetY = p.Y - (Size / 2);
-
-            img.RenderTransform = new MatrixTransform(m);
-            return img;
-        }
-
         private void RemoveAllBlips()
         {
             Blips.Clear();
@@ -202,8 +147,8 @@ namespace GTA3SaveEditor.GUI.Views
             if (blip.IsVisible)
             {
                 UIElement newElement = (blip.Sprite == RadarBlipSprite.None)
-                    ? MakeBlip(blip)
-                    : MakeSpriteBlip(blip, SpriteURIs[blip.Sprite]);
+                    ? MapHelper.MakeBlip(blip.RadarPosition, scale: blip.Scale, color: blip.Color, isBright: blip.IsBright)
+                    : MapHelper.MakeIconBlip(blip.RadarPosition, SpriteURIs[blip.Sprite]);
 
                 Blips.Add(newElement);
                 m_blipUIElementMap[blip] = newElement;
@@ -414,38 +359,5 @@ namespace GTA3SaveEditor.GUI.Views
             { RadarBlipSprite.Tony,     @"pack://application:,,,/Resources/Map/radar_tony.png"   },
             { RadarBlipSprite.Weapon,   @"pack://application:,,,/Resources/Map/radar_weapon.png" },
         };
-
-        public static ObservableCollection<ColorItem> StandardBlipColors => new ObservableCollection<ColorItem>()
-        {
-            new ColorItem(Color.FromRgb(0x7F, 0x00, 0x00), "Dark Red"),
-            new ColorItem(Color.FromRgb(0x71, 0x2B, 0x49), "Red"),
-            new ColorItem(Color.FromRgb(0x00, 0x7F, 0x00), "Dark Green"),
-            new ColorItem(Color.FromRgb(0x5F, 0xA0, 0x6A), "Green"),
-            new ColorItem(Color.FromRgb(0x00, 0x00, 0x7F), "Dark Blue"),
-            new ColorItem(Color.FromRgb(0x80, 0xA7, 0xF3), "Blue"),
-            new ColorItem(Color.FromRgb(0x7F, 0x7F, 0x7F), "Gray"),
-            new ColorItem(Color.FromRgb(0xE1, 0xE1, 0xE1), "White"),
-            new ColorItem(Color.FromRgb(0x7F, 0x7F, 0x00), "Dark Yellow"),
-            new ColorItem(Color.FromRgb(0xFF, 0xFF, 0x00), "Yellow"),
-            new ColorItem(Color.FromRgb(0x7F, 0x00, 0x7F), "Purple"),
-            new ColorItem(Color.FromRgb(0xFF, 0x00, 0xFF), "Pink"),
-            new ColorItem(Color.FromRgb(0x00, 0x7F, 0x7F), "Teal"),
-            new ColorItem(Color.FromRgb(0x00, 0xFF, 0xFF), "Cyan"),
-        };
-
-        public static Color GetBlipColor(int colorId, bool isBright)
-        {
-            if (colorId >= 0 && colorId < NumStandardColorTypes)
-            {
-                int colorIndex = (isBright) ? (colorId * 2) + 1 : colorId * 2;
-                return (Color) StandardBlipColors[colorIndex].Color;
-            }
-
-            // Interesting "feature" in the game
-            byte r = (byte) (colorId >> 24);
-            byte g = (byte) (colorId >> 16);
-            byte b = (byte) (colorId >> 8);
-            return Color.FromRgb(r, g, b);
-        }
     }
 }
