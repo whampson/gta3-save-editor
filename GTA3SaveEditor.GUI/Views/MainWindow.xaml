@@ -32,6 +32,12 @@
         <DataTemplate DataType="{x:Type m:Player}">
             <v:PlayerView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type m:Objects}">
+            <v:ObjectsView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type m:Pickups}">
+            <v:PickupsView/>
+        </DataTemplate>
         <DataTemplate DataType="{x:Type m:Radar}">
             <v:RadarView/>
         </DataTemplate>

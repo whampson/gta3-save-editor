@@ -227,7 +227,7 @@ namespace GTA3SaveEditor.GUI.Views
             () => ViewModel.ActiveBlip != null
         );
 
-        private void ViewModel_BlipUpdate(object sender, RadarBlipEventArgs e)
+        private void ViewModel_BlipUpdate(object sender, BlipEventArgs<RadarBlip> e)
         {
             switch (e.Action)
             {

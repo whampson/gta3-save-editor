@@ -5,7 +5,9 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Converters;
 using System.Windows.Media.Imaging;
+using System.Windows.Media.Media3D;
 using System.Windows.Shapes;
 using Xceed.Wpf.Toolkit;
 
@@ -13,14 +15,16 @@ namespace GTA3SaveEditor.GUI.Helpers
 {
     public static class MapHelper
     {
-        public static readonly Point ScaleFactor = new Point(0.256, -0.256);
-        public static readonly Point Origin = new Point(510, 512);
+        public static readonly Point MapScaleFactor = new Point(0.256, -0.256);
+        public static readonly Point MapOrigin = new Point(510, 512);
 
         public static UIElement MakeBlip(Vector2D loc,
-            int scale = 3, double thickness = 0.5,
-            int color = 0, bool isBright = true)
+            int scale = 3, double thickness = 0.5, int angle = 0,
+            int color = 0, bool isBright = true,
+            string toolTip = null)
         {
             const double Size = 2;
+            double actualSize = Size * scale;
 
             SolidColorBrush brush = new SolidColorBrush
             {
@@ -32,27 +36,25 @@ namespace GTA3SaveEditor.GUI.Helpers
                 Fill = brush,
                 StrokeThickness = thickness,
                 Stroke = Brushes.Black,
-                Width = Size * scale,
-                Height = Size * scale
+                Width = actualSize,
+                Height = actualSize,
+                ToolTip = toolTip
             };
 
-            Point p = GetPixelCoords(loc.ToPoint());
-            Matrix m = Matrix.Identity;
-            m.OffsetX = p.X - (rect.Width / 2);
-            m.OffsetY = p.Y - (rect.Height / 2);
-
-            rect.RenderTransform = new MatrixTransform(m);
+            ApplyTransform(rect, loc, angle, actualSize);
             return rect;
         }
 
-        public static UIElement MakeIconBlip(Vector2D loc, string iconUri)
+        public static UIElement MakeIconBlip(Vector2D loc, string iconUri,
+            int scale = 4, int angle = 0,
+            string toolTip = null)
         {
-            const int Size = 16;
+            const double Size = 4;
+            double actualSize = Size * scale;
 
             BitmapImage bmp = new BitmapImage();
             bmp.BeginInit();
             bmp.UriSource = new Uri(iconUri);
-            bmp.DecodePixelWidth = Size;
             bmp.EndInit();
 
             Image img = new Image()
@@ -60,23 +62,40 @@ namespace GTA3SaveEditor.GUI.Helpers
                 Source = bmp,
                 Width = bmp.Width,
                 Height = bmp.Height,
+                ToolTip = toolTip
             };
+
+            ApplyTransform(img, loc, angle, actualSize);
+            return img;
+        }
+
+        private static void ApplyTransform(FrameworkElement e, Vector2D loc,
+            double angle = 0, double size = 1)
+        {
+            const double Root2Over2 = 0.707107;
+            double hypAngleRad = (Math.PI * (angle + 45)) / 180.0;
+
+            double centerX = (size / 2) * (Math.Cos(hypAngleRad) / Root2Over2);
+            double centerY = (size / 2) * (Math.Sin(hypAngleRad) / Root2Over2);
+            double scaleX = size / e.Width;
+            double scaleY = size / e.Height;
 
             Point p = GetPixelCoords(loc.ToPoint());
             Matrix m = Matrix.Identity;
-            m.OffsetX = p.X - (Size / 2);
-            m.OffsetY = p.Y - (Size / 2);
+            m.Rotate(angle);
+            m.OffsetX = p.X - centerX;
+            m.OffsetY = p.Y - centerY;
+            m.ScalePrepend(scaleX, scaleY);
 
-            img.RenderTransform = new MatrixTransform(m);
-            return img;
+            e.RenderTransform = new MatrixTransform(m);
         }
 
         public static Point GetPixelCoords(Point loc)
         {
             return new Point()
             {
-                X = (loc.X * ScaleFactor.X) + Origin.X,
-                Y = (loc.Y * ScaleFactor.Y) + Origin.Y,
+                X = (loc.X * MapScaleFactor.X) + MapOrigin.X,
+                Y = (loc.Y * MapScaleFactor.Y) + MapOrigin.Y,
             };
         }
 

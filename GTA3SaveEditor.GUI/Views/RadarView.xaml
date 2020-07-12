@@ -383,8 +383,8 @@
                         </DataGridTextColumn>
 
                         <DataGridTextColumn
-                                Header="Entity Handle"
-                                Width="85"
+                                Header="Handle"
+                                Width="75"
                                 Binding="{Binding EntityHandle}">
                             <DataGridTextColumn.ElementStyle>
                                 <Style TargetType="TextBlock">

@@ -12,7 +12,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 {
     public class Radar : TabPageViewModelBase
     {
-        public event EventHandler<RadarBlipEventArgs> BlipUpdate;
+        public event EventHandler<BlipEventArgs<RadarBlip>> BlipUpdate;
 
         private readonly Random m_rand;
         private Array<RadarBlip> m_radarBlips;
@@ -99,7 +99,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         private void UpdateBlip(RadarBlip newBlip)
         {
-            BlipUpdate?.Invoke(this, new RadarBlipEventArgs()
+            BlipUpdate?.Invoke(this, new BlipEventArgs<RadarBlip>()
             {
                 Action = BlipAction.Update,
                 Items = { newBlip }
@@ -108,7 +108,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         public void DrawAllBlips()
         {
-            BlipUpdate?.Invoke(this, new RadarBlipEventArgs()
+            BlipUpdate?.Invoke(this, new BlipEventArgs<RadarBlip>()
             {
                 Action = BlipAction.Update,
                 Items = RadarBlips
@@ -117,7 +117,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         public void RemoveAllBlips()
         {
-            BlipUpdate?.Invoke(this, new RadarBlipEventArgs()
+            BlipUpdate?.Invoke(this, new BlipEventArgs<RadarBlip>()
             {
                 Action = BlipAction.Reset
             });
@@ -141,7 +141,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
                 case NotifyCollectionChangedAction.Replace:
                 case NotifyCollectionChangedAction.Move:
                 {
-                    BlipUpdate?.Invoke(this, new RadarBlipEventArgs()
+                    BlipUpdate?.Invoke(this, new BlipEventArgs<RadarBlip>()
                     {
                         Action = BlipAction.Update,
                         Items = e.NewItems.Cast<RadarBlip>().ToList()

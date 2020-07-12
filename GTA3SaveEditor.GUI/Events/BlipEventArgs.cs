@@ -4,14 +4,14 @@ using System.Collections.Generic;
 
 namespace GTA3SaveEditor.GUI.Events
 {
-    public class RadarBlipEventArgs : EventArgs
+    public class BlipEventArgs<T> : EventArgs
     {
         public BlipAction Action { get; set; }
-        public IList<RadarBlip> Items { get; set; }
+        public IList<T> Items { get; set; }
 
-        public RadarBlipEventArgs()
+        public BlipEventArgs()
         {
-            Items = new List<RadarBlip>();
+            Items = new List<T>();
         }
     }
 

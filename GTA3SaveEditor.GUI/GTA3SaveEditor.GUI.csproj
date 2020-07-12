@@ -9,8 +9,8 @@
     <Description>Grand Theft Auto III save file editor graphical user interface.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Version>2.0.0-alpha</Version>
-    <AssemblyVersion>2.0.0.1704</AssemblyVersion>
-    <FileVersion>2.0.0.1704</FileVersion>
+    <AssemblyVersion>2.0.0.1785</AssemblyVersion>
+    <FileVersion>2.0.0.1785</FileVersion>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>
@@ -23,6 +23,11 @@
     <None Remove="Resources\health.png" />
     <None Remove="Resources\idaho.png" />
     <None Remove="Resources\map.png" />
+    <None Remove="Resources\Map\adrenaline.png" />
+    <None Remove="Resources\Map\bonus.png" />
+    <None Remove="Resources\Map\camera.png" />
+    <None Remove="Resources\Map\info.png" />
+    <None Remove="Resources\Map\package.png" />
     <None Remove="Resources\medic.png" />
     <None Remove="Resources\package.png" />
     <None Remove="Resources\radar_asuka.png" />
@@ -106,7 +111,19 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\Map\adrenaline.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Map\bonus.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Map\camera.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\Map\idaho.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Map\info.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Map\map.png">
@@ -118,7 +135,7 @@
     <Resource Include="Resources\Map\package.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Map\armor.png">
+    <Resource Include="Resources\Map\bodyarmour.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Map\bribe.png">
@@ -127,7 +144,7 @@
     <Resource Include="Resources\Map\health.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
-    <Resource Include="Resources\Map\rampage.png">
+    <Resource Include="Resources\Map\killfrenzy.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
     <Resource Include="Resources\Map\radar_asuka.png">
