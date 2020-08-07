@@ -12,7 +12,7 @@ using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
-    public class Welcome : TabPageViewModelBase
+    public class Welcome : BaseTabPage
     {
         private readonly BackgroundWorker m_lukeFileWalker;
         private readonly ObservableCollection<ListItem> m_listItems;
@@ -199,6 +199,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
             if (e.Error != null)
             {
                 // Re-throw any exception that occured, preserving stack trace
+                // TODO: catch some exceptions: eg access denied
                 ExceptionDispatchInfo.Capture(e.Error).Throw();
             }
 

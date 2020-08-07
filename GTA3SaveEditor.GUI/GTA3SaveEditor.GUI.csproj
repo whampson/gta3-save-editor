@@ -8,9 +8,9 @@
     <Copyright>(C) 2020 Wes Hampson. All Rights Reserved.</Copyright>
     <Description>Grand Theft Auto III save file editor graphical user interface.</Description>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <Version>2.0.0-alpha</Version>
-    <AssemblyVersion>2.0.0.1785</AssemblyVersion>
-    <FileVersion>2.0.0.1785</FileVersion>
+    <Version>0.2.0-alpha</Version>
+    <AssemblyVersion>0.2.0.1821</AssemblyVersion>
+    <FileVersion>0.2.0.1821</FileVersion>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <OutputType>WinExe</OutputType>
     <UseWPF>true</UseWPF>

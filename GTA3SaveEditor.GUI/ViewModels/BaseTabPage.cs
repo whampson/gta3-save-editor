@@ -1,18 +1,13 @@
 ﻿using GTA3SaveEditor.GUI.Events;
 using System;
-using System.Windows.Input;
 using WpfEssentials;
-using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
-    public abstract class ViewModelBase : ObservableObject
-    { }
-
     /// <summary>
     /// The view model base for tab pages.
     /// </summary>
-    public abstract class TabPageViewModelBase : ViewModelBase
+    public abstract class BaseTabPage : ObservableObject
     {
         public event EventHandler Initializing;
         public event EventHandler Loading;
@@ -56,12 +51,12 @@ namespace GTA3SaveEditor.GUI.ViewModels
         public Main MainViewModel { get; }
 
         /// <summary>
-        /// Creates a new <see cref="TabPageViewModelBase"/> instance.
+        /// Creates a new <see cref="BaseTabPage"/> instance.
         /// </summary>
         /// <param name="title">The tab name.</param>
         /// <param name="visibility">The tab visibility setting.</param>
         /// <param name="mainViewModel">The main window data context.</param>
-        public TabPageViewModelBase(string title, TabPageVisibility visibility, Main mainViewModel)
+        public BaseTabPage(string title, TabPageVisibility visibility, Main mainViewModel)
         {
             Title = title;
             Visibility = visibility;
@@ -130,30 +125,6 @@ namespace GTA3SaveEditor.GUI.ViewModels
             }
         }
 
-    }
-
-    public abstract class DialogViewModelBase : ViewModelBase
-    {
-        public event EventHandler<DialogCloseEventArgs> DialogCloseRequest;
-
-        public DialogViewModelBase()
-            : base()
-        { }
-
-        public void CloseDialog(bool? result = null)
-        {
-            DialogCloseRequest?.Invoke(this, new DialogCloseEventArgs(result));
-        }
-
-        public ICommand CloseCommand => new RelayCommand<bool?>
-        (
-            (result) => CloseDialog(result)
-        );
-
-        public ICommand CancelCommand => new RelayCommand
-        (
-            () => CloseDialog(false)
-        );
     }
 
     /// <summary>

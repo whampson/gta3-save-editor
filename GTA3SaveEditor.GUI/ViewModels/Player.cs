@@ -2,7 +2,7 @@
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
-    public class Player : TabPageViewModelBase
+    public class Player : BaseTabPage
     {
         private PlayerPed m_playerPed;
         private PlayerInfo m_playerInfo;

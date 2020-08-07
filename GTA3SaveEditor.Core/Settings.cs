@@ -8,11 +8,18 @@ namespace GTA3SaveEditor.Core
 {
     public class Settings : ObservableObject
     {
+        public static Settings TheSettings { get; private set; }
+        static Settings()
+        {
+            TheSettings = new Settings();
+        }
+
         public const int DefaultRecentFilesCapacity = 10;
 
         private ObservableCollection<string> m_recentFiles;
         private int m_recentFilesCapacity;
-        private string m_lastDirectoryBrowsed;
+        private string m_lastDirectoryAccessed;
+        private string m_lastFileAccessed;
         private string m_gameDirectory;
         private string m_welcomePath;
         private bool m_welcomePathRecurse;
@@ -38,10 +45,15 @@ namespace GTA3SaveEditor.Core
             set { m_recentFilesCapacity = value; OnPropertyChanged(); }
         }
 
-        public string LastDirectoryBrowsed
+        public string LastDirectoryAccessed
         {
-            get { return m_lastDirectoryBrowsed; }
-            set { m_lastDirectoryBrowsed = value; OnPropertyChanged(); }
+            get { return m_lastDirectoryAccessed; }
+            set { m_lastDirectoryAccessed = value; OnPropertyChanged(); }
+        }
+        public string LastFileAccessed
+        {
+            get { return m_lastFileAccessed; }
+            set { m_lastFileAccessed = value; OnPropertyChanged(); }
         }
 
         public string GameDirectory
@@ -111,6 +123,13 @@ namespace GTA3SaveEditor.Core
         public void ClearRecentFiles()
         {
             m_recentFiles.Clear();
+        }
+
+        public void SetLastAccess(string file)
+        {
+            // TODO: what if 'file' is a directory?
+            LastFileAccessed = Path.GetFullPath(file);
+            LastDirectoryAccessed = Path.GetDirectoryName(LastFileAccessed);
         }
 
         public void LoadSettings(string path)

@@ -50,14 +50,16 @@
         <KeyBinding Modifiers="Ctrl" Key="O" Command="{Binding FileOpenCommand}"/>
         <KeyBinding Modifiers="Ctrl" Key="S" Command="{Binding FileSaveCommand}"/>
         <KeyBinding Modifiers="Ctrl" Key="W" Command="{Binding FileCloseCommand}"/>
-        <KeyBinding Key="F5" Command="{Binding FileRefreshCommand}"/>
         <KeyBinding Modifiers="Ctrl+Shift" Key="S" Command="{Binding FileSaveAsCommand}"/>
         <KeyBinding Modifiers="Alt" Key="F4" Command="{Binding FileExitCommand}"/>
+        <KeyBinding Key="F1" Command="{Binding HelpAboutCommand}"/>
+        <KeyBinding Key="F5" Command="{Binding FileRefreshCommand}"/>
     </Window.InputBindings>
 
     <DockPanel>
 
         <Menu DockPanel.Dock="Top">
+
             <MenuItem Header="_File">
                 <MenuItem Header="_Open..." 
                     InputGestureText="Ctrl+O"
@@ -93,6 +95,12 @@
                 <MenuItem Header="E_xit"
                     InputGestureText="Alt+F4"
                     Command="{Binding FileExitCommand}"/>
+            </MenuItem>
+
+            <MenuItem Header="_Help">
+                <MenuItem Header="_About"
+                    InputGestureText="F1"
+                    Command="{Binding HelpAboutCommand}"/>
             </MenuItem>
         </Menu>
 
@@ -146,18 +154,6 @@
                         <TextBlock.ToolTip>
                             <ToolTip Content="{Binding TheSave.FileFormat.Description}"/>
                         </TextBlock.ToolTip>
-                        <!--<TextBlock.ContextMenu>
-                            <ContextMenu ItemsSource="{Binding FileFormats}">
-                                <ContextMenu.ItemContainerStyle>
-                                    <Style TargetType="MenuItem">
-                                        <EventSetter Event="Click" Handler="FileTypeMenuItem_Click"/>
-                                        <Setter Property="Header" Value="{Binding}"/>
-                                        <Setter Property="local:MenuItemExtensions.GroupName" Value="FileFormatGroup"/>
-                                        <Setter Property="IsCheckable" Value="True"/>
-                                    </Style>
-                                </ContextMenu.ItemContainerStyle>
-                            </ContextMenu>
-                        </TextBlock.ContextMenu>-->
                     </TextBlock>
                 </StatusBarItem>
 

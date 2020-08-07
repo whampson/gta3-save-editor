@@ -8,7 +8,7 @@ using WpfEssentials;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
-    public class Pickups : TabPageViewModelBase
+    public class Pickups : BaseTabPage
     {
         public event EventHandler<BlipEventArgs<Pickup>> BlipUpdate;
 

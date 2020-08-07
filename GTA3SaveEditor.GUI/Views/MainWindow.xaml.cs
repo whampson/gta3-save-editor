@@ -47,7 +47,7 @@ namespace GTA3SaveEditor.GUI.Views
             if (ViewModel.IsDirty)
             {
                 e.Cancel = true;
-                ViewModel.ShowSaveConfirmationDialog(ExitAppConfirmationDialog_Callback);
+                ViewModel.ShowSaveYesNoCancelDialog(ExitAppConfirmationDialog_Callback);
                 return;
             }
 
@@ -114,7 +114,7 @@ namespace GTA3SaveEditor.GUI.Views
 
             foreach (var item in e.AddedItems)
             {
-                if (item is TabPageViewModelBase tabPageViewModel)
+                if (item is BaseTabPage tabPageViewModel)
                 {
                     tabPageViewModel.Update();
                 }

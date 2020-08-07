@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
-    public class JsonViewer : TabPageViewModelBase
+    public class JsonViewer : BaseTabPage
     {
         private int m_selectedBlockIndex;
         private string m_text;

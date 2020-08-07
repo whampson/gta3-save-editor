@@ -10,7 +10,7 @@ using WpfEssentials;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
-    public class Radar : TabPageViewModelBase
+    public class Radar : BaseTabPage
     {
         public event EventHandler<BlipEventArgs<RadarBlip>> BlipUpdate;
 

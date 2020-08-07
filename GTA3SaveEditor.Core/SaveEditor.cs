@@ -10,6 +10,12 @@ namespace GTA3SaveEditor.Core
 {
     public class SaveEditor : ObservableObject
     {
+        public static SaveEditor TheSaveEditor { get; private set; }
+        static SaveEditor()
+        {
+            TheSaveEditor = new SaveEditor();
+        }
+
         public event EventHandler FileOpening;
         public event EventHandler FileOpened;
         public event EventHandler FileClosing;
@@ -17,16 +23,9 @@ namespace GTA3SaveEditor.Core
         public event EventHandler FileSaving;
         public event EventHandler FileSaved;
 
-        private Settings m_settings;
         private GTA3Save m_activeFile;
 
         public bool IsFileOpen => m_activeFile != null;
-
-        public Settings Settings
-        {
-            get { return m_settings; }
-            set { m_settings = value; OnPropertyChanged(); }
-        }
 
         public GTA3Save ActiveFile
         {
@@ -42,7 +41,6 @@ namespace GTA3SaveEditor.Core
 
         public SaveEditor()
         {
-            Settings = new Settings();
             ActiveFile = null;
         }
 
@@ -52,9 +50,9 @@ namespace GTA3SaveEditor.Core
 
             // Reset save threads so new spawn location isn't overridden
             // TOOD: offsets for other SCM versions (this is v2)
-            RunningScript iSave = ActiveFile.Scripts.GetRunningScript("i_save");
-            RunningScript cSave = ActiveFile.Scripts.GetRunningScript("c_save");
-            RunningScript sSave = ActiveFile.Scripts.GetRunningScript("s_save");
+            RunningScript iSave = ActiveFile.Scripts.GetScript("i_save");
+            RunningScript cSave = ActiveFile.Scripts.GetScript("c_save");
+            RunningScript sSave = ActiveFile.Scripts.GetScript("s_save");
             if (iSave != null) iSave.IP = 60371;
             if (cSave != null) cSave.IP = 62138;
             if (sSave != null) sSave.IP = 63554;
@@ -67,13 +65,12 @@ namespace GTA3SaveEditor.Core
                 throw FileAlreadyLoaded();
             }
 
-            OnFileOpening();
-            ActiveFile = ((Settings.AutoDetectFileType)
+            //OnFileOpening();
+            ActiveFile = ((Settings.TheSettings.AutoDetectFileType)
                 ? SaveData.Load<GTA3Save>(path)
-                : SaveData.Load<GTA3Save>(path, Settings.ForcedFileType))
+                : SaveData.Load<GTA3Save>(path, Settings.TheSettings.ForcedFileType))
                 ?? throw BadSaveData();
-            Settings.AddRecentFile(path);
-            OnFileOpened();
+            //OnFileOpened();
         }
 
         public void SaveFile(string path)
@@ -85,7 +82,7 @@ namespace GTA3SaveEditor.Core
 
             OnFileSaving();
             ActiveFile.Save(path);
-            Settings.AddRecentFile(path);
+            Settings.TheSettings.AddRecentFile(path);
             OnFileSaved();
         }
 
@@ -152,8 +149,14 @@ namespace GTA3SaveEditor.Core
         {
             try
             {
-                saveFile = SaveData.Load<GTA3Save>(path);
-                return saveFile != null;
+                if (SaveData.GetFileFormat<GTA3Save>(path, out FileFormat fmt))
+                {
+                    saveFile = SaveData.Load<GTA3Save>(path, fmt);
+                    return saveFile != null;
+                }
+
+                saveFile = null;
+                return false;
             }
             catch (Exception e)
             {

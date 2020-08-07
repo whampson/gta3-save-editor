@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
-    public class Objects : TabPageViewModelBase
+    public class Objects : BaseTabPage
     {
         private Array<PhysicalObject> m_objects;
         private PhysicalObject m_activeObject;

@@ -8,7 +8,7 @@ using System.Windows.Controls;
 namespace GTA3SaveEditor.GUI.Views
 {
     public class TabPageBase<T> : UserControl
-        where T : TabPageViewModelBase
+        where T : BaseTabPage
     {
         public T ViewModel
         {

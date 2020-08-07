@@ -8,42 +8,32 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
-using System.Windows.Threading;
 using WpfEssentials;
 using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
-    public class Main : ViewModelBase
+    public class Main : BaseWindow
     {
         public const string ProgramTitle = "Grand Theft Auto III Save Editor";
 
-        public event EventHandler<MessageBoxEventArgs> MessageBoxRequest;
-        public event EventHandler<FileDialogEventArgs> FileDialogRequest;
-        public event EventHandler<FileDialogEventArgs> FolderDialogRequest;
         public event EventHandler<GxtSelectionEventArgs> GxtSelectionDialogRequest;
         public event EventHandler<TabUpdateEventArgs> TabUpdate;
 
-        private readonly DispatcherTimer m_statusTextTimer;
-        private ObservableCollection<TabPageViewModelBase> m_tabs;
+        private ObservableCollection<BaseTabPage> m_tabs;
         private int m_selectedTabIndex;
-        private string m_title;
-        private string m_statusText;
-        private string m_defaultStatusText;
-        private string m_timedStatusText;
-        private int m_timedStatusTextTime;
-        private int m_timedStatusTextTick;
         private bool m_isRefreshingFile;
         private bool m_isDirty;
 
-        public SaveEditor TheEditor { get; private set; }
-        public Gxt TheText { get; private set; }
+        public SaveEditor TheEditor => SaveEditor.TheSaveEditor;
         public GTA3Save TheSave => TheEditor.ActiveFile;
-        public Settings TheSettings => TheEditor.Settings;
+        public Settings TheSettings => Settings.TheSettings;
+        public Gxt TheText { get; private set; }
 
-        public ObservableCollection<TabPageViewModelBase> Tabs
+        public ObservableCollection<BaseTabPage> Tabs
         {
             get { return m_tabs; }
             set { m_tabs = value; OnPropertyChanged(); }
@@ -55,53 +45,16 @@ namespace GTA3SaveEditor.GUI.ViewModels
             set { m_selectedTabIndex = value; OnPropertyChanged(); }
         }
 
-        public string Title
-        {
-            get { return m_title; }
-            set { m_title = value; OnPropertyChanged(); }
-        }
-
-        public string StatusText
-        {
-            get { return m_statusText; }
-            set { m_statusText = value; OnPropertyChanged(); }
-        }
-
-        public string DefaultStatusText
-        {
-            get { return m_defaultStatusText; }
-            set { m_defaultStatusText = value; OnPropertyChanged(); }
-        }
-
-        public string TimedStatusText
-        {
-            get { return m_timedStatusText; }
-            set
-            {
-                m_timedStatusText = value;
-                m_timedStatusTextTick = TimedStatusTextTime;
-                m_statusTextTimer.Interval = TimeSpan.Zero;
-                m_statusTextTimer.Start();
-                OnPropertyChanged();
-            }
-        }
-
-        public int TimedStatusTextTime
-        {
-            get { return m_timedStatusTextTime; }
-            set { m_timedStatusTextTime = value; OnPropertyChanged(); }
-        }
-
         public bool IsDirty
         {
             get { return m_isDirty; }
             set { m_isDirty = value; OnPropertyChanged(); }
         }
 
+
         public Main()
         {
-            Tabs = new ObservableCollection<TabPageViewModelBase>();
-            TheEditor = new SaveEditor();
+            Tabs = new ObservableCollection<BaseTabPage>();
             TheText = new Gxt();
 
             Tabs.Add(new Welcome(this));
@@ -112,39 +65,36 @@ namespace GTA3SaveEditor.GUI.ViewModels
             Tabs.Add(new Radar(this));
             Tabs.Add(new JsonViewer(this));
 
-            m_statusTextTimer = new DispatcherTimer();
-
             UpdateTitle();
         }
 
-        public void Initialize()
+        public override void Initialize()
         {
+            base.Initialize();
+
             TheEditor.FileOpening += TheEditor_FileOpening;
             TheEditor.FileOpened += TheEditor_FileOpened;
             TheEditor.FileClosing += TheEditor_FileClosing;
             TheEditor.FileClosed += TheEditor_FileClosed;
             TheEditor.FileSaving += TheEditor_FileSaving;
             TheEditor.FileSaved += TheEditor_FileSaved;
-            m_statusTextTimer.Tick += StatusTimer_Tick;
-
+            
             LoadSettings();
             InitializeTabs();
             RefreshTabs(TabUpdateTrigger.WindowLoaded);
-
-            DefaultStatusText = "Ready.";
-            StatusText = DefaultStatusText;
         }
 
-        public void Shutdown()
+        public override void Shutdown()
         {
+            base.Shutdown();
+
             TheEditor.FileOpening -= TheEditor_FileOpening;
             TheEditor.FileOpened -= TheEditor_FileOpened;
             TheEditor.FileClosing -= TheEditor_FileClosing;
             TheEditor.FileClosed -= TheEditor_FileClosed;
             TheEditor.FileSaving -= TheEditor_FileSaving;
             TheEditor.FileSaved -= TheEditor_FileSaved;
-            m_statusTextTimer.Tick -= StatusTimer_Tick;
-
+            
             RefreshTabs(TabUpdateTrigger.WindowClosing);
             ShutdownTabs();
             SaveSettings();
@@ -243,7 +193,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         public void RefreshFile()
         {
-            if (IsDirty) ShowSaveConfirmationDialog(RefreshFileDialog_Callback);
+            if (IsDirty) ShowSaveYesNoCancelDialog(RefreshFileDialog_Callback);
             else DoRefresh();
         }
 
@@ -265,7 +215,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         public void CloseFile()
         {
-            if (IsDirty) ShowSaveConfirmationDialog(CloseFileDialog_Callback);
+            if (IsDirty) ShowSaveYesNoCancelDialog(CloseFileDialog_Callback);
             else DoClose();
         }
 
@@ -298,55 +248,6 @@ namespace GTA3SaveEditor.GUI.ViewModels
         }
 
         #region Window Actions
-        public void ShowMessageBoxInfo(string text, string title = "Information")
-        {
-            MessageBoxRequest?.Invoke(this, new MessageBoxEventArgs(
-                text, title, icon: MessageBoxImage.Information));
-        }
-
-        public void ShowMessageBoxWarning(string text, string title = "Warning")
-        {
-            MessageBoxRequest?.Invoke(this, new MessageBoxEventArgs(
-                text, title, icon: MessageBoxImage.Warning));
-        }
-
-        public void ShowMessageBoxError(string text, string title = "Error")
-        {
-            MessageBoxRequest?.Invoke(this, new MessageBoxEventArgs(
-                text, title, icon: MessageBoxImage.Error));
-        }
-
-        public void ShowMessageBoxException(Exception e, string text = "An error has occurred.", string title = "Error")
-        {
-            text += $"\n\n{e.GetType().Name}: {e.Message}";
-            ShowMessageBoxError(text, title);
-        }
-
-        public void ShowSaveConfirmationDialog(Action<MessageBoxResult> callback)
-        {
-            MessageBoxRequest?.Invoke(this, new MessageBoxEventArgs(
-                "Do you want to save your changes?", "Save", 
-                MessageBoxButton.YesNoCancel, MessageBoxImage.Question, callback: callback));
-        }
-
-        public void ShowFileDialog(FileDialogType type, Action<bool?, FileDialogEventArgs> callback)
-        {
-            FileDialogEventArgs e = new FileDialogEventArgs(type, callback)
-            {
-                InitialDirectory = TheSettings.MostRecentFile
-            };
-            FileDialogRequest?.Invoke(this, e);
-        }
-
-        public void ShowFolderDialog(FileDialogType type, Action<bool?, FileDialogEventArgs> callback)
-        {
-            FileDialogEventArgs e = new FileDialogEventArgs(type, callback)
-            {
-                InitialDirectory = TheSettings.MostRecentFile
-            };
-            FolderDialogRequest?.Invoke(this, e);
-        }
-
         public void ShowGxtSelectionDialog(Action<bool?, GxtSelectionEventArgs> callback)
         {
             GxtSelectionEventArgs e = new GxtSelectionEventArgs()
@@ -365,24 +266,6 @@ namespace GTA3SaveEditor.GUI.ViewModels
         #endregion
 
         #region Window Event Handlers
-        private void StatusTimer_Tick(object sender, EventArgs e)
-        {
-            if (m_timedStatusTextTick == TimedStatusTextTime)
-            {
-                m_statusTextTimer.Interval = TimeSpan.FromSeconds(1);
-            }
-            if (m_timedStatusTextTick <= 0)
-            {
-                m_statusTextTimer.Stop();
-                StatusText = DefaultStatusText;
-            }
-            else
-            {
-                StatusText = TimedStatusText;
-                m_timedStatusTextTick--;
-            }
-        }
-
         private void TheEditor_FileOpening(object sender, EventArgs e)
         {
             if (!m_isRefreshingFile)
@@ -393,6 +276,8 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         private void TheEditor_FileOpened(object sender, EventArgs e)
         {
+            string openedPath = TheSettings.LastFileAccessed;
+            TheSettings.AddRecentFile(openedPath);
             UpdateTitle();
 
             RegisterDirtyHandlers(TheSave);
@@ -470,7 +355,7 @@ namespace GTA3SaveEditor.GUI.ViewModels
         {
             if (result != true) return;
 
-            TheSettings.LastDirectoryBrowsed = Path.GetDirectoryName(Path.GetFullPath(e.FileName));
+            TheSettings.SetLastAccess(e.FileName);
             switch (e.DialogType)
             {
                 case FileDialogType.OpenFileDialog:
@@ -583,6 +468,23 @@ namespace GTA3SaveEditor.GUI.ViewModels
         public ICommand FileExitCommand => new RelayCommand
         (
             () => Application.Current.MainWindow.Close()
+        );
+
+        public ICommand HelpAboutCommand => new RelayCommand
+        (
+            () =>
+            {
+                string ver = Assembly.GetExecutingAssembly()
+                    .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                    .InformationalVersion;
+
+                ShowMessageBoxInfo(
+                    "Grand Theft Auto III Save Editor\n" +
+                    "(C) 2015-2020 Wes Hampson\n" +
+                    "\n" +
+                   $"Version: {ver}\n",
+                    title: "About");
+                }
         );
         #endregion
     }

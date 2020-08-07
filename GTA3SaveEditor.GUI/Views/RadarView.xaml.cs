@@ -158,7 +158,7 @@ namespace GTA3SaveEditor.GUI.Views
         private void LocateBlip(RadarBlip blip)
         {
             MapPan = m_map.WorldToMap(new Point(-blip.RadarPosition.X, -blip.RadarPosition.Y));
-            MapZoom = 4.5;
+            MapZoom = 3;
         }
 
         private void GrabBlip(RadarBlip blip)
@@ -311,7 +311,14 @@ namespace GTA3SaveEditor.GUI.Views
         {
             if (!m_mapTab.IsSelected && ViewModel.ActiveBlip != null)
             {
-                LocateBlip(ViewModel.ActiveBlip);
+                if (ViewModel.ActiveBlip.IsVisible)
+                {
+                    LocateBlip(ViewModel.ActiveBlip);
+                }
+                else
+                {
+                    m_map.Reset();
+                }
             }
         }
 

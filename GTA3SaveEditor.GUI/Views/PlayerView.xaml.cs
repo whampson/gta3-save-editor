@@ -227,6 +227,7 @@ namespace GTA3SaveEditor.GUI.Views
             { "Portland Safehouse", new Vector3D(888.5625f, -308.375f, 8.0f) },
             { "Staunton Safehouse", new Vector3D(103.0f, -478.5f, 14.875f) },
             { "Shoreside Safehouse", new Vector3D(-666.75f, -1.75f, 18.0f) },
+            { "Construction Site Tower", new Vector3D(378.75f, -320.75f, 66.0f) },
             { "Love Media Rooftop", new Vector3D(100.0f, -1555.0f, 245.0f) },
             { "Kenji's Rooftop", new Vector3D(474.5f, -1383.5f, 69.0f) },
             { "Lift Bridge", new Vector3D(-266.5f, -631.5f, 72.5f) }

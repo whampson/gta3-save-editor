@@ -7,7 +7,7 @@ using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.ViewModels
 {
-    public class General : TabPageViewModelBase
+    public class General : BaseTabPage
     {
         private bool m_isLoading;
         private SimpleVariables m_simpleVars;
@@ -87,14 +87,14 @@ namespace GTA3SaveEditor.GUI.ViewModels
 
         public OnFootCameraMode OnFootCameraMode
         {
-            get { return (OnFootCameraMode) SimpleVars.CameraPedZoomIndicator; }
-            set { SimpleVars.CameraPedZoomIndicator = (float) value; OnPropertyChanged(); }
+            get { return (OnFootCameraMode) SimpleVars.CameraModeOnFoot; }
+            set { SimpleVars.CameraModeOnFoot = (float) value; OnPropertyChanged(); }
         }
 
         public InCarCameraMode InCarCameraMode
         {
-            get { return (InCarCameraMode) SimpleVars.CameraCarZoomIndicator; }
-            set { SimpleVars.CameraCarZoomIndicator = (float) value; OnPropertyChanged(); }
+            get { return (InCarCameraMode) SimpleVars.CameraModeInCar; }
+            set { SimpleVars.CameraModeInCar = (float) value; OnPropertyChanged(); }
         }
 
         public static WeatherType[] WeatherList = new WeatherType[]
