@@ -1,0 +1,9 @@
+[submodule "lib/WpfExtendedToolkit"]
+	path = lib/WpfExtendedToolkit
+	url = https://github.com/whampson/WpfExtendedToolkit.git
+[submodule "lib/GTASaveData"]
+	path = lib/GTASaveData
+	url = https://github.com/whampson/GTASaveData.git
+[submodule "lib/ToolUI"]
+	path = lib/ToolUI
+	url = https://github.com/whampson/ToolUI.git
