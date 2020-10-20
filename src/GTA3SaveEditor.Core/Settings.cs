@@ -21,7 +21,7 @@ namespace GTA3SaveEditor.Core
         private bool m_writeLogFile;
         private string m_logFilePath;
         private FileFormatType m_fileFormatOverride;
-        //private UpdaterSettings m_updater;
+        private UpdaterSettings m_updater;
 
         public int RecentFilesCapacity
         {
@@ -77,19 +77,10 @@ namespace GTA3SaveEditor.Core
         [JsonIgnore]
         public bool HasFormatOverride => FormatOverride != FileFormatType.None;
 
-        public FileFormat GetOverrideFormat()
+        public UpdaterSettings Updater
         {
-            return FormatOverride switch
-            {
-                FileFormatType.Android => GTA3Save.FileFormats.Android,
-                FileFormatType.iOS => GTA3Save.FileFormats.iOS,
-                FileFormatType.PC => GTA3Save.FileFormats.PC,
-                FileFormatType.PS2 => GTA3Save.FileFormats.PS2,
-                FileFormatType.PS2AU => GTA3Save.FileFormats.PS2_AU,
-                FileFormatType.PS2JP => GTA3Save.FileFormats.PS2_JP,
-                FileFormatType.Xbox => GTA3Save.FileFormats.Xbox,
-                _ => throw new InvalidOperationException("Format override not set.")
-            };
+            get { return m_updater; }
+            set { m_updater = value; OnPropertyChanged(); }
         }
 
         public Settings()
@@ -98,6 +89,7 @@ namespace GTA3SaveEditor.Core
             RecentFilesCapacity = 10;
             WriteSaveTimestamp = true;
             FormatOverride = FileFormatType.None;
+            Updater = new UpdaterSettings();
         }
 
         public void AddRecentFile(string path)
@@ -141,8 +133,50 @@ namespace GTA3SaveEditor.Core
             }
         }
 
-        protected bool ShouldSerializeWriteLogFile() => WriteLogFile == true;
-        protected bool ShouldSerializeLogFilePath() => LogFilePath != null;
-        protected bool ShouldSerializeFormatOverride() => FormatOverride != FileFormatType.None;
+        public FileFormat GetFormatOverride()
+        {
+            return FormatOverride switch
+            {
+                FileFormatType.Android => GTA3Save.FileFormats.Android,
+                FileFormatType.iOS => GTA3Save.FileFormats.iOS,
+                FileFormatType.PC => GTA3Save.FileFormats.PC,
+                FileFormatType.PS2 => GTA3Save.FileFormats.PS2,
+                FileFormatType.PS2AU => GTA3Save.FileFormats.PS2_AU,
+                FileFormatType.PS2JP => GTA3Save.FileFormats.PS2_JP,
+                FileFormatType.Xbox => GTA3Save.FileFormats.Xbox,
+                _ => throw new InvalidOperationException("Format override not set.")
+            };
+        }
+
+        public bool ShouldSerializeLastDirectoryAccessed() => LastDirectoryAccessed != null;
+        public bool ShouldSerializeLastFileAccessed() => LastFileAccessed != null;
+        public bool ShouldSerializeWriteLogFile() => WriteLogFile == true;
+        public bool ShouldSerializeLogFilePath() => LogFilePath != null;
+        public bool ShouldSerializeFormatOverride() => FormatOverride != FileFormatType.None;
+
+        public class UpdaterSettings : ObservableObject
+        {
+            private bool m_checkForUpdatesAtStartup;
+            private bool m_preReleaseRing;
+
+            public bool CheckForUpdatesAtStartup
+            {
+                get { return m_checkForUpdatesAtStartup; }
+                set { m_checkForUpdatesAtStartup = value; OnPropertyChanged(); }
+            }
+
+            public bool PreReleaseRing
+            {
+                get { return m_preReleaseRing; }
+                set { m_preReleaseRing = value; OnPropertyChanged(); }
+            }
+
+            public UpdaterSettings()
+            {
+                CheckForUpdatesAtStartup = true;
+            }
+
+            public bool ShouldSerializePreReleaseRing() => PreReleaseRing == true;
+        }
     }
 }

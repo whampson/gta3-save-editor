@@ -11,8 +11,8 @@
   
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <AssemblyVersion>0.3.0.31</AssemblyVersion>
-    <FileVersion>0.3.0.31</FileVersion>
+    <AssemblyVersion>0.3.0.37</AssemblyVersion>
+    <FileVersion>0.3.0.37</FileVersion>
     <Version>0.3.0</Version>
     <LangVersion>8.0</LangVersion>
   </PropertyGroup>
@@ -46,6 +46,10 @@
     <PackageVersionSettings>AssemblyVersion.NoneWithAutoReset.None</PackageVersionSettings>
     <PrimaryVersionType>AssemblyVersionAttribute</PrimaryVersionType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Markdig" Version="0.22.0" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\lib\GTASaveData\GTASaveData.Core\GTASaveData.Core.csproj" />

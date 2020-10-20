@@ -1,50 +1,67 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Windows;
 using GTA3SaveEditor.Core;
 using GTA3SaveEditor.Core.Util;
+using GTASaveData;
+using GTASaveData.GTA3;
 
 namespace GTA3SaveEditor.GUI
 {
     public partial class App
     {
-        private static readonly StringWriter LogWriter = new StringWriter();
-        public static MainWindow TheWindow { get; private set; }
-
-        public static string Name => "GTA III Save Editor";
-        public static string ShortName => "gta3-save-editor";
-        public static string Copyright => $"(C) 2015-2020 {Author}";
-        public static string Author => "Wes Hampson";
-        public static string AuthorAlias => "thehambone";
-        public static string AuthorContact => "thehambone93@gmail.com";
-        public static Uri AuthorContactMailTo => new Uri($"mailto:{AuthorContact}");
-        public static Uri AuthorDonateUrl => new Uri(@"https://ko-fi.com/thehambone");  // TOOD: paypal?
-        public static Uri ProjectUrl => new Uri(@"https://github.com/whampson/gta3-save-editor");
-        public static Uri ProjectTopicUrl => new Uri(@"https://gtaforums.com/index.php?showtopic=784598");
-        public static string LogText => LogWriter.ToString();
-        private static string SettingsPath => "settings.json";
-
-        public static string Version => Assembly
-            .GetExecutingAssembly()
-            .GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-            .InformationalVersion;
-
-        public static Version AssemblyFileVersion => new Version(
-            Assembly
-            .GetExecutingAssembly()
-            .GetCustomAttribute<AssemblyFileVersionAttribute>()
-            .Version);
-
-        public static byte[] LoadResource(string resourceName)
+        protected override void OnStartup(StartupEventArgs e)
         {
-            return LoadResource(new Uri($"pack://application:,,,/Resources/{resourceName}"));
+            AppDomain.CurrentDomain.UnhandledException += App_UnhandledException;
+
+            Log.InfoStream = LogWriter;
+            Log.ErrorStream = LogWriter;
+
+            string osVer = RuntimeInformation.OSDescription;
+            string dotnetVer = RuntimeInformation.FrameworkDescription;
+            string saveDataLibVer = Assembly.GetAssembly(typeof(SaveData)).GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
+            string gta3DataLibVer = Assembly.GetAssembly(typeof(GTA3Save)).GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
+
+            Log.Info($"{Name} {VersionString}");
+            Log.Info($"{Copyright}");
+            Log.Info(new string('=', 40));
+            Log.Info($"Operating System: {osVer}");
+            Log.Info($"    .NET Runtime: {dotnetVer}");
+            Log.Info($"GTASaveData.Core: {saveDataLibVer}");
+            Log.Info($"GTASaveData.GTA3: {gta3DataLibVer}");
+            Log.Info($"  Editor Version: {AssemblyFileVersion}");
+#if DEBUG
+            Log.Info($"DEBUG build.");
+#endif
+#if RELEASE_STANDALONE
+            IsStandaloneBuild = true;
+            Log.Info("Standalone build.");
+#endif
+
+            LoadResources();
+            LoadSettings();
+
+            TheWindow = new MainWindow() { Title = Name };
+            TheWindow.Show();
         }
 
-        public static byte[] LoadResource(Uri resourceUri)
+        protected override void OnExit(ExitEventArgs e)
         {
-            using MemoryStream m = new MemoryStream();
-            GetResourceStream(resourceUri).Stream.CopyTo(m);
-            return m.ToArray();
+            SaveSettings();
+            Log.Info("Exiting...");
+
+            if (SaveEditor.Settings.WriteLogFile)
+            {
+                string logFilePath = SaveEditor.Settings.LogFilePath;
+                if (string.IsNullOrEmpty(logFilePath))
+                {
+                    logFilePath = $"{ShortName}_{DateTime.Now:yyyyMMddHHmmss}.log";
+                }
+                File.WriteAllText(logFilePath, LogText);
+            }
         }
 
         private void LoadResources()
@@ -65,6 +82,37 @@ namespace GTA3SaveEditor.GUI
         {
             Log.Info("Saving settings...");
             SaveEditor.SaveSettings(SettingsPath);
+        }
+
+        private void App_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            Exception ex = e.ExceptionObject as Exception;
+            Log.Error(ex);
+
+            if (Debugger.IsAttached)
+            {
+                // Let the debugger handle the exception
+                return;
+            }
+
+            Log.Info($"A catastrophic error has occurred. Please report this issue to {AuthorContact}.");
+
+            string logFile = $"crash-dump_{DateTime.Now:yyyyMMddHHmmss}.log";
+            File.WriteAllText(logFile, LogText);
+
+            if (TheWindow != null)
+            {
+                TheWindow.ViewModel.ShowError(
+                    $"An unhandled exception has occurred. The program will close and you will lose all unsaved changes.\n" +
+                    $"\n" +
+                    $"{ex.GetType().Name}: {ex.Message}\n" +
+                    $"\n" +
+                    $"A log file has been created: {logFile}. " +
+                    $"Please report this issue to {AuthorContact} and include this log file with your report.",
+                    "Unhandled Exception");
+            }
+
+            Environment.Exit(1);
         }
     }
 }

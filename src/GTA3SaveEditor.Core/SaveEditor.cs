@@ -38,7 +38,7 @@ namespace GTA3SaveEditor.Core
 
             OnFileOpening(path);
 
-            var format = Settings.HasFormatOverride ? Settings.GetOverrideFormat() : FileFormat.Default;
+            var format = Settings.HasFormatOverride ? Settings.GetFormatOverride() : FileFormat.Default;
             ActiveFile = SaveData.Load<GTA3Save>(path, format) ?? throw BadSaveData();
 
             Settings.AddRecentFile(path);

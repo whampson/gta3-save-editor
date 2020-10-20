@@ -13,8 +13,8 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
-    <AssemblyVersion>0.3.0.41</AssemblyVersion>
-    <FileVersion>0.3.0.41</FileVersion>
+    <AssemblyVersion>0.3.0.48</AssemblyVersion>
+    <FileVersion>0.3.0.48</FileVersion>
     <Version>0.3.0</Version>
     <LangVersion>8.0</LangVersion>
     <Configurations>Debug;Release;Release-Standalone</Configurations>
@@ -49,6 +49,10 @@
     <PackageVersionSettings>AssemblyVersion.NoneWithAutoReset.None</PackageVersionSettings>
     <PrimaryVersionType>AssemblyVersionAttribute</PrimaryVersionType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="semver" Version="2.0.6" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\lib\ToolUI\ToolUI\ToolUI.csproj" />
