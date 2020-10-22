@@ -18,7 +18,11 @@ namespace GTA3SaveEditor.Core
         public event EventHandler FileClosed;
         #endregion
 
+        public string ActiveFilePath => Settings.MostRecentFile;
+        public bool IsEditingFile => ActiveFile != null;
+
         private GTA3Save m_activeFile;
+        private DateTime m_lastWriteTime;
 
         public GTA3Save ActiveFile
         {
@@ -26,7 +30,11 @@ namespace GTA3SaveEditor.Core
             private set { m_activeFile = value; OnPropertyChanged(); }
         }
 
-        public bool IsEditingFile => ActiveFile != null;
+        public DateTime LastWriteTime
+        {
+            get { return m_lastWriteTime; }
+            set { m_lastWriteTime = value; OnPropertyChanged(); }
+        }
 
         private SaveEditor()
         { }
@@ -40,6 +48,7 @@ namespace GTA3SaveEditor.Core
 
             var format = Settings.HasFormatOverride ? Settings.GetFormatOverride() : FileFormat.Default;
             ActiveFile = SaveData.Load<GTA3Save>(path, format) ?? throw BadSaveData();
+            LastWriteTime = File.GetLastWriteTime(path);
 
             Settings.AddRecentFile(path);
             OnFileOpened();
@@ -51,6 +60,7 @@ namespace GTA3SaveEditor.Core
 
             OnFileSaving(path);
             ActiveFile.Save(path);
+            LastWriteTime = File.GetLastWriteTime(path);
 
             Settings.AddRecentFile(path);
             OnFileSaved();

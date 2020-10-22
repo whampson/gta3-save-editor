@@ -1,8 +1,6 @@
-﻿using GTA3SaveEditor.Core;
-using GTA3SaveEditor.Core.Util;
+﻿using GTA3SaveEditor.Core.Util;
 using System;
 using System.ComponentModel;
-using WHampson.ToolUI;
 
 namespace GTA3SaveEditor.GUI
 {

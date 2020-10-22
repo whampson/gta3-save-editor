@@ -10,6 +10,7 @@ namespace GTA3SaveEditor.Core.Util
 
         public static string InfoPrefix  => $"{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff}  Info: ";
         public static string ErrorPrefix => $"{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff} Error: ";
+
         public static TextWriter InfoStream { get; set; }
         public static TextWriter ErrorStream { get; set; }
         public static bool AutomaticNewline { get; set; }

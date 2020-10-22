@@ -35,9 +35,6 @@ namespace GTA3SaveEditor.Core
             set { m_recentFiles = value; OnPropertyChanged(); }
         }
 
-        [JsonIgnore]
-        public string MostRecentFile => RecentFiles.FirstOrDefault();
-
         public string LastDirectoryAccessed
         {
             get { return m_lastDirAccessed; }
@@ -74,14 +71,14 @@ namespace GTA3SaveEditor.Core
             set { m_fileFormatOverride = value; OnPropertyChanged(); }
         }
 
-        [JsonIgnore]
-        public bool HasFormatOverride => FormatOverride != FileFormatType.None;
-
         public UpdaterSettings Updater
         {
             get { return m_updater; }
             set { m_updater = value; OnPropertyChanged(); }
         }
+
+        [JsonIgnore] public bool HasFormatOverride => FormatOverride != FileFormatType.None;
+        [JsonIgnore] public string MostRecentFile => RecentFiles.FirstOrDefault();
 
         public Settings()
         {

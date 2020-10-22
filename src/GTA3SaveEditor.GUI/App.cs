@@ -74,6 +74,13 @@ namespace GTA3SaveEditor.GUI
 
         private void LoadSettings()
         {
+            if (!File.Exists(SettingsPath))
+            {
+                Log.Info("Settings file not found. Creating new settings file...");
+                SaveEditor.SaveSettings(SettingsPath);
+                return;
+            }
+
             Log.Info("Loading settings...");
             SaveEditor.LoadSettings(SettingsPath);
         }
@@ -103,12 +110,12 @@ namespace GTA3SaveEditor.GUI
             if (TheWindow != null)
             {
                 TheWindow.ViewModel.ShowError(
-                    $"An unhandled exception has occurred. The program will close and you will lose all unsaved changes.\n" +
+                    $"A fatal error has occurred and the program needs to close. You will lose all unsaved changes.\n" +
                     $"\n" +
                     $"{ex.GetType().Name}: {ex.Message}\n" +
                     $"\n" +
-                    $"A log file has been created: {logFile}. " +
-                    $"Please report this issue to {AuthorContact} and include this log file with your report.",
+                    $"The program log has been saved to {logFile}.\n" +
+                    $"Please report this crash to {AuthorContact} and include this log file with your report.",
                     "Unhandled Exception");
             }
 

@@ -1,9 +1,5 @@
-﻿using WHampson.ToolUI;
-
-namespace GTA3SaveEditor.GUI
+﻿namespace GTA3SaveEditor.GUI
 {
-    public class LogWindowVM : WindowVM
-    {
-        
-    }
+    public class LogWindowVM : WindowVMBase
+    { }
 }

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
-using GTA3SaveEditor.Core;
 using GTA3SaveEditor.Core.Util;
-using WHampson.ToolUI;
 
 namespace GTA3SaveEditor.GUI
 {
@@ -33,13 +31,12 @@ namespace GTA3SaveEditor.GUI
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            // TODO
-            //if (ViewModel.IsDirty)
-            //{
-            //    e.Cancel = true;
-            //    ViewModel.PromptSaveChanges(ExitAppDialog_Callback);
-            //    return;
-            //}
+            if (ViewModel.IsDirty)
+            {
+                e.Cancel = true;
+                //ViewModel.PromptSaveChanges(ExitAppDialog_Callback);
+                return;
+            }
 
             base.OnClosing(e);
             DestroyAllWindows();
@@ -60,10 +57,10 @@ namespace GTA3SaveEditor.GUI
             {
                 // TODO
                 window = new T() { Owner = this };
-                //window.ViewModel.OpenFileRequest += ViewModel.OpenFileRequest_Handler;
-                //window.ViewModel.SaveFileRequest += ViewModel.SaveFileRequest_Handler;
-                //window.ViewModel.CloseFileRequest += ViewModel.CloseFileRequest_Handler;
-                //window.ViewModel.RevertFileRequest += ViewModel.RevertFileRequest_Handler;
+                window.ViewModel.OpenFileRequest += ViewModel.OpenFileRequest_Handler;
+                window.ViewModel.SaveFileRequest += ViewModel.SaveFileRequest_Handler;
+                window.ViewModel.CloseFileRequest += ViewModel.CloseFileRequest_Handler;
+                window.ViewModel.RevertFileRequest += ViewModel.RevertFileRequest_Handler;
             }
 
             outWindow = window;
@@ -77,10 +74,10 @@ namespace GTA3SaveEditor.GUI
                 // TODO
                 window.HideOnClose = false;
                 window.Close();
-                //window.ViewModel.OpenFileRequest -= ViewModel.OpenFileRequest_Handler;
-                //window.ViewModel.SaveFileRequest -= ViewModel.SaveFileRequest_Handler;
-                //window.ViewModel.CloseFileRequest -= ViewModel.CloseFileRequest_Handler;
-                //window.ViewModel.RevertFileRequest -= ViewModel.RevertFileRequest_Handler;
+                window.ViewModel.OpenFileRequest -= ViewModel.OpenFileRequest_Handler;
+                window.ViewModel.SaveFileRequest -= ViewModel.SaveFileRequest_Handler;
+                window.ViewModel.CloseFileRequest -= ViewModel.CloseFileRequest_Handler;
+                window.ViewModel.RevertFileRequest -= ViewModel.RevertFileRequest_Handler;
             }
         }
 

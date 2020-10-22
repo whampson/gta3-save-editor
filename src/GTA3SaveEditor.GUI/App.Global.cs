@@ -23,7 +23,6 @@ namespace GTA3SaveEditor.GUI
         public static Uri ProjectTopicUrl => new Uri("https://gtaforums.com/index.php?showtopic=784598");
         public static string LogText => LogWriter.ToString();
         public static string SettingsPath => "settings.json";
-        public static Settings Settings => SaveEditor.Settings;
         public static Version AssemblyFileVersion => new Version(Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyFileVersionAttribute>().Version);
         public static string VersionString => Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>().InformationalVersion;
 
@@ -77,7 +76,7 @@ namespace GTA3SaveEditor.GUI
 
             if (newVersion > curVersion)
             {
-                if (latest.IsPreRelease && Settings.Updater.PreReleaseRing)
+                if (latest.IsPreRelease && SaveEditor.Settings.Updater.PreReleaseRing)
                 {
                     Log.Info($"Pre-release version {newVersionString} available!");
                     return latest;
