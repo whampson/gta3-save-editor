@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using GTA3SaveEditor.Core;
@@ -31,31 +29,6 @@ namespace GTA3SaveEditor.GUI
             set { m_suppressExternalChangesCheck = value; OnPropertyChanged(); }
         }
 
-        public void OpenFile(string path)
-        {
-            OpenFileRequest?.Invoke(this, new FileIOEventArgs() { Path = path });
-        }
-
-        public void CloseFile()
-        {
-            CloseFileRequest?.Invoke(this, new FileIOEventArgs());
-        }
-
-        public void SaveFile()
-        {
-            SaveFile(Editor.ActiveFilePath);
-        }
-
-        public void SaveFile(string path)
-        {
-            SaveFileRequest?.Invoke(this, new FileIOEventArgs() { Path = path });
-        }
-
-        public void RevertFile()
-        {
-            RevertFileRequest?.Invoke(this, new FileIOEventArgs());
-        }
-
         public void CheckForExternalChanges()
         {
             if (!Editor.IsEditingFile || SuppressExternalChangesCheck)
@@ -77,14 +50,11 @@ namespace GTA3SaveEditor.GUI
             }
         }
 
-        public ICommand OpenFileCommand => new RelayCommand
-        (
-            () => ShowFileDialog(new FileDialogEventArgs(FileDialogType.OpenFileDialog)
-            {
-                Filter = "GTA3 Save Files|*.b|All Files|*.*",
-                Callback = (r, e) => { if (r == true) OpenFile(e.FileName); }
-            })
-        );
+        public void OpenFile(string path) => OpenFileRequest?.Invoke(this, new FileIOEventArgs() { Path = path });
+        public void CloseFile() => CloseFileRequest?.Invoke(this, new FileIOEventArgs());
+        public void SaveFile() => SaveFile(Editor.ActiveFilePath);
+        public void SaveFile(string path) => SaveFileRequest?.Invoke(this, new FileIOEventArgs() { Path = path });
+        public void RevertFile() => RevertFileRequest?.Invoke(this, new FileIOEventArgs());
 
         public ICommand CloseFileCommand => new RelayCommand
         (
@@ -98,20 +68,24 @@ namespace GTA3SaveEditor.GUI
             () => Editor.IsEditingFile
         );
 
-        public ICommand SaveFileAsCommand => new RelayCommand
-        (
-            () => ShowFileDialog(new FileDialogEventArgs(FileDialogType.SaveFileDialog)
-            {
-                Filter = "GTA3 Save Files|*.b|All Files|*.*",
-                Callback = (r, e) => { if (r == true) SaveFile(e.FileName); }
-            }),
-            () => TheSave != null
-        );
-
         public ICommand RevertFileCommand => new RelayCommand
         (
             () => RevertFile(),
             () => Editor.IsEditingFile
         );
+
+        public new void SetStatusText(string status)
+        {
+            Log.Info(status);
+            base.SetStatusText(status);
+        }
+
+        public new void SetTimedStatusText(string status,
+            double duration = 5,
+            string expiredStatus = null)
+        {
+            Log.Info(status);
+            base.SetTimedStatusText(status, duration, expiredStatus);
+        }
     }
 }

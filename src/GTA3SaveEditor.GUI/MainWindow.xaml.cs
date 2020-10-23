@@ -26,7 +26,6 @@ namespace GTA3SaveEditor.GUI
         {
             base.OnLoad();
             ViewModel.LogWindowRequest += ViewModel_LogWindowRequest;
-            Log.Info("Ready.");
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -52,10 +51,8 @@ namespace GTA3SaveEditor.GUI
                 return;
             }
 
-
             if (window == null)
             {
-                // TODO
                 window = new T() { Owner = this };
                 window.ViewModel.OpenFileRequest += ViewModel.OpenFileRequest_Handler;
                 window.ViewModel.SaveFileRequest += ViewModel.SaveFileRequest_Handler;
@@ -71,7 +68,6 @@ namespace GTA3SaveEditor.GUI
         {
             if (window != null)
             {
-                // TODO
                 window.HideOnClose = false;
                 window.Close();
                 window.ViewModel.OpenFileRequest -= ViewModel.OpenFileRequest_Handler;

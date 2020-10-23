@@ -19,6 +19,7 @@ namespace GTA3SaveEditor.GUI
 
             Log.InfoStream = LogWriter;
             Log.ErrorStream = LogWriter;
+            Log.DebugStream = LogWriter;
 
             string osVer = RuntimeInformation.OSDescription;
             string dotnetVer = RuntimeInformation.FrameworkDescription;
@@ -44,7 +45,7 @@ namespace GTA3SaveEditor.GUI
             LoadResources();
             LoadSettings();
 
-            TheWindow = new MainWindow() { Title = Name };
+            TheWindow = new MainWindow();
             TheWindow.Show();
         }
 
@@ -66,7 +67,6 @@ namespace GTA3SaveEditor.GUI
 
         private void LoadResources()
         {
-            Log.Info("Loading resources...");
             SaveEditor.CarColors = CarColorsLoader.LoadColors(LoadResource("carcols.dat"));
             SaveEditor.GxtTable = GxtLoader.Load(LoadResource("english.gxt"));
             SaveEditor.IdeObjects = IdeLoader.LoadObjects(LoadResource("gta3.ide"));
@@ -81,13 +81,11 @@ namespace GTA3SaveEditor.GUI
                 return;
             }
 
-            Log.Info("Loading settings...");
             SaveEditor.LoadSettings(SettingsPath);
         }
 
         private void SaveSettings()
         {
-            Log.Info("Saving settings...");
             SaveEditor.SaveSettings(SettingsPath);
         }
 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 using System.Runtime.CompilerServices;
 
@@ -8,57 +9,57 @@ namespace GTA3SaveEditor.Core.Util
     {
         public static event EventHandler LogEvent;
 
-        public static string InfoPrefix  => $"{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff}  Info: ";
-        public static string ErrorPrefix => $"{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff} Error: ";
+        public static string InfoPrefix  => $"{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff}  Info:  ";
+        public static string ErrorPrefix => $"{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff} Error:  ";
+        public static string DebugPrefix => $"{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff} Debug:  ";
 
         public static TextWriter InfoStream { get; set; }
         public static TextWriter ErrorStream { get; set; }
+        public static TextWriter DebugStream { get; set; }
         public static bool AutomaticNewline { get; set; }
 
         static Log()
         {
             InfoStream = Console.Out;
             ErrorStream = Console.Error;
+            DebugStream = Console.Out;
             AutomaticNewline = true;
         }
 
-        public static void Info(object value)
+        public static void Info(object message, params object[] args)
         {
-            string txt = InfoPrefix + value.ToString();
-
-            if (AutomaticNewline)
-                InfoStream.WriteLine(txt);
-            else
-                InfoStream.Write(txt);
-
-            LogEvent?.Invoke(null, EventArgs.Empty);
+            WriteLogEntry(InfoStream, InfoPrefix, message, args);
         }
 
-        public static void InfoF(string format, params object[] args)
+        public static void Error(object message, params object[] args)
         {
-            Info(string.Format(format, args));
-        }
-
-        public static void Error(object value)
-        {
-            string txt = ErrorPrefix + value.ToString();
-
-            if (AutomaticNewline)
-                ErrorStream.WriteLine(txt);
-            else
-                ErrorStream.Write(txt);
-
-            LogEvent?.Invoke(null, EventArgs.Empty);
-        }
-
-        public static void ErrorF(string format, params object[] args)
-        {
-            Error(string.Format(format, args));
+            WriteLogEntry(ErrorStream, ErrorPrefix, message, args);
         }
 
         public static void Exception(Exception e, [CallerMemberName] string caller = null)
         {
             Error($"{caller}(): {e.GetType().Name}: {e.Message}");
+        }
+
+        [Conditional("DEBUG")]
+        public static void Debug(object message, params object[] args)
+        {
+            WriteLogEntry(DebugStream, DebugPrefix, message, args);
+        }
+
+        private static void WriteLogEntry(TextWriter stream, string prefix, object message, params object[] args)
+        {
+            string entry = prefix;
+            entry += (args.Length == 0)
+                ? message
+                : string.Format(message as string, args);
+
+            if (AutomaticNewline)
+                stream.WriteLine(entry);
+            else
+                stream.Write(entry);
+
+            LogEvent?.Invoke(null, EventArgs.Empty);
         }
     }
 }

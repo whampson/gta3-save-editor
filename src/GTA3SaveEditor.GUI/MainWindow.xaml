@@ -31,6 +31,11 @@
     </Window.Resources>
 
     <Window.InputBindings>
+        <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding OpenFileCommand}"/>
+        <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveFileCommand}"/>
+        <KeyBinding Key="S" Modifiers="Ctrl+Shift" Command="{Binding SaveFileAsCommand}"/>
+        <KeyBinding Key="W" Modifiers="Ctrl" Command="{Binding CloseFileCommand}"/>
+        <KeyBinding Key="F5" Command="{Binding RevertFileCommand}"/>
         <KeyBinding Key="F10" Command="{Binding ViewLogCommand}"/>
     </Window.InputBindings>
 
@@ -45,11 +50,11 @@
                         Command="{Binding OpenFileCommand}"/>
                     <MenuItem
                         Header="Op_en Recent"
-                        IsEnabled="{Binding TheSettings.RecentFiles.Count, Converter={StaticResource IsNotZero}}"
-                        ItemsSource="{Binding TheSettings.RecentFiles}">
+                        IsEnabled="{Binding Settings.RecentFiles.Count, Converter={StaticResource IsNotZero}}"
+                        ItemsSource="{Binding Settings.RecentFiles}">
                         <MenuItem.ItemContainerStyle>
                             <Style TargetType="{x:Type MenuItem}">
-                                <Setter Property="Command" Value="{Binding DataContext.FileOpenRecentCommand,
+                                <Setter Property="Command" Value="{Binding DataContext.OpenRecentFileCommand,
                                     RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
                                 <Setter Property="CommandParameter" Value="{Binding}"/>
                             </Style>
@@ -76,7 +81,7 @@
                         Header="Save _As..."
                         InputGestureText="Ctrl+Shift+S"
                         Command="{Binding SaveFileAsCommand}"/>
-                    <MenuItem Header="Sa_ve Slot" IsEnabled="{Binding Save, Converter={StaticResource IsNotNull}}">
+                    <MenuItem Header="Sa_ve Slot" IsEnabled="{Binding TheSave, Converter={StaticResource IsNotNull}}">
                         <MenuItem Header="{Binding SaveSlots[0].Name}" HeaderStringFormat="1. {0}" Command="{Binding SaveSlotCommand}" CommandParameter="{StaticResource Int0}"/>
                         <MenuItem Header="{Binding SaveSlots[1].Name}" HeaderStringFormat="2. {0}" Command="{Binding SaveSlotCommand}" CommandParameter="{StaticResource Int1}"/>
                         <MenuItem Header="{Binding SaveSlots[2].Name}" HeaderStringFormat="3. {0}" Command="{Binding SaveSlotCommand}" CommandParameter="{StaticResource Int2}"/>
@@ -94,7 +99,7 @@
                         InputGestureText="F5"
                         Command="{Binding RevertFileCommand}"/>
                     <MenuItem
-                        Header="_Close"
+                        Header="_Close File"
                         InputGestureText="Ctrl+W"
                         Command="{Binding CloseFileCommand}"/>
                     <Separator/>
@@ -112,7 +117,14 @@
                 </MenuItem>
                 <mc:AlternateContent>
                     <mc:Choice Requires="dbg">
-                        <MenuItem Header="_Debug"/>
+                        <MenuItem Header="Debug">
+                            <MenuItem
+                                Header="Set Dirty Bit"
+                                Command="{Binding DebugSetDirtyCommand}"/>
+                            <MenuItem
+                                Header="Clear Dirty Bit"
+                                Command="{Binding DebugClearDirtyCommand}"/>
+                        </MenuItem>
                     </mc:Choice>
                 </mc:AlternateContent>
                 <MenuItem Header="_Help"/>

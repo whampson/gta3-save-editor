@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
+using GTA3SaveEditor.Core;
+using GTA3SaveEditor.Core.Helpers;
+using GTA3SaveEditor.Core.Util;
 using GTA3SaveEditor.GUI.Events;
 using GTASaveData.GTA3;
+using WpfEssentials;
 using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI
@@ -13,6 +19,7 @@ namespace GTA3SaveEditor.GUI
     public class MainWindowVM : WindowVMBase
     {
         private const int NumSaveSlots = 8;
+        private const string FileFilter = "GTA3 Save Files|*.b|All Files|*.*";
 
         public event EventHandler LogWindowRequest;
 
@@ -40,13 +47,38 @@ namespace GTA3SaveEditor.GUI
         public override void Init()
         {
             base.Init();
+            Title = App.Name;
 
             OpenFileRequest += OpenFileRequest_Handler;
             CloseFileRequest += CloseFileRequest_Handler;
             SaveFileRequest += SaveFileRequest_Handler;
             RevertFileRequest += RevertFileRequest_Handler;
 
+            Editor.FileOpening += FileOpening_Handler;
+            Editor.FileOpened += FileOpened_Handler;
+            Editor.FileClosing += FileClosing_Handler;
+            Editor.FileClosed += FileClosed_Handler;
+            Editor.FileSaving += FileSaving_Handler;
+            Editor.FileSaved += FileSaved_Handler;
+
             RefreshSaveSlots();
+        }
+
+        public override void Shutdown()
+        {
+            base.Shutdown();
+
+            OpenFileRequest -= OpenFileRequest_Handler;
+            CloseFileRequest -= CloseFileRequest_Handler;
+            SaveFileRequest -= SaveFileRequest_Handler;
+            RevertFileRequest -= RevertFileRequest_Handler;
+
+            Editor.FileOpening -= FileOpening_Handler;
+            Editor.FileOpened -= FileOpened_Handler;
+            Editor.FileClosing -= FileClosing_Handler;
+            Editor.FileClosed -= FileClosed_Handler;
+            Editor.FileSaving -= FileSaving_Handler;
+            Editor.FileSaved -= FileSaved_Handler;
         }
 
         public override void Load()
@@ -99,59 +131,39 @@ namespace GTA3SaveEditor.GUI
 
                 if (File.Exists(slot.Path))
                 {
-                    using GTA3Save save = GTA3Save.Load(slot.Path);
-                    slot.Name = save?.Name ?? $"(slot is corrupt)";
+                    SaveEditor.TryLoadFile(slot.Path, out GTA3Save save);
+                    slot.Name = save?.Name ?? $"(invalid save file)";
                     slot.InUse = true;
+                    save?.Dispose();
                 }
 
                 slotNum++;
             }
-        }
 
-        public bool DoCloseFileRoutine(Action onFileClosed = null)
-        {
-            if (TheSave != null)
-            {
-                if (IsDirty)
-                {
-                    bool retval = false;
-                    PromptYesNoCancel("Would you like to save your changes?", "Save Changes?",
-                        yesAction: () =>
-                        {
-                            SaveFile();
-                            retval = DoCloseFileRoutine(onFileClosed);
-                        },
-                        noAction: () =>
-                        {
-                            ClearDirty();
-                            retval = DoCloseFileRoutine(onFileClosed);
-                        },
-                        cancelAction: () =>
-                        {
-                            retval = false;
-                        });
-                    return retval;
-                }
-            }
-
-            CloseFile();
-            onFileClosed?.Invoke();
-            return true;
+            Log.Info("Loaded PC save slots.");
         }
 
         public void OpenFileRequest_Handler(object sender, FileIOEventArgs e)
         {
-            ShowInfo("Open File!");
-            throw new NotImplementedException();
+            // TODO: SetLastAccess?
+
+            if (IsDirty)
+            {
+                CloseFileRoutine(() => OpenFileRoutine(e.Path), suppressDialogs: e.SuppressDialogs);
+                return;
+            }
+
+            OpenFileRoutine(e.Path, suppressDialogs: e.SuppressDialogs);
         }
 
         public void CloseFileRequest_Handler(object sender, FileIOEventArgs e)
         {
-            throw new NotImplementedException();
+            CloseFileRoutine(suppressDialogs: e.SuppressDialogs);
         }
 
         public void SaveFileRequest_Handler(object sender, FileIOEventArgs e)
         {
+            // TODO: test save slot when directory doesnt exist
             throw new NotImplementedException();
         }
 
@@ -159,6 +171,243 @@ namespace GTA3SaveEditor.GUI
         {
             throw new NotImplementedException();
         }
+
+        private void FileOpening_Handler(object sender, string e)
+        {
+            SetTimedStatusText("Opening file...");
+        }
+
+        private void FileOpened_Handler(object sender, EventArgs e)
+        {
+            SuppressExternalChangesCheck = false;
+
+            UpdateTitle();
+            RegisterDirtyHandlers(TheSave);
+
+            OnPropertyChanged(nameof(TheSave));
+            SetTimedStatusText("File opened.");
+
+            string lastMissionKey = TheSave.Stats.LastMissionPassedName;
+            SaveEditor.GxtTable.TryGetValue(lastMissionKey, out string lastMission);
+            Log.Info($"   File Type: {TheSave.FileFormat}");
+            Log.Info($"       Title: {TheSave.Name}");
+            Log.Info($"Last Mission: {lastMission ?? $"(invalid GXT key: {lastMissionKey})"}");
+            Log.Info($"  Time Stamp: {TheSave.TimeStamp}");
+            Log.Info($"    Progress: {((float) TheSave.Stats.ProgressMade / TheSave.Stats.TotalProgressInGame):P2}");
+            Log.Info($"   MAIN Size: {TheSave.Scripts.MainScriptSize}");
+            Log.Info($"Num. Globals: {TheSave.Scripts.GlobalVariables.Count()}");
+            Log.Info($"Num. Threads: {TheSave.Scripts.Threads.Count}");
+            Log.Info($"Num. Objects: {TheSave.Objects.Objects.Count}");
+        }
+
+        private void FileClosing_Handler(object sender, EventArgs e)
+        {
+            SetTimedStatusText("Closing file...");
+            UnregisterDirtyHandlers(TheSave);
+        }
+
+        private void FileClosed_Handler(object sender, EventArgs e)
+        {
+            SuppressExternalChangesCheck = false;
+
+            ClearDirty();
+            UpdateTitle();
+
+            OnPropertyChanged(nameof(TheSave));
+            SetTimedStatusText("File closed.");
+        }
+
+        private void FileSaving_Handler(object sender, string e)
+        {
+            SetTimedStatusText("Saving file...");
+        }
+
+        private void FileSaved_Handler(object sender, EventArgs e)
+        {
+            SuppressExternalChangesCheck = false;
+            ClearDirty();
+
+            SetTimedStatusText("File saved.");
+        }
+
+        private bool OpenFileRoutine(string path, Action onFileOpened = null, bool suppressDialogs = false)
+        {
+            try
+            {
+                Editor.OpenFile(path);
+                onFileOpened?.Invoke();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Log.Exception(ex);
+                SetTimedStatusText("Error opening file.", 10);
+
+                bool isBadSaveFile = ex is InvalidDataException;
+                if (isBadSaveFile && !suppressDialogs)
+                {
+                    ShowError("The file is not a valid GTA III save file.");
+                    return false;
+                }
+                if (!suppressDialogs)
+                {
+                    ShowException(ex, "An error occurred while opening the file.");
+                }
+
+                DebugHelper.Throw(ex);
+                return false;
+            }
+        }
+
+        private bool CloseFileRoutine(Action onFileClosed = null, bool suppressDialogs = false)
+        {
+            if (!Editor.IsEditingFile)
+            {
+                onFileClosed?.Invoke();
+                return true;
+            }
+
+            if (IsDirty && !suppressDialogs)
+            {
+                bool retval = false;
+                PromptYesNoCancel(
+                    "Would you like to save your changes before closing this file?",
+                    title: "Save Changes?",
+                    yesAction: () =>
+                    {
+                        Editor.SaveFile();
+                        retval = CloseFileRoutine(onFileClosed);
+                    },
+                    noAction: () =>
+                    {
+                        ClearDirty();
+                        retval = CloseFileRoutine(onFileClosed);
+                    },
+                    cancelAction: () =>
+                    {
+                        retval = false;
+                    });
+                return retval;
+            }
+
+            Editor.CloseFile();
+            onFileClosed?.Invoke();
+            return true;
+        }
+
+        private void RegisterDirtyHandlers(INotifyPropertyChanged o)
+        {
+            if (o == null) return;
+
+            foreach (var p in o.GetType().GetProperties().Where(x => x.GetIndexParameters().Length == 0))
+            {
+                object v = p.GetValue(o, null);
+                if (p.PropertyType.GetInterface(nameof(INotifyItemStateChanged)) != null)
+                {
+                    (v as INotifyItemStateChanged).ItemStateChanged += TheSave_CollectionElementChanged;
+                    Log.Debug($"Registered ItemStateChanged handler on {p.PropertyType}");
+                }
+                if (p.PropertyType.GetInterface(nameof(INotifyCollectionChanged)) != null)
+                {
+                    (v as INotifyCollectionChanged).CollectionChanged += TheSave_CollectionChanged;
+                    Log.Debug($"Registered CollectionChanged handler on {p.PropertyType}");
+                }
+                if (p.PropertyType.GetInterface(nameof(INotifyPropertyChanged)) != null)
+                {
+                    RegisterDirtyHandlers(v as INotifyPropertyChanged);
+                }
+            }
+            o.PropertyChanged += TheSave_PropertyChanged;
+            Log.Debug($"Registered PropertyChanged handler on {o}");
+        }
+
+        private void UnregisterDirtyHandlers(INotifyPropertyChanged o)
+        {
+            if (o == null) return;
+
+            foreach (var p in o.GetType().GetProperties().Where(x => x.GetIndexParameters().Length == 0))
+            {
+                object v = p.GetValue(o, null);
+                if (p.PropertyType.GetInterface(nameof(INotifyItemStateChanged)) != null)
+                {
+                    (v as INotifyItemStateChanged).ItemStateChanged -= TheSave_CollectionElementChanged;
+                    Log.Debug($"Unregistered ItemStateChanged handler on {p.PropertyType}");
+                }
+                if (p.PropertyType.GetInterface(nameof(INotifyCollectionChanged)) != null)
+                {
+                    (v as INotifyCollectionChanged).CollectionChanged -= TheSave_CollectionChanged;
+                    Log.Debug($"Unregistered CollectionChanged handler on {p.PropertyType}");
+                }
+                if (p.PropertyType.GetInterface(nameof(INotifyPropertyChanged)) != null)
+                {
+                    UnregisterDirtyHandlers(v as INotifyPropertyChanged);
+                }
+            }
+            o.PropertyChanged -= TheSave_PropertyChanged;
+            Log.Debug($"Unregistered PropertyChanged handler on {o}");
+        }
+
+        private void TheSave_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            SetDirty();
+            
+            // TODO: log property
+        }
+
+        private void TheSave_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            SetDirty();
+
+            // TODO: log property
+        }
+
+        private void TheSave_CollectionElementChanged(object sender, ItemStateChangedEventArgs e)
+        {
+            SetDirty();
+
+            // TODO: log property
+        }
+
+        public ICommand OpenRecentFileCommand => new RelayCommand<string>
+        (
+            (x) => { Settings.SetLastAccess(x); OpenFile(x); },
+            (_) => Settings.RecentFiles.Count > 0
+        );
+
+        public ICommand OpenFileCommand => new RelayCommand
+        (
+            () => ShowFileDialog(new FileDialogEventArgs(FileDialogType.OpenFileDialog)
+            {
+                Filter = FileFilter,
+                Callback = (r, e) => { if (r == true) CloseFileRoutine(() => OpenFile(e.FileName)); }
+            })
+        );
+
+        public ICommand SaveFileAsCommand => new RelayCommand
+        (
+            () => ShowFileDialog(new FileDialogEventArgs(FileDialogType.SaveFileDialog)
+            {
+                Filter = FileFilter,
+                Callback = (r, e) => { if (r == true) SaveFile(e.FileName); }
+            }),
+            () => Editor.IsEditingFile
+        );
+
+        public ICommand OpenSlotCommand => new RelayCommand<int>
+        (
+            (i) => CloseFileRoutine(() => OpenFile(SaveSlots[i].Path))
+        );
+
+        public ICommand SaveSlotCommand => new RelayCommand<int>
+        (
+            (i) => SaveFile(SaveSlots[i].Path),
+            (_) => Editor.IsEditingFile
+        );
+
+        public ICommand RefreshSlotsCommand => new RelayCommand
+        (
+            () => RefreshSaveSlots()
+        );
 
         public ICommand ViewLogCommand => new RelayCommand
         (
@@ -169,5 +418,19 @@ namespace GTA3SaveEditor.GUI
         (
             () => Application.Current.MainWindow.Close()
         );
+
+#if DEBUG
+        public ICommand DebugSetDirtyCommand => new RelayCommand
+        (
+            () => { SetDirty(); Log.Debug("Dirty bit set."); },
+            () => Editor.IsEditingFile
+        );
+
+        public ICommand DebugClearDirtyCommand => new RelayCommand
+        (
+            () => { ClearDirty(); Log.Debug("Dirty bit cleared."); },
+            () => Editor.IsEditingFile
+        );
+#endif
     }
 }

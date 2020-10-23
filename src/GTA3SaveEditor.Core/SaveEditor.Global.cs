@@ -31,12 +31,6 @@ namespace GTA3SaveEditor.Core
         #region Settings
         public static bool LoadSettings(string path)
         {
-            if (!File.Exists(path))
-            {
-                Log.Info("Settings file not found.");
-                return false;
-            }
-
             string json = File.ReadAllText(path);
             var jsonSettings = new JsonSerializerSettings
             {
@@ -50,11 +44,12 @@ namespace GTA3SaveEditor.Core
             Settings newSettings = JsonConvert.DeserializeObject<Settings>(json, jsonSettings);
             if (newSettings == null)
             {
-                Log.Error("Unable to load settings file.");
+                Log.Info("Unable to load settings file.");
                 return false;
             }
 
             Settings = newSettings;
+            Log.Info("Loaded settings.");
             return true;
         }
 
@@ -62,6 +57,7 @@ namespace GTA3SaveEditor.Core
         {
             string json = JsonConvert.SerializeObject(Settings, Formatting.Indented);
             File.WriteAllText(path, json);
+            Log.Info("Saved settings.");
         }
         #endregion
 
