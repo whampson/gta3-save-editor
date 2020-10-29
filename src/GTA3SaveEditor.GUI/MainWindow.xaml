@@ -108,7 +108,18 @@
                         InputGestureText="Alt+F4"
                         Command="{Binding ExitCommand}"/>
                 </MenuItem>
-                <MenuItem Header="_Edit"/>
+                <MenuItem Header="_Edit">
+                    <MenuItem Header="Import">
+                        <MenuItem Header="Objects"/>
+                        <MenuItem Header="Pickups"/>
+                        <MenuItem Header="Car Generators"/>
+                    </MenuItem>
+                    <MenuItem Header="Export">
+                        <MenuItem Header="Objects"/>
+                        <MenuItem Header="Pickups"/>
+                        <MenuItem Header="Car Generators"/>
+                    </MenuItem>
+                </MenuItem>
                 <MenuItem Header="_View">
                     <MenuItem
                         Header="_Log"
@@ -119,15 +130,38 @@
                     <mc:Choice Requires="dbg">
                         <MenuItem Header="Debug">
                             <MenuItem
+                                Header="Load Car Colors..."
+                                Command="{Binding DebugLoadCarColors}"/>
+                            <MenuItem
+                                Header="Load GXT Table..."
+                                Command="{Binding DebugLoadGxtTable}"/>
+                            <MenuItem
+                                Header="Load IDE Objects..."
+                                Command="{Binding DebugLoadIdeObjects}"/>
+                            <Separator/>
+                            <MenuItem
                                 Header="Set Dirty Bit"
                                 Command="{Binding DebugSetDirtyCommand}"/>
                             <MenuItem
                                 Header="Clear Dirty Bit"
                                 Command="{Binding DebugClearDirtyCommand}"/>
+                            <Separator/>
+                            <MenuItem
+                                Header="Raise Unhandled Exception"
+                                Command="{Binding DebugRaiseUnhandledException}"/>
                         </MenuItem>
                     </mc:Choice>
                 </mc:AlternateContent>
-                <MenuItem Header="_Help"/>
+                <MenuItem Header="_Help">
+                    <MenuItem
+                        Header="About"
+                        InputGestureText="F1"
+                        Command="{Binding ShowAboutDialog}"/>
+                    <Separator/>
+                    <MenuItem
+                        Header="Check for Updates"
+                        Command="{Binding CheckForUpdates}"/>
+                </MenuItem>
             </Menu>
         </Border>
 

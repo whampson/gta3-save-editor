@@ -10,6 +10,7 @@ using GTA3SaveEditor.Core;
 using GTA3SaveEditor.Core.Helpers;
 using GTA3SaveEditor.Core.Util;
 using GTA3SaveEditor.GUI.Events;
+using GTASaveData;
 using GTASaveData.GTA3;
 using WpfEssentials;
 using WpfEssentials.Win32;
@@ -430,6 +431,102 @@ namespace GTA3SaveEditor.GUI
         (
             () => { ClearDirty(); Log.Debug("Dirty bit cleared."); },
             () => Editor.IsEditingFile
+        );
+
+        public ICommand DebugLoadCarColors => new RelayCommand
+        (
+            () =>
+            {
+                ShowFileDialog(FileDialogType.OpenFileDialog, (r, e) =>
+                {
+                    try
+                    {
+                        if (r != true) return;
+                        SaveEditor.CarColors = CarColorsLoader.LoadColors(e.FileName);
+                        SetTimedStatusText($"Loaded {SaveEditor.CarColors.Count()} car colors.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Exception(ex);
+                        ShowException(ex, "An error occurred while loading car colors.");
+                    }
+                });
+            }
+        );
+
+        public ICommand DebugLoadGxtTable => new RelayCommand
+        (
+            () =>
+            {
+                ShowFileDialog(FileDialogType.OpenFileDialog, (r, e) =>
+                {
+                    try
+                    {
+                        if (r != true) return;
+                        SaveEditor.GxtTable = GxtLoader.Load(e.FileName);
+                        SetTimedStatusText($"Loaded {SaveEditor.GxtTable.Count} GXT entries.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Exception(ex);
+                        ShowException(ex, "An error occurred while loading GXT entries.");
+                    }
+                });
+            }
+        );
+
+        public ICommand DebugLoadIdeObjects => new RelayCommand
+        (
+            () =>
+            {
+                ShowFileDialog(FileDialogType.OpenFileDialog, (r, e) =>
+                {
+                    try
+                    {
+                        if (r != true) return;
+                        SaveEditor.IdeObjects = IdeLoader.LoadObjects(e.FileName);
+                        SetTimedStatusText($"Loaded {SaveEditor.IdeObjects.Count()} IDE objects.");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.Exception(ex);
+                        ShowException(ex, "An error occurred while loading IDE objects.");
+                    }
+                });
+            }
+        );
+
+        public ICommand DebugRaiseUnhandledException => new RelayCommand
+        (
+            () =>
+            {
+                Random r = new Random();
+                int func = r.Next(0, 3);
+
+                switch (func)
+                {
+                    // Any prospecting programers out there? Find the issue with each function!
+                    case 0:
+                    {
+                        int[] foo = { 0, 1 };
+                        foo[2] = 3;
+                        break;
+                    }
+                    case 1:
+                    {
+                        using DataBuffer buf = new DataBuffer(10);
+                        buf.Write(r.Next());
+                        buf.Write(r.Next());
+                        buf.Write(r.Next());
+                        break;
+                    }
+                    case 2:
+                    {
+                        int.Parse("one");
+                        break;
+                    }
+                }
+            }
         );
 #endif
     }

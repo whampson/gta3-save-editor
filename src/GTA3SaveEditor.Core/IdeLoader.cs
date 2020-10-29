@@ -6,6 +6,11 @@ namespace GTA3SaveEditor.Core
 {
     public static class IdeLoader
     {
+        public static List<IdeObject> LoadObjects(string path)
+        {
+            return LoadObjects(File.ReadAllBytes(path));
+        }
+
         public static List<IdeObject> LoadObjects(byte[] data)
         {
             using MemoryStream m = new MemoryStream(data);
