@@ -2,6 +2,7 @@
     x:Class="GTA3SaveEditor.GUI.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:cntl="clr-namespace:WHampson.ToolUI.Controls;assembly=WHampson.ToolUI"
     xmlns:conv="clr-namespace:WHampson.ToolUI.Converters;assembly=WHampson.ToolUI"
     xmlns:wpfe="clr-namespace:WpfEssentials.Win32.Converters;assembly=WpfEssentials.Win32"
@@ -108,26 +109,63 @@
         </Style>
 
         <!-- UpDowns -->
-        <Style x:Key="SingleUpDownStyle" TargetType="xctk:SingleUpDown">
+        <!--<Style x:Key="SingleUpDownStyle" TargetType="xctk:SingleUpDown">
             <Setter Property="DefaultValue" Value="0"/>
             <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
             <Setter Property="ClipValueToMinMax" Value="True"/>
         </Style>
-        <Style x:Key="IntegerUpDownStyle" TargetType="xctk:IntegerUpDown">
+        <Style x:Key="Int32UpDownStyle" TargetType="xctk:IntegerUpDown">
             <Setter Property="DefaultValue" Value="0"/>
             <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
             <Setter Property="ClipValueToMinMax" Value="True"/>
         </Style>
-        <Style x:Key="UnsignedIntegerUpDownStyle" TargetType="xctk:LongUpDown">
+        <Style x:Key="UInt32IntegerUpDownStyle" TargetType="xctk:LongUpDown">
             <Setter Property="DefaultValue" Value="0"/>
             <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
             <Setter Property="Minimum" Value="0"/>
             <Setter Property="Maximum" Value="4294967295"/>
             <Setter Property="ClipValueToMinMax" Value="True"/>
+        </Style>-->
+
+        <Style x:Key="Int8UpDownStyle" TargetType="xctk:IntegerUpDown">
+            <Setter Property="Minimum" Value="-128"/>
+            <Setter Property="Maximum" Value="127"/>
+            <Setter Property="ClipValueToMinMax" Value="True"/>
+            <Setter Property="AutoSelectBehavior" Value="Never"/>
+        </Style>
+        <Style x:Key="UInt8UpDownStyle" TargetType="xctk:IntegerUpDown">
+            <Setter Property="Minimum" Value="0"/>
+            <Setter Property="Maximum" Value="255"/>
+            <Setter Property="ClipValueToMinMax" Value="True"/>
+            <Setter Property="AutoSelectBehavior" Value="Never"/>
+        </Style>
+        <Style x:Key="Int16UpDownStyle" TargetType="xctk:IntegerUpDown">
+            <Setter Property="Minimum" Value="-32768"/>
+            <Setter Property="Maximum" Value="32767"/>
+            <Setter Property="ClipValueToMinMax" Value="True"/>
+            <Setter Property="AutoSelectBehavior" Value="Never"/>
+        </Style>
+        <Style x:Key="UInt16UpDownStyle" TargetType="xctk:IntegerUpDown">
+            <Setter Property="Minimum" Value="0"/>
+            <Setter Property="Maximum" Value="65535"/>
+            <Setter Property="ClipValueToMinMax" Value="True"/>
+            <Setter Property="AutoSelectBehavior" Value="Never"/>
+        </Style>
+        <Style x:Key="Int32UpDownStyle" TargetType="xctk:IntegerUpDown">
+            <Setter Property="Minimum" Value="-2147483648"/>
+            <Setter Property="Maximum" Value="2147483647"/>
+            <Setter Property="ClipValueToMinMax" Value="True"/>
+            <Setter Property="AutoSelectBehavior" Value="Never"/>
+        </Style>
+        <Style x:Key="FloatUpDownStyle" TargetType="xctk:SingleUpDown">
+            <Setter Property="Minimum" Value="{x:Static sys:Single.MinValue}"/>
+            <Setter Property="Maximum" Value="{x:Static sys:Single.MaxValue}"/>
+            <Setter Property="ClipValueToMinMax" Value="True"/>
+            <Setter Property="AutoSelectBehavior" Value="Never"/>
         </Style>
 
         <!-- TabControl -->
-        <Style x:Key="TabItemStyle" TargetType="TabItem">
+        <Style x:Key="TabItemStyle" TargetType="{x:Type TabItem}">
             <Setter Property="MinWidth" Value="50"/>
         </Style>
         <Style x:Key="TabControlStyle" TargetType="{x:Type cntl:TabControlEx}">

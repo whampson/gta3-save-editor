@@ -4,7 +4,7 @@ namespace GTA3SaveEditor.Core.Extensions
 {
     public static class GTA3SaveExtensions
     {
-        public static string GetSaveName(this GTA3Save save)
+        public static string GetSaveName(this SaveFileGTA3 save)
         {
             if (save.Name == null)
             {
@@ -27,7 +27,7 @@ namespace GTA3SaveEditor.Core.Extensions
             return save.Name;
         }
 
-        public static void SetSaveName(this GTA3Save save, string name, bool isGxtKey)
+        public static void SetSaveName(this SaveFileGTA3 save, string name, bool isGxtKey)
         {
             save.Name = (isGxtKey) ? ('\uFFFF' + name) : name;
         }

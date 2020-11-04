@@ -13,7 +13,7 @@
     xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"
     mc:Ignorable="d"
     Title="{Binding Title}"
-    Height="600" Width="800">
+    Height="700" Width="1050">
 
     <Window.DataContext>
         <l:MainWindowVM/>
@@ -28,6 +28,15 @@
         <sys:Int32 x:Key="Int5">5</sys:Int32>
         <sys:Int32 x:Key="Int6">6</sys:Int32>
         <sys:Int32 x:Key="Int7">7</sys:Int32>
+
+        <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
+
+        <DataTemplate DataType="{x:Type l:WelcomeTabVM}">
+            <l:WelcomeTab/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type l:PickupsTabVM}">
+            <l:PickupsTab/>
+        </DataTemplate>
     </Window.Resources>
 
     <Window.InputBindings>
@@ -35,6 +44,7 @@
         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveFileCommand}"/>
         <KeyBinding Key="S" Modifiers="Ctrl+Shift" Command="{Binding SaveFileAsCommand}"/>
         <KeyBinding Key="W" Modifiers="Ctrl" Command="{Binding CloseFileCommand}"/>
+        <KeyBinding Key="F4" Modifiers="Alt" Command="{Binding ExitCommand}"/>
         <KeyBinding Key="F5" Command="{Binding RevertFileCommand}"/>
         <KeyBinding Key="F10" Command="{Binding ViewLogCommand}"/>
     </Window.InputBindings>
@@ -184,6 +194,11 @@
                         <TextBlock Text="{Binding Title, Mode=OneWay}"/>
                     </DataTemplate>
                 </c:TabControlEx.ItemTemplate>
+                <c:TabControlEx.ItemContainerStyle>
+                    <Style TargetType="TabItem" BasedOn="{StaticResource TabItemStyle}">
+                        <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVisibility}}"/>
+                    </Style>
+                </c:TabControlEx.ItemContainerStyle>
             </c:TabControlEx>
 
             <Border Grid.Row="1" BorderBrush="{x:Static SystemColors.ActiveBorderBrush}" BorderThickness="0,1,0,0">

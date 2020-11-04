@@ -19,7 +19,7 @@ namespace GTA3SaveEditor.GUI
 
         public SaveEditor Editor => SaveEditor.Instance;
         public Settings Settings => SaveEditor.Settings;
-        public GTA3Save TheSave => SaveEditor.Instance.ActiveFile;
+        public SaveFileGTA3 TheSave => SaveEditor.Instance.ActiveFile;
 
         private bool m_suppressExternalChangesCheck;
 

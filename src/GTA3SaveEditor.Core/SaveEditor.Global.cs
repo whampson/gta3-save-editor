@@ -62,16 +62,16 @@ namespace GTA3SaveEditor.Core
         #endregion
 
         #region Static File I/O
-        public static bool TryLoadFile(string path, out GTA3Save saveFile)
+        public static bool TryLoadFile(string path, out SaveFileGTA3 saveFile)
         {
             return TryLoadFile(path, FileFormat.Default, out saveFile);
         }
 
-        public static bool TryLoadFile(string path, FileFormat format, out GTA3Save saveFile)
+        public static bool TryLoadFile(string path, FileFormat format, out SaveFileGTA3 saveFile)
         {
             try
             {
-                saveFile = SaveData.Load<GTA3Save>(path, format);
+                saveFile = SaveFileGTA3.Load(path, format);
                 return saveFile != null;
             }
             catch (Exception e)

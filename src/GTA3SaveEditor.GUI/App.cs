@@ -23,8 +23,8 @@ namespace GTA3SaveEditor.GUI
 
             string osVer = RuntimeInformation.OSDescription;
             string dotnetVer = RuntimeInformation.FrameworkDescription;
-            string saveDataLibVer = Assembly.GetAssembly(typeof(SaveData)).GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
-            string gta3DataLibVer = Assembly.GetAssembly(typeof(GTA3Save)).GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
+            string saveDataLibVer = Assembly.GetAssembly(typeof(SaveFile)).GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
+            string gta3DataLibVer = Assembly.GetAssembly(typeof(SaveFileGTA3)).GetCustomAttribute<AssemblyFileVersionAttribute>().Version;
 
             Log.Info($"{Name} {VersionString}");
             Log.Info($"{Copyright}");

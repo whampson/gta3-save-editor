@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using GTA3SaveEditor.Core.Util;
 
 namespace GTA3SaveEditor.GUI
 {
@@ -33,7 +32,7 @@ namespace GTA3SaveEditor.GUI
             if (ViewModel.IsDirty)
             {
                 e.Cancel = true;
-                //ViewModel.PromptSaveChanges(ExitAppDialog_Callback);
+                ViewModel.ExitAppWithConfirmation();
                 return;
             }
 

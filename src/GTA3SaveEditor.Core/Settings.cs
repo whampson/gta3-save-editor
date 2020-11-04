@@ -15,8 +15,8 @@ namespace GTA3SaveEditor.Core
 
         private int m_recentFilesCapacity;
         private ObservableCollection<string> m_recentFiles;
-        private string m_lastDirAccessed;
-        private string m_lastFileAccessed;
+        //private string m_lastDirAccessed;
+        //private string m_lastFileAccessed;
         private bool m_writeSaveTimestamp;
         private bool m_writeLogFile;
         private string m_logFilePath;
@@ -35,17 +35,17 @@ namespace GTA3SaveEditor.Core
             set { m_recentFiles = value; OnPropertyChanged(); }
         }
 
-        public string LastDirectoryAccessed
-        {
-            get { return m_lastDirAccessed; }
-            set { m_lastDirAccessed = value; OnPropertyChanged(); }
-        }
+        //public string LastDirectoryAccessed
+        //{
+        //    get { return m_lastDirAccessed; }
+        //    set { m_lastDirAccessed = value; OnPropertyChanged(); }
+        //}
 
-        public string LastFileAccessed
-        {
-            get { return m_lastFileAccessed; }
-            set { m_lastFileAccessed = value; OnPropertyChanged(); }
-        }
+        //public string LastFileAccessed
+        //{
+        //    get { return m_lastFileAccessed; }
+        //    set { m_lastFileAccessed = value; OnPropertyChanged(); }
+        //}
 
         public bool WriteSaveTimestamp
         {
@@ -114,39 +114,39 @@ namespace GTA3SaveEditor.Core
             RecentFiles.Clear();
         }
 
-        public void SetLastAccess(string path)
-        {
-            bool isDir = Directory.Exists(path);
-            bool isFile = File.Exists(path);
+        //public void SetLastAccess(string path)
+        //{
+        //    bool isDir = Directory.Exists(path);
+        //    bool isFile = File.Exists(path);
 
-            if (isDir)
-            {
-                LastDirectoryAccessed = Path.GetFullPath(path);
-            }
-            if (isFile)
-            {
-                LastFileAccessed = Path.GetFullPath(path);
-                LastDirectoryAccessed = Path.GetDirectoryName(path);
-            }
-        }
+        //    if (isDir)
+        //    {
+        //        LastDirectoryAccessed = Path.GetFullPath(path);
+        //    }
+        //    if (isFile)
+        //    {
+        //        LastFileAccessed = Path.GetFullPath(path);
+        //        LastDirectoryAccessed = Path.GetDirectoryName(path);
+        //    }
+        //}
 
         public FileFormat GetFormatOverride()
         {
             return FormatOverride switch
             {
-                FileFormatType.Android => GTA3Save.FileFormats.Android,
-                FileFormatType.iOS => GTA3Save.FileFormats.iOS,
-                FileFormatType.PC => GTA3Save.FileFormats.PC,
-                FileFormatType.PS2 => GTA3Save.FileFormats.PS2,
-                FileFormatType.PS2AU => GTA3Save.FileFormats.PS2_AU,
-                FileFormatType.PS2JP => GTA3Save.FileFormats.PS2_JP,
-                FileFormatType.Xbox => GTA3Save.FileFormats.Xbox,
+                FileFormatType.Android => SaveFileGTA3.FileFormats.Android,
+                FileFormatType.iOS => SaveFileGTA3.FileFormats.iOS,
+                FileFormatType.PC => SaveFileGTA3.FileFormats.PC,
+                FileFormatType.PS2 => SaveFileGTA3.FileFormats.PS2,
+                FileFormatType.PS2AU => SaveFileGTA3.FileFormats.PS2_AU,
+                FileFormatType.PS2JP => SaveFileGTA3.FileFormats.PS2_JP,
+                FileFormatType.Xbox => SaveFileGTA3.FileFormats.Xbox,
                 _ => throw new InvalidOperationException("Format override not set.")
             };
         }
 
-        public bool ShouldSerializeLastDirectoryAccessed() => LastDirectoryAccessed != null;
-        public bool ShouldSerializeLastFileAccessed() => LastFileAccessed != null;
+        //public bool ShouldSerializeLastDirectoryAccessed() => LastDirectoryAccessed != null;
+        //public bool ShouldSerializeLastFileAccessed() => LastFileAccessed != null;
         public bool ShouldSerializeWriteLogFile() => WriteLogFile == true;
         public bool ShouldSerializeLogFilePath() => LogFilePath != null;
         public bool ShouldSerializeFormatOverride() => FormatOverride != FileFormatType.None;

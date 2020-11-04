@@ -25,12 +25,26 @@ namespace GTA3SaveEditor.GUI
         public event EventHandler LogWindowRequest;
 
         private ObservableCollection<SaveSlot> m_saveSlots;
+        private ObservableCollection<TabPageVM> m_tabs;
+        private int m_selectedTabIndex;
         private bool m_isDirty;
 
         public ObservableCollection<SaveSlot> SaveSlots
         {
             get { return m_saveSlots; }
             private set { m_saveSlots = value; OnPropertyChanged(); }
+        }
+
+        public ObservableCollection<TabPageVM> Tabs
+        {
+            get { return m_tabs; }
+            private set { m_tabs = value; OnPropertyChanged(); }
+        }
+
+        public int SelectedTabIndex
+        {
+            get { return m_selectedTabIndex; }
+            set { m_selectedTabIndex = value; OnPropertyChanged(); }
         }
 
         public bool IsDirty
@@ -43,6 +57,11 @@ namespace GTA3SaveEditor.GUI
         {
             var slots = Enumerable.Range(0, NumSaveSlots).Select(slot => new SaveSlot());
             SaveSlots = new ObservableCollection<SaveSlot>(slots);
+            Tabs = new ObservableCollection<TabPageVM>()
+            {
+                new WelcomeTabVM() { TheWindow = this, Title = "Welcome", Visibility = TabPageVisibility.WhenNotEditingFile },
+                new PickupsTabVM() { TheWindow = this, Title="Pickups", Visibility = TabPageVisibility.WhenEditingFile },
+            };
         }
 
         public override void Init()
@@ -62,6 +81,8 @@ namespace GTA3SaveEditor.GUI
             Editor.FileSaving += FileSaving_Handler;
             Editor.FileSaved += FileSaved_Handler;
 
+            InitTabs();
+            UpdateTabVisibility();
             RefreshSaveSlots();
         }
 
@@ -80,6 +101,8 @@ namespace GTA3SaveEditor.GUI
             Editor.FileClosed -= FileClosed_Handler;
             Editor.FileSaving -= FileSaving_Handler;
             Editor.FileSaved -= FileSaved_Handler;
+
+            ShutdownTabs();
         }
 
         public override void Load()
@@ -118,6 +141,30 @@ namespace GTA3SaveEditor.GUI
             Title = title;
         }
 
+        private void InitTabs()
+        {
+            foreach (var tab in Tabs)
+            {
+                tab.Init();
+            }
+        }
+
+        private void ShutdownTabs()
+        {
+            foreach (var tab in Tabs)
+            {
+                tab.Shutdown();
+            }
+        }
+
+        private void UpdateTabVisibility()
+        {
+            foreach (var tab in Tabs)
+            {
+                tab.UpdateVisibility();
+            }
+        }
+
         private void RefreshSaveSlots()
         {
             string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
@@ -132,7 +179,7 @@ namespace GTA3SaveEditor.GUI
 
                 if (File.Exists(slot.Path))
                 {
-                    SaveEditor.TryLoadFile(slot.Path, out GTA3Save save);
+                    SaveEditor.TryLoadFile(slot.Path, out SaveFileGTA3 save);
                     slot.Name = save?.Name ?? $"(invalid save file)";
                     slot.InUse = true;
                     save?.Dispose();
@@ -144,16 +191,20 @@ namespace GTA3SaveEditor.GUI
             Log.Info("Loaded PC save slots.");
         }
 
+        public void ExitAppWithConfirmation()
+        {
+            CloseFileRoutine(() => Application.Current.Shutdown());
+        }
+
         public void OpenFileRequest_Handler(object sender, FileIOEventArgs e)
         {
-            // TODO: SetLastAccess?
-
             if (IsDirty)
             {
                 CloseFileRoutine(() => OpenFileRoutine(e.Path), suppressDialogs: e.SuppressDialogs);
                 return;
             }
 
+            //Settings.SetLastAccess(e.Path);
             OpenFileRoutine(e.Path, suppressDialogs: e.SuppressDialogs);
         }
 
@@ -164,12 +215,13 @@ namespace GTA3SaveEditor.GUI
 
         public void SaveFileRequest_Handler(object sender, FileIOEventArgs e)
         {
-            // TODO: test save slot when directory doesnt exist
+            // TODO: test save slot when directory doesn't exist
             throw new NotImplementedException();
         }
 
         public void RevertFileRequest_Handler(object sender, FileIOEventArgs e)
         {
+            // TODO
             throw new NotImplementedException();
         }
 
@@ -181,9 +233,10 @@ namespace GTA3SaveEditor.GUI
         private void FileOpened_Handler(object sender, EventArgs e)
         {
             SuppressExternalChangesCheck = false;
-
-            UpdateTitle();
+            
             RegisterDirtyHandlers(TheSave);
+            UpdateTitle();
+            UpdateTabVisibility();
 
             OnPropertyChanged(nameof(TheSave));
             SetTimedStatusText("File opened.");
@@ -196,7 +249,7 @@ namespace GTA3SaveEditor.GUI
             Log.Info($"  Time Stamp: {TheSave.TimeStamp}");
             Log.Info($"    Progress: {((float) TheSave.Stats.ProgressMade / TheSave.Stats.TotalProgressInGame):P2}");
             Log.Info($"   MAIN Size: {TheSave.Scripts.MainScriptSize}");
-            Log.Info($"Num. Globals: {TheSave.Scripts.GlobalVariables.Count()}");
+            Log.Info($"Num. Globals: {TheSave.Scripts.Globals.Count()}");
             Log.Info($"Num. Threads: {TheSave.Scripts.Threads.Count}");
             Log.Info($"Num. Objects: {TheSave.Objects.Objects.Count}");
         }
@@ -213,6 +266,7 @@ namespace GTA3SaveEditor.GUI
 
             ClearDirty();
             UpdateTitle();
+            UpdateTabVisibility();
 
             OnPropertyChanged(nameof(TheSave));
             SetTimedStatusText("File closed.");
@@ -371,7 +425,7 @@ namespace GTA3SaveEditor.GUI
 
         public ICommand OpenRecentFileCommand => new RelayCommand<string>
         (
-            (x) => { Settings.SetLastAccess(x); OpenFile(x); },
+            (x) => OpenFile(x),
             (_) => Settings.RecentFiles.Count > 0
         );
 
@@ -417,7 +471,7 @@ namespace GTA3SaveEditor.GUI
 
         public ICommand ExitCommand => new RelayCommand
         (
-            () => Application.Current.MainWindow.Close()
+            () => ExitAppWithConfirmation()
         );
 
 #if DEBUG
