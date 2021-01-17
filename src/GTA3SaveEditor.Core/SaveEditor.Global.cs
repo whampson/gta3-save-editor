@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Security;
 using GTA3SaveEditor.Core.Util;
 using GTASaveData;
@@ -95,8 +96,17 @@ namespace GTA3SaveEditor.Core
         public static string DefaultSaveFileDirectory =>
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GTA3 User Files");
 
-        #endregion
+        // TODO: move these to a GTA3 class or something
+        public static IdeObject GetIdeObject(short index)
+        {
+            return IdeObjects.Where(o => o.Id == index).FirstOrDefault();
+        }
 
+        public static IdeObject GetIdeObject(string name)
+        {
+            return IdeObjects.Where(o => o.ModelName == name).FirstOrDefault();
+        }
+        #endregion
     }
 
     public enum FileFormatType

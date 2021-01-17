@@ -80,7 +80,13 @@
                             IsEditable="True"
                             ItemsSource="{x:Static l:PickupsTabVM.ObjectModels}"
                             SelectedItem="{Binding ModelIndex, Converter={StaticResource ModelNameConverter}, UpdateSourceTrigger=PropertyChanged}"
-                            Text="{Binding ModelIndex, Converter={StaticResource ModelNameConverter}, UpdateSourceTrigger=LostFocus}"/>
+                            Text="{Binding ModelIndex, Converter={StaticResource ModelNameConverter}, UpdateSourceTrigger=LostFocus}">
+                            <ComboBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ComboBox.ItemsPanel>
+                        </ComboBox>
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>

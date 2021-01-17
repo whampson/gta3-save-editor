@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
@@ -67,9 +69,26 @@ namespace GTA3SaveEditor.GUI
 
         private void LoadResources()
         {
+            List<IdeObject> objects = IdeLoader.LoadObjects(LoadResource("gta3.ide"));
+            objects.Add(new IdeObject(0, ""));
+            objects.Add(new IdeObject(170, "grenade"));
+            objects.Add(new IdeObject(171, "ak47"));
+            objects.Add(new IdeObject(172, "bat"));
+            objects.Add(new IdeObject(173, "colt45"));
+            objects.Add(new IdeObject(174, "molotov"));
+            objects.Add(new IdeObject(175, "rocket"));
+            objects.Add(new IdeObject(176, "shotgun"));
+            objects.Add(new IdeObject(177, "sniper"));
+            objects.Add(new IdeObject(178, "uzi"));
+            objects.Add(new IdeObject(179, "missile"));
+            objects.Add(new IdeObject(180, "m16"));
+            objects.Add(new IdeObject(181, "flame"));
+            objects.Add(new IdeObject(182, "bomb"));
+            objects.Add(new IdeObject(183, "fingers"));
+
+            SaveEditor.IdeObjects = objects.OrderBy(x => x.ModelName).ToList();
             SaveEditor.CarColors = CarColorsLoader.LoadColors(LoadResource("carcols.dat"));
             SaveEditor.GxtTable = GxtLoader.Load(LoadResource("english.gxt"));
-            SaveEditor.IdeObjects = IdeLoader.LoadObjects(LoadResource("gta3.ide"));
         }
 
         private void LoadSettings()

@@ -12,8 +12,7 @@ namespace GTA3SaveEditor.GUI.Converters
         {
             if (value is short index)
             {
-                // TODO
-                IdeObject ideObj = /*IdeHelper.FindObject(index);*/ null;
+                IdeObject ideObj = SaveEditor.GetIdeObject(index);
                 if (ideObj != null)
                 {
                     return ideObj.ModelName;
@@ -39,8 +38,7 @@ namespace GTA3SaveEditor.GUI.Converters
 
             if (value is string model)
             {
-                // TODO
-                IdeObject ideObj = /*IdeHelper.FindObject(model);*/ null;
+                IdeObject ideObj = SaveEditor.GetIdeObject(model);
                 if (ideObj != null)
                 {
                     return ideObj.Id;

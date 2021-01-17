@@ -13,7 +13,6 @@ namespace GTA3SaveEditor.GUI
         {
             ObjectModels = SaveEditor.IdeObjects
                 .Select(o => o.ModelName)
-                .Where(m => !m.StartsWith("LOD"))
                 .ToList();
         }
 
