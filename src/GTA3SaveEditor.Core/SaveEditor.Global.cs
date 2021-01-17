@@ -90,6 +90,13 @@ namespace GTA3SaveEditor.Core
             }
         }
         #endregion
+
+        #region Misc.
+        public static string DefaultSaveFileDirectory =>
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GTA3 User Files");
+
+        #endregion
+
     }
 
     public enum FileFormatType

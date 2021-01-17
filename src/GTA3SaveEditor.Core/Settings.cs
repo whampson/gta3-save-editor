@@ -15,11 +15,14 @@ namespace GTA3SaveEditor.Core
 
         private int m_recentFilesCapacity;
         private ObservableCollection<string> m_recentFiles;
+        private ObservableCollection<string> m_saveFileList;
         //private string m_lastDirAccessed;
         //private string m_lastFileAccessed;
         private bool m_writeSaveTimestamp;
         private bool m_writeLogFile;
         private string m_logFilePath;
+        private string m_saveFileDirectory;
+        private bool m_recursiveSearch;
         private FileFormatType m_fileFormatOverride;
         private UpdaterSettings m_updater;
 
@@ -33,6 +36,12 @@ namespace GTA3SaveEditor.Core
         {
             get { return m_recentFiles; }
             set { m_recentFiles = value; OnPropertyChanged(); }
+        }
+
+        public ObservableCollection<string> SaveFileList
+        {
+            get { return m_saveFileList; }
+            set { m_saveFileList = value; OnPropertyChanged(); }
         }
 
         //public string LastDirectoryAccessed
@@ -65,6 +74,18 @@ namespace GTA3SaveEditor.Core
             set { m_logFilePath = value; OnPropertyChanged(); }
         }
 
+        public string SaveFileDirectory
+        {
+            get { return m_saveFileDirectory; }
+            set { m_saveFileDirectory = value; OnPropertyChanged(); }
+        }
+
+        public bool RecursiveSearch
+        {
+            get { return m_recursiveSearch; }
+            set { m_recursiveSearch = value; OnPropertyChanged(); }
+        }
+
         public FileFormatType FormatOverride
         {
             get { return m_fileFormatOverride; }
@@ -83,6 +104,7 @@ namespace GTA3SaveEditor.Core
         public Settings()
         {
             RecentFiles = new ObservableCollection<string>();
+            SaveFileList = new ObservableCollection<string>();
             RecentFilesCapacity = 10;
             WriteSaveTimestamp = true;
             FormatOverride = FileFormatType.None;

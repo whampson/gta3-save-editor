@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using GTA3SaveEditor.Core;
+using GTA3SaveEditor.Core.Extensions;
 using GTA3SaveEditor.Core.Helpers;
 using GTA3SaveEditor.Core.Util;
 using GTA3SaveEditor.GUI.Events;
@@ -105,12 +106,6 @@ namespace GTA3SaveEditor.GUI
             ShutdownTabs();
         }
 
-        public override void Load()
-        {
-            base.Load();
-            SetStatusText("Ready.");
-        }
-
         private void SetDirty()
         {
             if (!IsDirty)
@@ -165,10 +160,14 @@ namespace GTA3SaveEditor.GUI
             }
         }
 
+        private void SelectFirstVisibleTab()
+        {
+            SelectedTabIndex = Tabs.IndexOf(Tabs.Where(x => x.IsVisible).FirstOrDefault());
+        }
+
         private void RefreshSaveSlots()
         {
-            string documentsPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-            string gta3UserFiles = Path.Combine(documentsPath, "GTA3 User Files");
+            string gta3UserFiles = SaveEditor.DefaultSaveFileDirectory;
 
             int slotNum = 1;
             foreach (var slot in SaveSlots)
@@ -237,14 +236,15 @@ namespace GTA3SaveEditor.GUI
             RegisterDirtyHandlers(TheSave);
             UpdateTitle();
             UpdateTabVisibility();
+            SelectFirstVisibleTab();
 
             OnPropertyChanged(nameof(TheSave));
-            SetTimedStatusText("File opened.");
+            SetTimedStatusText("File opened.", expiredStatus: "Ready.");
 
             string lastMissionKey = TheSave.Stats.LastMissionPassedName;
             SaveEditor.GxtTable.TryGetValue(lastMissionKey, out string lastMission);
             Log.Info($"   File Type: {TheSave.FileFormat}");
-            Log.Info($"       Title: {TheSave.Name}");
+            Log.Info($"       Title: {TheSave.GetSaveName()}");
             Log.Info($"Last Mission: {lastMission ?? $"(invalid GXT key: {lastMissionKey})"}");
             Log.Info($"  Time Stamp: {TheSave.TimeStamp}");
             Log.Info($"    Progress: {((float) TheSave.Stats.ProgressMade / TheSave.Stats.TotalProgressInGame):P2}");
@@ -267,9 +267,10 @@ namespace GTA3SaveEditor.GUI
             ClearDirty();
             UpdateTitle();
             UpdateTabVisibility();
+            SelectFirstVisibleTab();
 
             OnPropertyChanged(nameof(TheSave));
-            SetTimedStatusText("File closed.");
+            SetTimedStatusText("File closed.", expiredStatus: "Ready.");
         }
 
         private void FileSaving_Handler(object sender, string e)
@@ -282,7 +283,7 @@ namespace GTA3SaveEditor.GUI
             SuppressExternalChangesCheck = false;
             ClearDirty();
 
-            SetTimedStatusText("File saved.");
+            SetTimedStatusText("File saved.", expiredStatus: "Ready.");
         }
 
         private bool OpenFileRoutine(string path, Action onFileOpened = null, bool suppressDialogs = false)
@@ -309,7 +310,7 @@ namespace GTA3SaveEditor.GUI
                     ShowException(ex, "An error occurred while opening the file.");
                 }
 
-                DebugHelper.Throw(ex);
+                DebugHelper.CaptureAndThrow(ex);
                 return false;
             }
         }

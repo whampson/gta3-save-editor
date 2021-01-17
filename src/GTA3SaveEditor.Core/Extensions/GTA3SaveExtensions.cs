@@ -11,7 +11,7 @@ namespace GTA3SaveEditor.Core.Extensions
                 return null;
             }
 
-            if (save.Name.StartsWith("\uFFFF"))
+            if (save.Name.Length > 0 && save.Name[0] == '\uFFFF')
             {
                 string gxtKey = save.Name.Substring(1);
                 if (SaveEditor.GxtTable.TryGetValue(gxtKey, out string value))

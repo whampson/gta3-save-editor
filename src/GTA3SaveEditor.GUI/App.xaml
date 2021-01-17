@@ -109,24 +109,6 @@
         </Style>
 
         <!-- UpDowns -->
-        <!--<Style x:Key="SingleUpDownStyle" TargetType="xctk:SingleUpDown">
-            <Setter Property="DefaultValue" Value="0"/>
-            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
-            <Setter Property="ClipValueToMinMax" Value="True"/>
-        </Style>
-        <Style x:Key="Int32UpDownStyle" TargetType="xctk:IntegerUpDown">
-            <Setter Property="DefaultValue" Value="0"/>
-            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
-            <Setter Property="ClipValueToMinMax" Value="True"/>
-        </Style>
-        <Style x:Key="UInt32IntegerUpDownStyle" TargetType="xctk:LongUpDown">
-            <Setter Property="DefaultValue" Value="0"/>
-            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
-            <Setter Property="Minimum" Value="0"/>
-            <Setter Property="Maximum" Value="4294967295"/>
-            <Setter Property="ClipValueToMinMax" Value="True"/>
-        </Style>-->
-
         <Style x:Key="Int8UpDownStyle" TargetType="xctk:IntegerUpDown">
             <Setter Property="Minimum" Value="-128"/>
             <Setter Property="Maximum" Value="127"/>
