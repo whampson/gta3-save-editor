@@ -61,7 +61,7 @@ namespace GTA3SaveEditor.GUI
             Tabs = new ObservableCollection<TabPageVM>()
             {
                 new WelcomeTabVM() { TheWindow = this, Title = "Welcome", Visibility = TabPageVisibility.WhenNotEditingFile },
-                new PickupsTabVM() { TheWindow = this, Title="Pickups", Visibility = TabPageVisibility.WhenEditingFile },
+                new PickupsTabVM() { TheWindow = this, Title = "Pickups", Visibility = TabPageVisibility.WhenEditingFile },
             };
         }
 
@@ -476,6 +476,39 @@ namespace GTA3SaveEditor.GUI
         );
 
 #if DEBUG
+        private TabPageVM m_debugTab = null;
+        private bool m_isDebugTabVisible = false;
+
+        public bool IsDebugTabVisible
+        {
+            get { return m_isDebugTabVisible; }
+            set { m_isDebugTabVisible = value; OnPropertyChanged(); }
+        }
+
+        public ICommand DebugShowHideDebugTab => new RelayCommand
+        (
+            () =>
+            {
+                if (m_debugTab == null)
+                {
+                    m_debugTab = new DebugTabVM() { TheWindow = this, Title = "Debug", Visibility = TabPageVisibility.Always };
+                    m_debugTab.Init();
+                }
+
+                if (IsDebugTabVisible)
+                {
+                    Tabs.Add(m_debugTab);
+                    m_debugTab.Load();
+                }
+                else
+                {
+                    m_debugTab.Unload();
+                    Tabs.Remove(m_debugTab);
+                }
+                UpdateTabVisibility();
+            }
+        );
+
         public ICommand DebugSetDirtyCommand => new RelayCommand
         (
             () => { SetDirty(); Log.Debug("Dirty bit set."); },
