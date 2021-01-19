@@ -84,7 +84,7 @@
             <DataGridTemplateColumn Header="Value" Width="100">
                 <DataGridTemplateColumn.CellTemplate>
                     <DataTemplate>
-                        <xctk:IntegerUpDown
+                        <xctk:UShortUpDown
                             Value="{Binding Value, UpdateSourceTrigger=PropertyChanged}"
                             Style="{StaticResource UInt16UpDownStyle}"/>
                     </DataTemplate>
