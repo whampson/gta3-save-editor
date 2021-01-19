@@ -11,6 +11,7 @@ using GTA3SaveEditor.Core.Extensions;
 using GTA3SaveEditor.Core.Helpers;
 using GTA3SaveEditor.Core.Util;
 using GTA3SaveEditor.GUI.Events;
+using GTA3SaveEditor.GUI.Tabs;
 using GTASaveData;
 using GTASaveData.GTA3;
 using WpfEssentials;

@@ -6,6 +6,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:dbg="debug-build"
     xmlns:l="clr-namespace:GTA3SaveEditor.GUI"
+    xmlns:tab="clr-namespace:GTA3SaveEditor.GUI.Tabs"
     xmlns:t="clr-namespace:WHampson.ToolUI;assembly=WHampson.ToolUI"
     xmlns:c="clr-namespace:WHampson.ToolUI.Controls;assembly=WHampson.ToolUI"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
@@ -31,17 +32,17 @@
 
         <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
 
-        <DataTemplate DataType="{x:Type l:WelcomeTabVM}">
-            <l:WelcomeTab/>
+        <DataTemplate DataType="{x:Type tab:WelcomeTabVM}">
+            <tab:WelcomeTab/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type l:GangsTabVM}">
-            <l:GangsTab/>
+        <DataTemplate DataType="{x:Type tab:GangsTabVM}">
+            <tab:GangsTab/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type l:PickupsTabVM}">
-            <l:PickupsTab/>
+        <DataTemplate DataType="{x:Type tab:PickupsTabVM}">
+            <tab:PickupsTab/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type l:DebugTabVM}">
-            <l:DebugTab/>
+        <DataTemplate DataType="{x:Type tab:DebugTabVM}">
+            <tab:DebugTab/>
         </DataTemplate>
     </Window.Resources>
 

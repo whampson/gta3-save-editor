@@ -1,11 +1,12 @@
-﻿<l:TabPage
-    x:Class="GTA3SaveEditor.GUI.DebugTab"
+﻿<g:TabPage
+    x:Class="GTA3SaveEditor.GUI.Tabs.DebugTab"
     x:TypeArguments="l:DebugTabVM"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-    xmlns:l="clr-namespace:GTA3SaveEditor.GUI"
+    xmlns:g="clr-namespace:GTA3SaveEditor.GUI"
+    xmlns:l="clr-namespace:GTA3SaveEditor.GUI.Tabs"
     xmlns:c="clr-namespace:GTA3SaveEditor.GUI.Converters"
     xmlns:tc="clr-namespace:WHampson.ToolUI.Converters;assembly=WHampson.ToolUI"
     xmlns:e="clr-namespace:WpfEssentials.Win32.Extensions;assembly=WpfEssentials.Win32"
@@ -47,4 +48,4 @@
         </StackPanel>
     </Grid>
 
-</l:TabPage>
+</g:TabPage>

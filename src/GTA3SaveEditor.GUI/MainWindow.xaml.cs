@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Windows.Controls;
+using GTA3SaveEditor.GUI.Dialogs;
 
 namespace GTA3SaveEditor.GUI
 {

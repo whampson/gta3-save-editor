@@ -4,7 +4,7 @@ using GTA3SaveEditor.Core;
 using GTASaveData;
 using GTASaveData.GTA3;
 
-namespace GTA3SaveEditor.GUI
+namespace GTA3SaveEditor.GUI.Tabs
 {
     public class PickupsTabVM : TabPageVM
     {

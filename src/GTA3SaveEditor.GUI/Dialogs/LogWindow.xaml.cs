@@ -2,7 +2,7 @@
 using System;
 using System.ComponentModel;
 
-namespace GTA3SaveEditor.GUI
+namespace GTA3SaveEditor.GUI.Dialogs
 {
     /// <summary>
     /// Interaction logic for LogWindow.xaml

@@ -2,7 +2,7 @@
 using System.Windows.Controls;
 using GTASaveData.GTA3;
 
-namespace GTA3SaveEditor.GUI
+namespace GTA3SaveEditor.GUI.Tabs
 {
     /// <summary>
     /// Interaction logic for GangsTab.xaml

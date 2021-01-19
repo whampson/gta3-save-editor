@@ -4,7 +4,7 @@ using System.Windows.Input;
 using GTASaveData.GTA3;
 using WpfEssentials.Win32;
 
-namespace GTA3SaveEditor.GUI
+namespace GTA3SaveEditor.GUI.Tabs
 {
 
     public class GangsTabVM : TabPageVM

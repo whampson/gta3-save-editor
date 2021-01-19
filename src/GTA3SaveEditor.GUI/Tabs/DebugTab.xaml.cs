@@ -1,4 +1,4 @@
-﻿namespace GTA3SaveEditor.GUI
+﻿namespace GTA3SaveEditor.GUI.Tabs
 {
     public partial class DebugTab : TabPage<DebugTabVM>
     {

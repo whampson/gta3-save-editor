@@ -9,7 +9,7 @@ using GTA3SaveEditor.Core.Helpers;
 using GTA3SaveEditor.Core.Util;
 using WpfEssentials.Win32;
 
-namespace GTA3SaveEditor.GUI
+namespace GTA3SaveEditor.GUI.Tabs
 {
     public class WelcomeTabVM : TabPageVM
     {

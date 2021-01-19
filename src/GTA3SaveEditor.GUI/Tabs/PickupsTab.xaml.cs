@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace GTA3SaveEditor.GUI
+namespace GTA3SaveEditor.GUI.Tabs
 {
     /// <summary>
     /// Interaction logic for PickupsTab.xaml

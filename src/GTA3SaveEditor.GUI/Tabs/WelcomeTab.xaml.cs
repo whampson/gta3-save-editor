@@ -1,6 +1,6 @@
 ﻿using System.Windows.Input;
 
-namespace GTA3SaveEditor.GUI
+namespace GTA3SaveEditor.GUI.Tabs
 {
     /// <summary>
     /// Interaction logic for WelcomeTab.xaml
