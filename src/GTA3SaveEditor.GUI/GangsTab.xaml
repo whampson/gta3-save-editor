@@ -1,0 +1,282 @@
+﻿<l:TabPage
+    x:Class="GTA3SaveEditor.GUI.GangsTab"
+    x:TypeArguments="l:GangsTabVM"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:core="clr-namespace:GTA3SaveEditor.Core;assembly=GTA3SaveEditor.Core"
+    xmlns:l="clr-namespace:GTA3SaveEditor.GUI"
+    xmlns:c="clr-namespace:GTA3SaveEditor.GUI.Converters"
+    xmlns:tc="clr-namespace:WHampson.ToolUI.Converters;assembly=WHampson.ToolUI"
+    xmlns:e="clr-namespace:WpfEssentials.Win32.Extensions;assembly=WpfEssentials.Win32"
+    xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=DotNetProjects.Wpf.Extended.Toolkit"
+    xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"
+    mc:Ignorable="d" 
+    d:DesignHeight="450" d:DesignWidth="800"
+    d:DataContext="{d:DesignInstance Type=l:GangsTabVM}">
+
+    <UserControl.Resources>
+        <c:GangPedModelOverrideConverter x:Key="PedModelOverrideConverter"/>
+        <c:GangTypeNameConverter x:Key="GangTypeNameConverter"/>
+        <c:GxtStringConverter x:Key="GxtStringConverter"/>
+        <c:WeaponTypeNameConverter x:Key="WeaponTypeNameConverter"/>
+        <c:VehicleModelConverter x:Key="VehicleModelConverter" NoneValue="-1"/>
+        <c:VehicleModelNameConverter x:Key="VehicleModelNameConverter"/>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <ListBox
+            Grid.Column="0" Margin="5,10,5,5"
+            ItemsSource="{e:EnumValueCollection EnumType=gta3:GangType}"
+            SelectedIndex="{Binding GangIndex}"
+            SelectionChanged="ListBox_SelectionChanged">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding Path=., Converter={StaticResource GangTypeNameConverter}}"/>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+
+        <GroupBox Grid.Column="1" Header="Gang Properties"
+            Margin="5,0,5,5"
+            Style="{StaticResource GroupBoxStyle}"
+            IsEnabled="{Binding Gang, Converter={StaticResource IsNotNull}}">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <GroupBox Grid.Column="0" Grid.Row="0" Margin="5" Header="General" Style="{StaticResource GroupBoxStyle}">
+                        <Grid Grid.Column="0" Grid.Row="0">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Grid.Row="0" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Vehicle:"/>
+                            <TextBlock Grid.Column="0" Grid.Row="1" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Primary Weapon:"/>
+                            <TextBlock Grid.Column="0" Grid.Row="2" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Secondary Weapon:"/>
+                            <TextBlock Grid.Column="0" Grid.Row="3" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Ped Model:"/>
+                            <ComboBox Grid.Column="1" Grid.Row="0" Margin="5" Width="150"
+                            ItemsSource="{x:Static core:GTA3.Vehicles}" SelectedItem="{Binding Gang.VehicleModel, Converter={StaticResource VehicleModelConverter}}"
+                            Style="{StaticResource ComboBoxStyle}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=., Converter={StaticResource VehicleModelNameConverter}}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <ComboBox Grid.Column="1" Grid.Row="1" Margin="5" Width="150"
+                            ItemsSource="{e:EnumValueCollection EnumType=gta3:WeaponType}" SelectedItem="{Binding Gang.Weapon1}"
+                            Style="{StaticResource ComboBoxStyle}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=., Converter={StaticResource WeaponTypeNameConverter}}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <ComboBox Grid.Column="1" Grid.Row="2" Margin="5" Width="150"
+                            ItemsSource="{e:EnumValueCollection EnumType=gta3:WeaponType}" SelectedItem="{Binding Gang.Weapon2}"
+                            Style="{StaticResource ComboBoxStyle}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=., Converter={StaticResource WeaponTypeNameConverter}}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <ComboBox Grid.Column="1" Grid.Row="3" Margin="5" Width="150"
+                            ItemsSource="{e:EnumValueCollection EnumType=core:GangPedModelState}"
+                            SelectedItem="{Binding Gang.PedModelOverride, Converter={StaticResource PedModelOverrideConverter}}"
+                            Style="{StaticResource ComboBoxStyle}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=., Converter={StaticResource EnumDescriptionConverter}}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                        </Grid>
+                    </GroupBox>
+
+                    <GroupBox Grid.Column="0" Grid.Row="1" Margin="5,0" Header="Hostility" Style="{StaticResource GroupBoxStyle}">
+                        <Grid Margin="0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                                <RowDefinition/>
+                            </Grid.RowDefinitions>
+                            <CheckBox Grid.Column="0" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="Player"
+                                IsChecked="{Binding IsHostilePlayer}"
+                                Command="{Binding SetHostilityPlayer}"/>
+                            <CheckBox Grid.Column="0" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="{Binding Source={x:Static gta3:GangType.Mafia}, Converter={StaticResource GangTypeNameConverter}}"
+                                IsChecked="{Binding IsHostileMafia}"
+                                Command="{Binding SetHostilityMafia}"/>
+                            <CheckBox Grid.Column="0" Grid.Row="2" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="{Binding Source={x:Static gta3:GangType.Triads}, Converter={StaticResource GangTypeNameConverter}}"
+                                IsChecked="{Binding IsHostileTriads}"
+                                Command="{Binding SetHostilityTriads}"/>
+                            <CheckBox Grid.Column="0" Grid.Row="3" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="{Binding Source={x:Static gta3:GangType.Diablos}, Converter={StaticResource GangTypeNameConverter}}"
+                                IsChecked="{Binding IsHostileDiablos}"
+                                Command="{Binding SetHostilityDiablos}"/>
+                            <CheckBox Grid.Column="0" Grid.Row="4" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="{Binding Source={x:Static gta3:GangType.Yakuza}, Converter={StaticResource GangTypeNameConverter}}"
+                                IsChecked="{Binding IsHostileYakuza}"
+                                Command="{Binding SetHostilityYakuza}"/>
+                            <CheckBox Grid.Column="0" Grid.Row="5" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="{Binding Source={x:Static gta3:GangType.Yardies}, Converter={StaticResource GangTypeNameConverter}}"
+                                IsChecked="{Binding IsHostileYardies}"
+                                Command="{Binding SetHostilityYardies}"/>
+                            <CheckBox Grid.Column="1" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="{Binding Source={x:Static gta3:GangType.Cartel}, Converter={StaticResource GangTypeNameConverter}}"
+                                IsChecked="{Binding IsHostileCartel}"
+                                Command="{Binding SetHostilityCartel}"/>
+                            <CheckBox Grid.Column="1" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="{Binding Source={x:Static gta3:GangType.Hoods}, Converter={StaticResource GangTypeNameConverter}}"
+                                IsChecked="{Binding IsHostileHoods}"
+                                Command="{Binding SetHostilityHoods}"/>
+                            <CheckBox Grid.Column="1" Grid.Row="2" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="{Binding Source={x:Static gta3:GangType.Gang8}, Converter={StaticResource GangTypeNameConverter}}"
+                                IsChecked="{Binding IsHostileGang8}"
+                                Command="{Binding SetHostilityGang8}"/>
+                            <CheckBox Grid.Column="1" Grid.Row="3" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="{Binding Source={x:Static gta3:GangType.Gang9}, Converter={StaticResource GangTypeNameConverter}}"
+                                IsChecked="{Binding IsHostileGang9}"
+                                Command="{Binding SetHostilityGang9}"/>
+                            <CheckBox Grid.Column="1" Grid.Row="4" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="Civilians"
+                                IsChecked="{Binding IsHostileCivilians}"
+                                Command="{Binding SetHostilityCivilians}"/>
+                            <CheckBox Grid.Column="1" Grid.Row="5" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="Cops"
+                                IsChecked="{Binding IsHostileCops}"
+                                Command="{Binding SetHostilityCops}"/>
+                            <CheckBox Grid.Column="2" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="Emergency"
+                                IsChecked="{Binding IsHostileEmergency}"
+                                Command="{Binding SetHostilityEmergency}"/>
+                            <CheckBox Grid.Column="2" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="Firefighters"
+                                IsChecked="{Binding IsHostileFirefighters}"
+                                Command="{Binding SetHostilityFirefighters}"/>
+                            <CheckBox Grid.Column="2" Grid.Row="2" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="Prostitutes"
+                                IsChecked="{Binding IsHostileProstitutes}"
+                                Command="{Binding SetHostilityProstitutes}"/>
+                            <CheckBox Grid.Column="3" Grid.Row="3" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="Criminals"
+                                IsChecked="{Binding IsHostileCriminals}"
+                                Command="{Binding SetHostilityCriminals}"/>
+                            <CheckBox Grid.Column="3" Grid.Row="4" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                Content="Special"
+                                IsChecked="{Binding IsHostileSpecial}"
+                                Command="{Binding SetHostilitySpecial}"/>
+                        </Grid>
+                    </GroupBox>
+
+                    <GroupBox Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Margin="5,5,5,0" Header="Territories" Style="{StaticResource GroupBoxStyle}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <ListBox Grid.Column="0" Grid.Row="0" Margin="5,5,5,2.5" Width="125" Height="250"
+                                ItemsSource="{Binding Zones}"
+                                SelectedItem="{Binding SelectedZone}"
+                                SelectionChanged="ZoneListBox_SelectionChanged">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Path=Name}"/>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+
+                            <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Vertical"
+                                IsEnabled="{Binding SelectedZone, Converter={StaticResource IsNotNull}}">
+                                <GroupBox Grid.Column="0" Grid.Row="0" Margin="5,-5" Header="Ped Density (Day)" Style="{StaticResource GroupBoxStyle}">
+                                    <xctk:ShortUpDown
+                                        Grid.Column="1" Grid.Row="0"
+                                        Margin="5" Height="22" Style="{StaticResource Int16UpDownStyle}"
+                                        Value="{Binding PedDensityDay}" ValueChanged="PedDensityDay_ValueChanged" Minimum="0"/>
+                                </GroupBox>
+                                <Separator Height="15" Background="Transparent"/>
+                                <GroupBox Grid.Column="0" Grid.Row="0" Margin="5,-5" Header="Ped Density (Night)" Style="{StaticResource GroupBoxStyle}">
+                                    <xctk:ShortUpDown
+                                        Grid.Column="1" Grid.Row="0"
+                                        Margin="5" Height="22" Style="{StaticResource Int16UpDownStyle}"
+                                        Value="{Binding PedDensityNight}" ValueChanged="PedDensityNight_ValueChanged" Minimum="0"/>
+                                </GroupBox>
+                                <!--<Separator Height="15" Background="Transparent"/>
+                                <GroupBox Grid.Column="0" Grid.Row="0" Margin="5,-5" Header="Car Density (Day)" Style="{StaticResource GroupBoxStyle}">
+                                    <xctk:ShortUpDown
+                                        Grid.Column="1" Grid.Row="0"
+                                        Margin="5" Height="22" Style="{StaticResource Int16UpDownStyle}"
+                                        Value="{Binding CarDensityDay}" ValueChanged="CarDensityDay_ValueChanged" Minimum="0"/>
+                                </GroupBox>
+                                <Separator Height="15" Background="Transparent"/>
+                                <GroupBox Grid.Column="0" Grid.Row="0" Margin="5,-5" Header="Car Density (Night)" Style="{StaticResource GroupBoxStyle}">
+                                    <xctk:ShortUpDown
+                                        Grid.Column="1" Grid.Row="0"
+                                        Margin="5" Height="22" Style="{StaticResource Int16UpDownStyle}"
+                                        Value="{Binding CarDensityNight}" ValueChanged="CarDensityNight_ValueChanged" Minimum="0"/>
+                                </GroupBox>-->
+                            </StackPanel>
+
+                            <Grid Grid.Row="1">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="*"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Button Grid.Column="0" Grid.Row="0" Content="+" Width="35" Margin="5,2.5,2.5,5" Style="{StaticResource ButtonStyle}"/>
+                                <Button Grid.Column="1" Grid.Row="0" Content="-" Width="35" Margin="2.5,2.5,5,5" Style="{StaticResource ButtonStyle}"/>
+                                
+                            </Grid>
+                        </Grid>
+                    </GroupBox>
+
+                </Grid>
+            </ScrollViewer>
+        </GroupBox>
+    </Grid>
+
+</l:TabPage>

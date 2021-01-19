@@ -6,13 +6,14 @@ using GTA3SaveEditor.Core;
 
 namespace GTA3SaveEditor.GUI.Converters
 {
+    [ValueConversion(typeof(short), typeof(string))]
     public class ModelNameConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is short index)
             {
-                IdeObject ideObj = SaveEditor.GetIdeObject(index);
+                IdeObject ideObj = GTA3.GetIdeObject(index);
                 if (ideObj != null)
                 {
                     return ideObj.ModelName;
@@ -38,7 +39,7 @@ namespace GTA3SaveEditor.GUI.Converters
 
             if (value is string model)
             {
-                IdeObject ideObj = SaveEditor.GetIdeObject(model);
+                IdeObject ideObj = GTA3.GetIdeObject(model);
                 if (ideObj != null)
                 {
                     return ideObj.Id;

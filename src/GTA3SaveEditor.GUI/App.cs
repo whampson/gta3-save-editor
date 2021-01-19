@@ -69,26 +69,26 @@ namespace GTA3SaveEditor.GUI
 
         private void LoadResources()
         {
-            List<IdeObject> objects = IdeLoader.LoadObjects(LoadResource("gta3.ide"));
-            objects.Add(new IdeObject(0, ""));
-            objects.Add(new IdeObject(170, "grenade"));
-            objects.Add(new IdeObject(171, "ak47"));
-            objects.Add(new IdeObject(172, "bat"));
-            objects.Add(new IdeObject(173, "colt45"));
-            objects.Add(new IdeObject(174, "molotov"));
-            objects.Add(new IdeObject(175, "rocket"));
-            objects.Add(new IdeObject(176, "shotgun"));
-            objects.Add(new IdeObject(177, "sniper"));
-            objects.Add(new IdeObject(178, "uzi"));
-            objects.Add(new IdeObject(179, "missile"));
-            objects.Add(new IdeObject(180, "m16"));
-            objects.Add(new IdeObject(181, "flame"));
-            objects.Add(new IdeObject(182, "bomb"));
-            objects.Add(new IdeObject(183, "fingers"));
+            // TODO: load from GTA3 dir if known
 
-            SaveEditor.IdeObjects = objects.OrderBy(x => x.ModelName).ToList();
-            SaveEditor.CarColors = CarColorsLoader.LoadColors(LoadResource("carcols.dat"));
-            SaveEditor.GxtTable = GxtLoader.Load(LoadResource("english.gxt"));
+            byte[] gta3Ide = LoadResource("gta3.ide");
+            byte[] defaultIde = LoadResource("default.ide");
+            byte[] carcolsDat = LoadResource("carcols.dat");
+            byte[] americanGxt = LoadResource("american.gxt");
+
+            GTA3.GxtTable = GxtLoader.Load(americanGxt);
+            GTA3.CarColors = CarColorsLoader.LoadColors(carcolsDat);
+
+            List<IdeObject> objects = new List<IdeObject>();
+            objects.Add(new IdeObject(0, ""));
+            objects.AddRange(IdeLoader.LoadObjects(gta3Ide));
+            objects.AddRange(IdeLoader.LoadObjects(defaultIde));
+            GTA3.IdeObjects = objects.OrderBy(x => x.ModelName).ToList();
+
+            List<VehicleModel> cars = new List<VehicleModel>();
+            cars.Add(new VehicleModel(0, "", ""));
+            cars.AddRange(IdeLoader.LoadCars(defaultIde));
+            GTA3.Vehicles = cars.OrderBy(x => x.ToString());
         }
 
         private void LoadSettings()

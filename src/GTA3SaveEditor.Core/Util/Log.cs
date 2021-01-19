@@ -9,9 +9,10 @@ namespace GTA3SaveEditor.Core.Util
     {
         public static event EventHandler LogEvent;
 
-        public static string InfoPrefix  => $"{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff}  Info:  ";
-        public static string ErrorPrefix => $"{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff} Error:  ";
-        public static string DebugPrefix => $"{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff} Debug:  ";
+        public static string InfoPrefix  => $"{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff}    Info:  ";
+        public static string WarnPrefix  => $"{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff} Warning:  ";
+        public static string ErrorPrefix => $"{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff}   Error:  ";
+        public static string DebugPrefix => $"{DateTime.Now:yyyy/MM/dd HH:mm:ss.fff}   Debug:  ";
 
         public static TextWriter InfoStream { get; set; }
         public static TextWriter ErrorStream { get; set; }
@@ -29,6 +30,11 @@ namespace GTA3SaveEditor.Core.Util
         public static void Info(object message, params object[] args)
         {
             WriteLogEntry(InfoStream, InfoPrefix, message, args);
+        }
+
+        public static void Warn(object message, params object[] args)
+        {
+            WriteLogEntry(InfoStream, WarnPrefix, message, args);
         }
 
         public static void Error(object message, params object[] args)

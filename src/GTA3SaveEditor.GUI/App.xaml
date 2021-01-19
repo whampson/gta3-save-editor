@@ -109,25 +109,25 @@
         </Style>
 
         <!-- UpDowns -->
-        <Style x:Key="Int8UpDownStyle" TargetType="xctk:IntegerUpDown">
+        <Style x:Key="Int8UpDownStyle" TargetType="xctk:SByteUpDown">
             <Setter Property="Minimum" Value="-128"/>
             <Setter Property="Maximum" Value="127"/>
             <Setter Property="ClipValueToMinMax" Value="True"/>
             <Setter Property="AutoSelectBehavior" Value="Never"/>
         </Style>
-        <Style x:Key="UInt8UpDownStyle" TargetType="xctk:IntegerUpDown">
+        <Style x:Key="UInt8UpDownStyle" TargetType="xctk:ByteUpDown">
             <Setter Property="Minimum" Value="0"/>
             <Setter Property="Maximum" Value="255"/>
             <Setter Property="ClipValueToMinMax" Value="True"/>
             <Setter Property="AutoSelectBehavior" Value="Never"/>
         </Style>
-        <Style x:Key="Int16UpDownStyle" TargetType="xctk:IntegerUpDown">
+        <Style x:Key="Int16UpDownStyle" TargetType="xctk:ShortUpDown">
             <Setter Property="Minimum" Value="-32768"/>
             <Setter Property="Maximum" Value="32767"/>
             <Setter Property="ClipValueToMinMax" Value="True"/>
             <Setter Property="AutoSelectBehavior" Value="Never"/>
         </Style>
-        <Style x:Key="UInt16UpDownStyle" TargetType="xctk:IntegerUpDown">
+        <Style x:Key="UInt16UpDownStyle" TargetType="xctk:UShortUpDown">
             <Setter Property="Minimum" Value="0"/>
             <Setter Property="Maximum" Value="65535"/>
             <Setter Property="ClipValueToMinMax" Value="True"/>

@@ -13,7 +13,7 @@
     xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"
     mc:Ignorable="d"
     Title="{Binding Title}"
-    Height="700" Width="1050">
+    Height="650" Width="900">
 
     <Window.DataContext>
         <l:MainWindowVM/>
@@ -33,6 +33,9 @@
 
         <DataTemplate DataType="{x:Type l:WelcomeTabVM}">
             <l:WelcomeTab/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type l:GangsTabVM}">
+            <l:GangsTab/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type l:PickupsTabVM}">
             <l:PickupsTab/>
@@ -197,7 +200,8 @@
                 BorderThickness="0,1,0,0"
                 Style="{StaticResource TabControlStyle}"
                 ItemsSource="{Binding Tabs}"
-                SelectedIndex="{Binding SelectedTabIndex}">
+                SelectedIndex="{Binding SelectedTabIndex}"
+                SelectionChanged="TabControlEx_SelectionChanged">
                 <c:TabControlEx.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Title, Mode=OneWay}"/>

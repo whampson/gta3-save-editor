@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Windows.Controls;
 
 namespace GTA3SaveEditor.GUI
 {
@@ -86,6 +87,15 @@ namespace GTA3SaveEditor.GUI
         private void ViewModel_LogWindowRequest(object sender, EventArgs e)
         {
             LazyLoadWindow(m_logWindow, out m_logWindow);
+        }
+
+        private void TabControlEx_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.OriginalSource is TabControl)
+            {
+                int i = ViewModel.SelectedTabIndex;
+                if (i != -1) ViewModel.Tabs[i].Update();
+            }
         }
     }
 }

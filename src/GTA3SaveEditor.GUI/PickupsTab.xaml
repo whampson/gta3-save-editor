@@ -22,7 +22,7 @@
 
     <DataGrid
         Grid.Row="0"
-        ItemsSource="{Binding TheSave.Pickups.Pickups}"
+        ItemsSource="{Binding Pickups}"
         SelectedItem="{Binding SelectedPickup}"
         LoadingRow="DataGrid_LoadingRow"
         AutoGenerateColumns="False"
@@ -33,15 +33,15 @@
         VirtualizingPanel.IsVirtualizing="True"
         ScrollViewer.CanContentScroll="True">
 
-        <DataGrid.ContextMenu>
+        <!--<DataGrid.ContextMenu>
             <ContextMenu>
                 <MenuItem Header="Go to Object" Command="{Binding GoToPickupObjectCommand}"/>
                 <MenuItem Header="Sync Object" Command="{Binding SyncPickupObjectCommand}"/>
                 <Separator/>
                 <MenuItem Header="Reset Pickup" Command="{Binding ResetPickupCommand}"/>
-                <!--<MenuItem Header="Show on Map" Command="{Binding ShowPickupOnMap}"/>-->
+                <MenuItem Header="Show on Map" Command="{Binding ShowPickupOnMap}"/>
             </ContextMenu>
-        </DataGrid.ContextMenu>
+        </DataGrid.ContextMenu>-->
 
         <DataGrid.RowHeaderTemplate>
             <DataTemplate>
@@ -62,16 +62,6 @@
                     </DataTemplate>
                 </DataGridTemplateColumn.CellTemplate>
             </DataGridTemplateColumn>
-
-            <!--<DataGridTemplateColumn Header="Model" Width="100">
-                <DataGridTemplateColumn.CellTemplate>
-                    <DataTemplate>
-                        <xctk:IntegerUpDown
-                            Value="{Binding ModelIndex, UpdateSourceTrigger=PropertyChanged}"
-                            Style="{StaticResource Int16UpDownStyle}"/>
-                    </DataTemplate>
-                </DataGridTemplateColumn.CellTemplate>
-            </DataGridTemplateColumn>-->
 
             <DataGridTemplateColumn Header="Model" Width="150">
                 <DataGridTemplateColumn.CellTemplate>

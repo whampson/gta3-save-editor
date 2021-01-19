@@ -61,6 +61,7 @@ namespace GTA3SaveEditor.GUI
             Tabs = new ObservableCollection<TabPageVM>()
             {
                 new WelcomeTabVM() { TheWindow = this, Title = "Welcome", Visibility = TabPageVisibility.WhenNotEditingFile },
+                new GangsTabVM() { TheWindow = this, Title = "Gangs", Visibility = TabPageVisibility.WhenEditingFile },
                 new PickupsTabVM() { TheWindow = this, Title = "Pickups", Visibility = TabPageVisibility.WhenEditingFile },
             };
         }
@@ -106,7 +107,7 @@ namespace GTA3SaveEditor.GUI
             ShutdownTabs();
         }
 
-        private void SetDirty()
+        public void SetDirty()
         {
             if (!IsDirty)
             {
@@ -215,7 +216,7 @@ namespace GTA3SaveEditor.GUI
         public void SaveFileRequest_Handler(object sender, FileIOEventArgs e)
         {
             // TODO: test save slot when directory doesn't exist
-            throw new NotImplementedException();
+            Editor.SaveFile(e.Path);
         }
 
         public void RevertFileRequest_Handler(object sender, FileIOEventArgs e)
@@ -239,13 +240,13 @@ namespace GTA3SaveEditor.GUI
             SelectFirstVisibleTab();
 
             OnPropertyChanged(nameof(TheSave));
-            SetTimedStatusText("File opened.", expiredStatus: "Ready.");
+            SetTimedStatusText("File opened.");
 
             string lastMissionKey = TheSave.Stats.LastMissionPassedName;
-            SaveEditor.GxtTable.TryGetValue(lastMissionKey, out string lastMission);
+            string lastMission = GTA3.GetGxtString(lastMissionKey);
             Log.Info($"   File Type: {TheSave.FileFormat}");
             Log.Info($"       Title: {TheSave.GetSaveName()}");
-            Log.Info($"Last Mission: {lastMission ?? $"(invalid GXT key: {lastMissionKey})"}");
+            Log.Info($"Last Mission: {lastMission}");
             Log.Info($"  Time Stamp: {TheSave.TimeStamp}");
             Log.Info($"    Progress: {((float) TheSave.Stats.ProgressMade / TheSave.Stats.TotalProgressInGame):P2}");
             Log.Info($"   MAIN Size: {TheSave.Scripts.MainScriptSize}");
@@ -270,7 +271,7 @@ namespace GTA3SaveEditor.GUI
             SelectFirstVisibleTab();
 
             OnPropertyChanged(nameof(TheSave));
-            SetTimedStatusText("File closed.", expiredStatus: "Ready.");
+            SetTimedStatusText("File closed.", expiredStatus: null);
         }
 
         private void FileSaving_Handler(object sender, string e)
@@ -283,7 +284,7 @@ namespace GTA3SaveEditor.GUI
             SuppressExternalChangesCheck = false;
             ClearDirty();
 
-            SetTimedStatusText("File saved.", expiredStatus: "Ready.");
+            SetTimedStatusText("File saved.");
         }
 
         private bool OpenFileRoutine(string path, Action onFileOpened = null, bool suppressDialogs = false)
@@ -530,8 +531,8 @@ namespace GTA3SaveEditor.GUI
                     try
                     {
                         if (r != true) return;
-                        SaveEditor.CarColors = CarColorsLoader.LoadColors(e.FileName);
-                        SetTimedStatusText($"Loaded {SaveEditor.CarColors.Count()} car colors.");
+                        GTA3.CarColors = CarColorsLoader.LoadColors(e.FileName);
+                        SetTimedStatusText($"Loaded {GTA3.CarColors.Count()} car colors.");
                     }
                     catch (Exception ex)
                     {
@@ -551,8 +552,8 @@ namespace GTA3SaveEditor.GUI
                     try
                     {
                         if (r != true) return;
-                        SaveEditor.GxtTable = GxtLoader.Load(e.FileName);
-                        SetTimedStatusText($"Loaded {SaveEditor.GxtTable.Count} GXT entries.");
+                        GTA3.GxtTable = GxtLoader.Load(e.FileName);
+                        SetTimedStatusText($"Loaded {GTA3.GxtTable.Count} GXT entries.");
                     }
                     catch (Exception ex)
                     {
@@ -572,8 +573,8 @@ namespace GTA3SaveEditor.GUI
                     try
                     {
                         if (r != true) return;
-                        SaveEditor.IdeObjects = IdeLoader.LoadObjects(e.FileName);
-                        SetTimedStatusText($"Loaded {SaveEditor.IdeObjects.Count()} IDE objects.");
+                        GTA3.IdeObjects = IdeLoader.LoadObjects(e.FileName);
+                        SetTimedStatusText($"Loaded {GTA3.IdeObjects.Count()} IDE objects.");
                     }
                     catch (Exception ex)
                     {

@@ -218,7 +218,7 @@ namespace GTA3SaveEditor.GUI
         {
             Random r = new Random();
             int quoteIndex = r.Next(0, GameQuotes.Count);
-            TheWindow.SetStatusText(GameQuotes[quoteIndex]);
+            TheWindow.SetTimedStatusText(GameQuotes[quoteIndex], 30);
         }
 
         public static readonly List<string> GameQuotes = new List<string>()

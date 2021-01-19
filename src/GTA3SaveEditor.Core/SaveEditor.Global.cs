@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Security;
 using GTA3SaveEditor.Core.Util;
 using GTASaveData;
@@ -15,17 +13,11 @@ namespace GTA3SaveEditor.Core
         #region Singleton Instance
         public static SaveEditor Instance { get; }
         public static Settings Settings { get; set; }
-        public static IEnumerable<CarColor> CarColors { get; set; }
-        public static IEnumerable<IdeObject> IdeObjects { get; set; }
-        public static IReadOnlyDictionary<string, string> GxtTable { get; set; }
-
+        
         static SaveEditor()
         {
             Instance = new SaveEditor();
             Settings = Settings.Defaults;
-            CarColors = new List<CarColor>();
-            IdeObjects = new List<IdeObject>();
-            GxtTable = new Dictionary<string, string>();
         }
         #endregion
 
@@ -95,17 +87,6 @@ namespace GTA3SaveEditor.Core
         #region Misc.
         public static string DefaultSaveFileDirectory =>
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GTA3 User Files");
-
-        // TODO: move these to a GTA3 class or something
-        public static IdeObject GetIdeObject(short index)
-        {
-            return IdeObjects.Where(o => o.Id == index).FirstOrDefault();
-        }
-
-        public static IdeObject GetIdeObject(string name)
-        {
-            return IdeObjects.Where(o => o.ModelName == name).FirstOrDefault();
-        }
         #endregion
     }
 
