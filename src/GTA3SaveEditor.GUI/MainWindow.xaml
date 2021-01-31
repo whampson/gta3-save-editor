@@ -14,7 +14,7 @@
     xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"
     mc:Ignorable="d"
     Title="{Binding Title}"
-    Height="650" Width="900">
+    Height="775" Width="1000">
 
     <Window.DataContext>
         <l:MainWindowVM/>
@@ -40,6 +40,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type tab:PickupsTabVM}">
             <tab:PickupsTab/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type tab:ScriptsTabVM}">
+            <tab:ScriptsTab/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type tab:DebugTabVM}">
             <tab:DebugTab/>

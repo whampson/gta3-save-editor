@@ -64,6 +64,7 @@ namespace GTA3SaveEditor.GUI
                 new WelcomeTabVM() { TheWindow = this, Title = "Welcome", Visibility = TabPageVisibility.WhenNotEditingFile },
                 new GangsTabVM() { TheWindow = this, Title = "Gangs", Visibility = TabPageVisibility.WhenEditingFile },
                 new PickupsTabVM() { TheWindow = this, Title = "Pickups", Visibility = TabPageVisibility.WhenEditingFile },
+                new ScriptsTabVM() { TheWindow = this, Title = "Scripts", Visibility = TabPageVisibility.WhenEditingFile },
             };
         }
 

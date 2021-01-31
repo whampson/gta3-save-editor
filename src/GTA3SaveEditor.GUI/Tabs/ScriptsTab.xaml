@@ -1,0 +1,470 @@
+﻿<g:TabPage
+    x:Class="GTA3SaveEditor.GUI.Tabs.ScriptsTab"
+    x:TypeArguments="l:ScriptsTabVM"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+    xmlns:core="clr-namespace:GTA3SaveEditor.Core;assembly=GTA3SaveEditor.Core"
+    xmlns:g="clr-namespace:GTA3SaveEditor.GUI"
+    xmlns:l="clr-namespace:GTA3SaveEditor.GUI.Tabs"
+    xmlns:c="clr-namespace:GTA3SaveEditor.GUI.Converters"
+    xmlns:t="clr-namespace:GTA3SaveEditor.GUI.Types"
+    xmlns:tc="clr-namespace:WHampson.ToolUI.Converters;assembly=WHampson.ToolUI"
+    xmlns:e="clr-namespace:WpfEssentials.Win32.Extensions;assembly=WpfEssentials.Win32"
+    xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=DotNetProjects.Wpf.Extended.Toolkit"
+    xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"
+    mc:Ignorable="d" 
+    d:DesignHeight="450" d:DesignWidth="800"
+    d:DataContext="{d:DesignInstance Type=l:ScriptsTabVM}">
+
+    <UserControl.Resources>
+        <c:AndOrConverter x:Key="AndOrConverter"/>
+        <c:ListViewItemIndexConverter x:Key="ListViewItemIndexConverter"/>
+        <c:ComparisonConverter x:Key="ComparisonConverter"/>
+        <c:SubtractConverter x:Key="SubtractConverter" ClampToZero="True"/>
+        <c:NumberFormatConverter x:Key="NumberFormatConverter"/>
+        <c:FloatBitsConverter x:Key="FloatBitsConverter"/>
+        <Style TargetType="ListView">
+            <Setter Property="Foreground" Value="Black"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+            <Setter Property="SelectionMode" Value="Single"/>
+        </Style>
+        <Style TargetType="ListViewItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        </Style>
+        <Style x:Key="IntScriptVariableStyle" TargetType="xctk:IntegerUpDown" BasedOn="{StaticResource Int32UpDownStyle}">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding NumberFormat}" Value="Int">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="HexScriptVariableStyle" TargetType="xctk:IntegerUpDown" BasedOn="{StaticResource Int32UpDownStyle}">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding NumberFormat}" Value="Hex">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <Style x:Key="FloatScriptVariableStyle" TargetType="xctk:SingleUpDown" BasedOn="{StaticResource FloatUpDownStyle}">
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding NumberFormat}" Value="Float">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid MaxWidth="1400" MaxHeight="800" Name="MainView">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="3*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <GroupBox Grid.Column="0" Grid.Row="0" Header="Global Variables"
+            Margin="5,0,5,5"
+            Style="{StaticResource GroupBoxStyle}">
+
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <ListView
+                    ItemsSource="{Binding Globals}"
+                    SelectedIndex="{Binding GlobalIndex}"
+                    SelectionChanged="GlobalListView_SelectionChanged"
+                    Margin="5">
+                    <ListView.View>
+                        <GridView>
+                            <GridView.Columns>
+                                <GridViewColumn Header="ID" Width="45"
+                                    DisplayMemberBinding="{Binding
+                                        RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ListViewItem}},
+                                        Converter={StaticResource ListViewItemIndexConverter},
+                                        StringFormat={}${0}}"/>
+                                <GridViewColumn Header="Name" Width="175">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="" TextAlignment="Justify"/>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn Header="Value" Width="100">
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock TextAlignment="Right">
+                                                <TextBlock.Text>
+                                                    <MultiBinding Converter="{StaticResource NumberFormatConverter}">
+                                                        <Binding Path="."/>
+                                                        <Binding Path="DataContext.NumberFormat" ElementName="MainView"/>
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView.Columns>
+                        </GridView>
+                    </ListView.View>
+                </ListView>
+
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="75"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    
+                    <!-- TODO -->
+                    <Button
+                        Grid.Column="0"
+                        Content="Load Symbols..."
+                        Margin="5" Width="Auto" MinWidth="100"
+                        Style="{StaticResource ButtonStyle}"/>
+                    
+                    <xctk:IntegerUpDown
+                        Grid.Column="2" Margin="5,0,5,5" Height="22"
+                        Style="{StaticResource IntScriptVariableStyle}"
+                        Value="{Binding GlobalValue}"
+                        ValueChanged="GlobalUpDown_ValueChanged"/>
+                    <xctk:SingleUpDown
+                        Grid.Column="2" Margin="5,0,5,5" Height="22"
+                        Style="{StaticResource FloatScriptVariableStyle}"
+                        Value="{Binding GlobalValue, Converter={StaticResource FloatBitsConverter}}"
+                        ValueChanged="GlobalUpDown_ValueChanged"/>
+                    <xctk:IntegerUpDown
+                        Grid.Column="2" Margin="5,0,5,5" Height="22"
+                        Style="{StaticResource HexScriptVariableStyle}"
+                        Value="{Binding GlobalValue}" ParsingNumberStyle="HexNumber" FormatString="X"
+                        ValueChanged="GlobalUpDown_ValueChanged"
+                        IsEnabled="{Binding GlobalValue, Converter={StaticResource IsNotNull}}"/>
+                </Grid>
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Header="Threads"
+            Margin="5,0,5,5"
+            Style="{StaticResource GroupBoxStyle}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="4*"/>
+                </Grid.ColumnDefinitions>
+
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <ListBox Margin="5,10,5,5"
+                        SelectedItem="{Binding Thread}"
+                        ItemsSource="{Binding TheSave.Scripts.Threads}"
+                        SelectionChanged="ThreadListBox_SelectionChanged">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path=Name}"/>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+
+                    <Grid Grid.Row="1" Margin="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition/>
+                            <ColumnDefinition/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- TODO -->
+                        <Button
+                            Margin="0,0,2.5,0"
+                            Grid.Column="0"
+                            Content="+"
+                            HorizontalAlignment="Stretch"
+                            />
+
+                        <!-- TODO -->
+                        <Button
+                            Margin="2.5,0,0,0"
+                            Grid.Column="1"
+                            Content="&#x2013;"
+                            />
+                    </Grid>
+
+                </Grid>
+
+                <GroupBox Grid.Column="1" Header="Thread Info"
+                    Margin="5,0,5,5"
+                    Style="{StaticResource GroupBoxStyle}"
+                    IsEnabled="{Binding Thread, Converter={StaticResource IsNotNull}}"
+                    Name="m_root">
+                    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <GroupBox Grid.Column="0" Grid.Row="0" Header="Name" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}">
+                                <TextBox
+                                    Height="22" MaxLength="7" Margin="5"
+                                    Text="{Binding Thread.Name, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStyle}"/>
+                            </GroupBox>
+                            <GroupBox Grid.Column="0" Grid.Row="1" Header="Instruction Pointer" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}">
+                                <xctk:IntegerUpDown
+                                    Margin="5" Height="22" 
+                                    TextAlignment="Left"
+                                    Value="{Binding Thread.InstructionPointer}"
+                                    Style="{StaticResource Int32UpDownStyle}"/>
+                            </GroupBox>
+                            <GroupBox Grid.Column="0" Grid.Row="2" Header="Stack Pointer" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}">
+                                <xctk:IntegerUpDown
+                                    Margin="5" Height="22" 
+                                    TextAlignment="Left"
+                                    Value="{Binding Thread.StackPointer}"
+                                    Style="{StaticResource Int32UpDownStyle}"/>
+                            </GroupBox>
+                            <GroupBox Grid.Column="0" Grid.Row="3" Header="Stack" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
+                                MinHeight="150">
+                                <GroupBox.Resources>
+                                    <sys:Double x:Key="PadConstant">50.0</sys:Double>
+                                </GroupBox.Resources>
+                                <GroupBox.MaxHeight>
+                                    <MultiBinding Converter="{StaticResource SubtractConverter}">
+                                        <Binding Path="ActualHeight" ElementName="m_root"/>
+                                        <Binding Path="ActualHeight" ElementName="m_wake"/>
+                                        <Binding Path="ActualHeight" ElementName="m_timerA"/>
+                                        <Binding Path="ActualHeight" ElementName="m_timerB"/>
+                                        <Binding Path="ActualHeight" ElementName="m_flags"/>
+                                        <Binding Source="{StaticResource PadConstant}"/>
+                                    </MultiBinding>
+                                </GroupBox.MaxHeight>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <ListView
+                                        Grid.Row="0" Margin="5"
+                                        ItemsSource="{Binding Thread.Stack}"
+                                        SelectedIndex="{Binding StackIndex}"
+                                        SelectionChanged="StackListView_SelectionChanged">
+                                        <ListView.View>
+                                            <GridView>
+                                                <GridView.Columns>
+                                                    <GridViewColumn Header="Index" Width="50"
+                                                        DisplayMemberBinding="{Binding
+                                                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ListViewItem}},
+                                                            Converter={StaticResource ListViewItemIndexConverter}}"/>
+                                                    <GridViewColumn Header="Value" Width="90">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock TextAlignment="Right">
+                                                                    <TextBlock.Text>
+                                                                        <MultiBinding Converter="{StaticResource NumberFormatConverter}">
+                                                                            <Binding Path="."/>
+                                                                            <Binding Path="DataContext.NumberFormat" ElementName="MainView"/>
+                                                                        </MultiBinding>
+                                                                    </TextBlock.Text>
+                                                                </TextBlock>
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+                                                </GridView.Columns>
+                                            </GridView>
+                                        </ListView.View>
+                                    </ListView>
+                                    <xctk:IntegerUpDown
+                                        Grid.Row="1" Margin="5,0,5,5" Height="22"
+                                        Style="{StaticResource IntScriptVariableStyle}"
+                                        Value="{Binding StackValue}"
+                                        ValueChanged="StackUpDown_ValueChanged"/>
+                                    <xctk:SingleUpDown
+                                        Grid.Row="1" Margin="5,0,5,5" Height="22"
+                                        Style="{StaticResource FloatScriptVariableStyle}"
+                                        Value="{Binding StackValue, Converter={StaticResource FloatBitsConverter}}"
+                                        ValueChanged="StackUpDown_ValueChanged"/>
+                                    <xctk:IntegerUpDown
+                                        Grid.Row="1" Margin="5,0,5,5" Height="22"
+                                        Style="{StaticResource HexScriptVariableStyle}"
+                                        Value="{Binding StackValue}" ParsingNumberStyle="HexNumber" FormatString="X"
+                                        ValueChanged="StackUpDown_ValueChanged"
+                                        IsEnabled="{Binding StackValue, Converter={StaticResource IsNotNull}}"/>
+                                </Grid>
+                            </GroupBox>
+
+                            <GroupBox Grid.Column="1" Grid.Row="0" Header="Timer A" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
+                                Name="m_timerA">
+                                <xctk:IntegerUpDown
+                                        Margin="5" Height="22" 
+                                        TextAlignment="Left"
+                                        Value="{Binding Thread.TimerA}"
+                                        Style="{StaticResource Int32UpDownStyle}"/>
+                            </GroupBox>
+                            <GroupBox Grid.Column="1" Grid.Row="1" Header="Timer B" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
+                                Name="m_timerB">
+                                <xctk:IntegerUpDown
+                                        Margin="5" Height="22" 
+                                        TextAlignment="Left"
+                                        Value="{Binding Thread.TimerB}"
+                                        Style="{StaticResource Int32UpDownStyle}"/>
+                            </GroupBox>
+                            <GroupBox Grid.Column="1" Grid.Row="2" Header="Wake Time" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
+                                Name="m_wake">
+                                <xctk:IntegerUpDown
+                                        Margin="5" Height="22" 
+                                        TextAlignment="Left"
+                                        Value="{Binding Thread.WakeTime}"
+                                        Style="{StaticResource Int32UpDownStyle}"/>
+                            </GroupBox>
+
+                            <GroupBox Grid.Column="1" Grid.Row="3" Grid.RowSpan="2" Header="Locals" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
+                                MinHeight="150">
+                                <GroupBox.Resources>
+                                    <sys:Double x:Key="PadConstant">50.0</sys:Double>
+                                </GroupBox.Resources>
+                                <GroupBox.MaxHeight>
+                                    <MultiBinding Converter="{StaticResource SubtractConverter}">
+                                        <Binding Path="ActualHeight" ElementName="m_root"/>
+                                        <Binding Path="ActualHeight" ElementName="m_wake"/>
+                                        <Binding Path="ActualHeight" ElementName="m_timerA"/>
+                                        <Binding Path="ActualHeight" ElementName="m_timerB"/>
+                                        <Binding Path="ActualHeight" ElementName="m_flags"/>
+                                        <Binding Source="{StaticResource PadConstant}"/>
+                                    </MultiBinding>
+                                </GroupBox.MaxHeight>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <ListView
+                                        Grid.Row="0" Margin="5"
+                                        ItemsSource="{Binding Thread.Locals}"
+                                        SelectedIndex="{Binding LocalIndex}"
+                                        SelectionChanged="LocalListView_SelectionChanged">
+                                        <ListView.View>
+                                            <GridView>
+                                                <GridView.Columns>
+                                                    <GridViewColumn Header="ID" Width="50"
+                                                        DisplayMemberBinding="{Binding
+                                                            RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ListViewItem}},
+                                                            Converter={StaticResource ListViewItemIndexConverter},
+                                                            StringFormat={}@{0}}"/>
+                                                    <GridViewColumn Header="Value" Width="90">
+                                                        <GridViewColumn.CellTemplate>
+                                                            <DataTemplate>
+                                                                <TextBlock TextAlignment="Right">
+                                                                    <TextBlock.Text>
+                                                                        <MultiBinding Converter="{StaticResource NumberFormatConverter}">
+                                                                            <Binding Path="."/>
+                                                                            <Binding Path="DataContext.NumberFormat" ElementName="MainView"/>
+                                                                        </MultiBinding>
+                                                                    </TextBlock.Text>
+                                                                </TextBlock>
+                                                            </DataTemplate>
+                                                        </GridViewColumn.CellTemplate>
+                                                    </GridViewColumn>
+                                                </GridView.Columns>
+                                            </GridView>
+                                        </ListView.View>
+                                    </ListView>
+                                    <xctk:IntegerUpDown
+                                        Grid.Row="1" Margin="5,0,5,5" Height="22"
+                                        Style="{StaticResource IntScriptVariableStyle}"
+                                        Value="{Binding LocalValue}"
+                                        ValueChanged="LocalUpDown_ValueChanged"/>
+                                    <xctk:SingleUpDown
+                                        Grid.Row="1" Margin="5,0,5,5" Height="22"
+                                        Style="{StaticResource FloatScriptVariableStyle}"
+                                        Value="{Binding LocalValue, Converter={StaticResource FloatBitsConverter}}"
+                                        ValueChanged="LocalUpDown_ValueChanged"/>
+                                    <xctk:IntegerUpDown
+                                        Grid.Row="1" Margin="5,0,5,5" Height="22"
+                                        Style="{StaticResource HexScriptVariableStyle}"
+                                        Value="{Binding LocalValue}" ParsingNumberStyle="HexNumber" FormatString="X"
+                                        ValueChanged="LocalUpDown_ValueChanged"
+                                        IsEnabled="{Binding LocalValue, Converter={StaticResource IsNotNull}}"/>
+                                </Grid>
+                            </GroupBox>
+
+                            <!--<GroupBox Grid.Column="0" Grid.Row="4" Header="Conjunctive" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}">
+                                <ComboBox
+                                        Margin="5" Height="22" 
+                                        ItemsSource="{e:EnumValueCollection EnumType=core:AndOrState}"
+                                        Style="{StaticResource ComboBoxStyle}"
+                                        SelectedValue="{Binding Thread.AndOrState, Converter={StaticResource AndOrConverter}}"/>
+                            </GroupBox>-->
+
+                            <GroupBox Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" Header="Flags" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
+                                Name="m_flags">
+                                <Grid Margin="0,5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0">
+                                        <CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="Mission Script"
+                                            IsChecked="{Binding Thread.IsMissionScript}"/>
+                                        <CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="Internal Mission"
+                                            IsChecked="{Binding Thread.MissionFlag}"/>
+                                        <!--<CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="'If' Flag"
+                                            IsChecked="{Binding Thread.ConditionResult}"/>
+                                        <CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="'Not' Flag"
+                                            IsChecked="{Binding Thread.NotFlag}"/>
+                                        <CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="Clear Messages"
+                                            IsChecked="{Binding Thread.ClearMessages}"/>-->
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1">
+                                        <CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="Death/Arrest State"
+                                            IsChecked="{Binding Thread.WastedBustedCheckResult}"/>
+                                        <CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="Death/Arrest Check Enabled"
+                                            IsChecked="{Binding Thread.WastedBustedCheckEnabled}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </GroupBox>
+
+                        </Grid>
+                    </ScrollViewer>
+                </GroupBox>
+
+            </Grid>
+        </GroupBox>
+
+        <GroupBox Grid.Column="0" Grid.Row="1" Header="Number Format"
+            Margin="5,0,5,5"
+            Style="{StaticResource GroupBoxStyle}">
+
+            <Grid Margin="5">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+
+                <RadioButton Grid.Column="0" Content="Integer" IsChecked="{Binding NumberFormat, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static t:NumberFormat.Int}}"/>
+                <RadioButton Grid.Column="1" Content="Float" IsChecked="{Binding NumberFormat, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static t:NumberFormat.Float}}"/>
+                <RadioButton Grid.Column="2" Content="Hex" IsChecked="{Binding NumberFormat, Converter={StaticResource ComparisonConverter}, ConverterParameter={x:Static t:NumberFormat.Hex}}"/>
+            </Grid>
+        </GroupBox>
+
+    </Grid>
+
+</g:TabPage>

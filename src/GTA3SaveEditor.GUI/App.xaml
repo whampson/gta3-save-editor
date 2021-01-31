@@ -145,6 +145,10 @@
             <Setter Property="ClipValueToMinMax" Value="True"/>
             <Setter Property="AutoSelectBehavior" Value="Never"/>
         </Style>
+        <Style x:Key="DecimalUpDownStyle" TargetType="xctk:DecimalUpDown">
+            <Setter Property="ClipValueToMinMax" Value="True"/>
+            <Setter Property="AutoSelectBehavior" Value="Never"/>
+        </Style>
 
         <!-- TabControl -->
         <Style x:Key="TabItemStyle" TargetType="{x:Type TabItem}">
