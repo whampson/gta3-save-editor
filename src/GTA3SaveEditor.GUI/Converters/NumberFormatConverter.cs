@@ -8,9 +8,9 @@ using GTA3SaveEditor.GUI.Types;
 
 namespace GTA3SaveEditor.GUI.Converters
 {
-    public class NumberFormatConverter : IMultiValueConverter
+    public class NumberFormatConverter : MultiConverterBase
     {
-        public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
             if (values.Length > 0 && values[0] is int x)
             {
@@ -31,11 +31,6 @@ namespace GTA3SaveEditor.GUI.Converters
             }
 
             return DependencyProperty.UnsetValue;
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException("ConvertBack is not supported for this converter.");
         }
     }
 }

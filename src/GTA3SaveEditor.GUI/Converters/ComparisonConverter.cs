@@ -9,7 +9,7 @@ namespace GTA3SaveEditor.GUI.Converters
 {
     public class ComparisonConverter : IValueConverter
     {
-        // For radiobutton groups
+        // Useful for radiobutton groups
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

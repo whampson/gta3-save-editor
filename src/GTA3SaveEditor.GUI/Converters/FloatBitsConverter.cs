@@ -8,9 +8,9 @@ using System.Windows.Data;
 
 namespace GTA3SaveEditor.GUI.Converters
 {
-    public class FloatBitsConverter : IValueConverter
+    public class FloatBitsConverter : ConverterBase
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is int x)
             {
@@ -20,7 +20,7 @@ namespace GTA3SaveEditor.GUI.Converters
             return DependencyProperty.UnsetValue;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is float f)
             {

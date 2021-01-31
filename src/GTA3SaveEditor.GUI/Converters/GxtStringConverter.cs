@@ -6,9 +6,9 @@ using GTA3SaveEditor.Core;
 
 namespace GTA3SaveEditor.GUI.Converters
 {
-    public class GxtStringConverter : IValueConverter
+    public class GxtStringConverter : ConverterBase
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is string key)
             {
@@ -16,11 +16,6 @@ namespace GTA3SaveEditor.GUI.Converters
             }
 
             return DependencyProperty.UnsetValue;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException("ConvertBack is not supported for this converter.");
         }
     }
 }

@@ -8,9 +8,9 @@ using System.Windows.Data;
 
 namespace GTA3SaveEditor.GUI.Converters
 {
-    public class ListViewItemIndexConverter : IValueConverter
+    public class ListViewItemIndexConverter : ConverterBase
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is ListViewItem item)
             {
@@ -20,11 +20,6 @@ namespace GTA3SaveEditor.GUI.Converters
             }
 
             return DependencyProperty.UnsetValue;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException("ConvertBack is not supported for this converter.");
         }
     }
 }

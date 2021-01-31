@@ -6,11 +6,10 @@ using System.Windows.Data;
 
 namespace GTA3SaveEditor.GUI.Converters
 {
-    public abstract class ConverterBase : IValueConverter
+    public abstract class MultiConverterBase : IMultiValueConverter
     {
-        public abstract object Convert(object value, Type targetType, object parameter, CultureInfo culture);
-
-        public virtual object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public abstract object Convert(object[] values, Type targetType, object parameter, CultureInfo culture);
+        public virtual object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             throw new NotSupportedException("ConvertBack is not supported for this converter.");
         }

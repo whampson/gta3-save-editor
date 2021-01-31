@@ -20,10 +20,9 @@
     d:DataContext="{d:DesignInstance Type=l:ScriptsTabVM}">
 
     <UserControl.Resources>
-        <c:AndOrConverter x:Key="AndOrConverter"/>
         <c:ListViewItemIndexConverter x:Key="ListViewItemIndexConverter"/>
         <c:ComparisonConverter x:Key="ComparisonConverter"/>
-        <c:SubtractConverter x:Key="SubtractConverter" ClampToZero="True"/>
+        <c:SubtractConverter x:Key="SubtractConverter" Clamp="True" ClampValue="0"/>
         <c:NumberFormatConverter x:Key="NumberFormatConverter"/>
         <c:FloatBitsConverter x:Key="FloatBitsConverter"/>
         <Style TargetType="ListView">

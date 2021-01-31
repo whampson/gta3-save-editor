@@ -7,9 +7,9 @@ using GTA3SaveEditor.Core;
 namespace GTA3SaveEditor.GUI.Converters
 {
     [ValueConversion(typeof(byte), typeof(GangPedModelState))]
-    public class GangPedModelOverrideConverter : IValueConverter
+    public class GangPedModelOverrideConverter : ConverterBase
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is sbyte pedModelOverride)
             {
@@ -24,7 +24,7 @@ namespace GTA3SaveEditor.GUI.Converters
             return DependencyProperty.UnsetValue;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is GangPedModelState state)
             {

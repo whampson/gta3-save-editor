@@ -7,9 +7,9 @@ using GTA3SaveEditor.Core;
 namespace GTA3SaveEditor.GUI.Converters
 {
     [ValueConversion(typeof(short), typeof(string))]
-    public class ModelNameConverter : IValueConverter
+    public class ModelNameConverter : ConverterBase
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is short index)
             {
@@ -30,7 +30,7 @@ namespace GTA3SaveEditor.GUI.Converters
             return DependencyProperty.UnsetValue;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
             {

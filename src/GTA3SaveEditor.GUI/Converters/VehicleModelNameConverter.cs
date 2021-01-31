@@ -7,9 +7,9 @@ using GTA3SaveEditor.Core;
 namespace GTA3SaveEditor.GUI.Converters
 {
     [ValueConversion(typeof(VehicleModel), typeof(string))]
-    public class VehicleModelNameConverter : IValueConverter
+    public class VehicleModelNameConverter : ConverterBase
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is VehicleModel v)
             {
@@ -24,11 +24,6 @@ namespace GTA3SaveEditor.GUI.Converters
             }
 
             return DependencyProperty.UnsetValue;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException("ConvertBack is not supported for this converter.");
         }
     }
 }

@@ -7,9 +7,9 @@ using GTASaveData.GTA3;
 namespace GTA3SaveEditor.GUI.Converters
 {
     [ValueConversion(typeof(GangType), typeof(string))]
-    public class GangTypeNameConverter : IValueConverter
+    public class GangTypeNameConverter : ConverterBase
     {
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is GangType || value is int)
             {
@@ -29,11 +29,6 @@ namespace GTA3SaveEditor.GUI.Converters
             }
 
             return DependencyProperty.UnsetValue;
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException("ConvertBack is not supported for this converter.");
         }
     }
 }
