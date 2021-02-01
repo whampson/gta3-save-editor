@@ -8,18 +8,28 @@ using System.Text;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+using System.Windows.Input;
+using GTA3SaveEditor.Core.Loaders;
+using GTA3SaveEditor.Core.Util;
 using GTA3SaveEditor.GUI.Types;
 using GTASaveData.GTA3;
+using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.Tabs
 {
     public class ScriptsTabVM : TabPageVM
     {
-        public ObservableCollection<int> m_globals;
+        // TODO: buildingswaps, invisibile objects, etc.
+
+        const int ScriptSpaceOverwriteLimit = 36464;    // PC, free space for globals and injecting SCM code >:-)
+
+        private Dictionary<int, string> m_symbols;
+        private ObservableCollection<int> m_globals;
         private RunningScript m_thread;
         private int m_globalIndex;
         private int m_localIndex;
         private int m_stackIndex;
+        private int m_threadIndex;
         private int? m_globalValue;
         private int? m_localValue;
         private int? m_stackValue;
@@ -28,6 +38,12 @@ namespace GTA3SaveEditor.GUI.Tabs
         private bool m_suppressWriteLocal;
         private bool m_suppressWriteStack;
         private NumberFormat m_numFormat;
+
+        public Dictionary<int, string> Symbols
+        {
+            get { return m_symbols; }
+            set { m_symbols = value; OnPropertyChanged(); }
+        }
 
         public ObservableCollection<int> Globals
         {
@@ -59,6 +75,12 @@ namespace GTA3SaveEditor.GUI.Tabs
             set { m_stackIndex = value; OnPropertyChanged(); }
         }
 
+        public int ThreadIndex
+        {
+            get { return m_threadIndex; }
+            set { m_threadIndex = value; OnPropertyChanged(); }
+        }
+
         public int? GlobalValue
         {
             get { return m_globalValue; }
@@ -83,6 +105,19 @@ namespace GTA3SaveEditor.GUI.Tabs
             set { m_numFormat = value; OnPropertyChanged(); }
         }
 
+        public ScriptsTabVM()
+        {
+            Globals = new ObservableCollection<int>();
+            Symbols = new Dictionary<int, string>();
+        }
+
+        public override void Init()
+        {
+            base.Init();
+
+            LoadSymbols(IniLoader.LoadIni(App.LoadResource("CustomVariables.ini")));
+        }
+
         public override void Load()
         {
             base.Load();
@@ -90,6 +125,7 @@ namespace GTA3SaveEditor.GUI.Tabs
             GlobalIndex = -1;
             LocalIndex = -1;
             StackIndex = -1;
+            m_threadIndex = -1;
         }
 
         public override void Update()
@@ -100,6 +136,19 @@ namespace GTA3SaveEditor.GUI.Tabs
             if (g == null) return;
 
             Globals = new ObservableCollection<int>(g);
+        }
+
+        public void LoadSymbols(Dictionary<string, string> ini)
+        {
+            Symbols.Clear();
+            foreach (var sym in ini)
+            {
+                if (!int.TryParse(sym.Key, out int index))
+                {
+                    Log.Warn($"Invalid index '{sym.Key}' for symbol '{sym.Value}'");
+                }
+                Symbols.Add(index, sym.Value);
+            }
         }
 
         public void ReadGlobalValue()
@@ -129,19 +178,6 @@ namespace GTA3SaveEditor.GUI.Tabs
                 int value = GlobalValue.Value;
                 Globals[oldIdx] = value;
                 TheSave.Scripts.SetGlobal(oldIdx, value);
-
-                //switch (NumberFormat)
-                //{
-                //    case NumberFormat.Int:
-                //    case NumberFormat.Hex:
-                //        Globals[oldIdx] = value;
-                //        TheSave.Scripts.SetGlobal(oldIdx, value);
-                //        break;
-                //    case NumberFormat.Float:
-                //        Globals[oldIdx] = BitConverter.SingleToInt32Bits((float) value);
-                //        TheSave.Scripts.SetGlobal(oldIdx, (float) value);
-                //        break;
-                //}
 
                 GlobalIndex = oldIdx;
                 m_suppressReadGlobal = false;
@@ -198,5 +234,44 @@ namespace GTA3SaveEditor.GUI.Tabs
                 TheWindow.SetDirty();
             }
         }
+
+        public string GenerateThreadId()
+        {
+            Random r = new Random();
+
+            string id = "id_";
+            for (int i = 0; i < 4; i++)
+            {
+                id += r.Next(10).ToString();
+            }
+
+            return id;
+        }
+
+        public ICommand InsertThread => new RelayCommand
+        (
+            () =>
+            {
+                int idx = ThreadIndex;
+                if (idx == -1) idx = TheSave.Scripts.Threads.Count;
+
+                
+
+                var t = new RunningScript() { Name = GenerateThreadId() };
+                TheSave.Scripts.Threads.Insert(idx, t);
+                Thread = t;
+            }
+        );
+
+        public ICommand DeleteThread => new RelayCommand
+        (
+            () =>
+            {
+                int idx = ThreadIndex;
+                Thread = null;
+                TheSave.Scripts.Threads.RemoveAt(idx);
+            },
+            () => ThreadIndex != -1
+        );
     }
 }

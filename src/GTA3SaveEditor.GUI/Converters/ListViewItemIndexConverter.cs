@@ -16,7 +16,7 @@ namespace GTA3SaveEditor.GUI.Converters
             {
                 ListView view = ItemsControl.ItemsControlFromItemContainer(item) as ListView;
                 int index = view.ItemContainerGenerator.IndexFromContainer(item);
-                return index.ToString();
+                return index;
             }
 
             return DependencyProperty.UnsetValue;

@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace GTA3SaveEditor.GUI.Tabs
 {
@@ -29,6 +30,11 @@ namespace GTA3SaveEditor.GUI.Tabs
         {
             ViewModel.LocalIndex = -1;
             ViewModel.StackIndex = -1;
+
+            if (ViewModel.Thread != null && sender is ListBox listBox)
+            {
+                listBox.ScrollIntoView(ViewModel.Thread);
+            }
         }
 
         private void GlobalListView_SelectionChanged(object sender, SelectionChangedEventArgs e)

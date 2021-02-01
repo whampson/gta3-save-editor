@@ -23,6 +23,7 @@
         <c:ListViewItemIndexConverter x:Key="ListViewItemIndexConverter"/>
         <c:ComparisonConverter x:Key="ComparisonConverter"/>
         <c:SubtractConverter x:Key="SubtractConverter" Clamp="True" ClampValue="0"/>
+        <c:ScriptSymbolConverter x:Key="ScriptSymbolConverter"/>
         <c:NumberFormatConverter x:Key="NumberFormatConverter"/>
         <c:FloatBitsConverter x:Key="FloatBitsConverter"/>
         <Style TargetType="ListView">
@@ -91,14 +92,23 @@
                                         RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ListViewItem}},
                                         Converter={StaticResource ListViewItemIndexConverter},
                                         StringFormat={}${0}}"/>
-                                <GridViewColumn Header="Name" Width="175">
+                                <GridViewColumn Header="Name" Width="200">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock Text="" TextAlignment="Justify"/>
+                                            <TextBlock TextAlignment="Justify">
+                                                <TextBlock.Text>
+                                                    <MultiBinding Converter="{StaticResource ScriptSymbolConverter}">
+                                                        <Binding Path="DataContext.Symbols" ElementName="MainView"/>
+                                                        <Binding
+                                                            RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type ListViewItem}}"
+                                                            Converter="{StaticResource ListViewItemIndexConverter}"/>
+                                                    </MultiBinding>
+                                                </TextBlock.Text>
+                                            </TextBlock>
                                         </DataTemplate>
                                     </GridViewColumn.CellTemplate>
                                 </GridViewColumn>
-                                <GridViewColumn Header="Value" Width="100">
+                                <GridViewColumn Header="Value" Width="85">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock TextAlignment="Right">
@@ -120,16 +130,35 @@
                 <Grid Grid.Row="1">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="75"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
+
+                    <Grid Grid.Row="0" Margin="5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="30"/>
+                        </Grid.ColumnDefinitions>
+                        <!-- TODO -->
+                        <Button
+                            Margin="0,-5,2.5,0"
+                            Grid.Column="0"
+                            Content="+"
+                            HorizontalAlignment="Stretch"
+                            />
+                        <!-- TODO -->
+                        <Button
+                            Margin="2.5,-5,0,0"
+                            Grid.Column="1"
+                            Content="&#x2013;"
+                            />
+                    </Grid>
                     
                     <!-- TODO -->
-                    <Button
+                    <!--<Button
                         Grid.Column="0"
                         Content="Load Symbols..."
                         Margin="5" Width="Auto" MinWidth="100"
-                        Style="{StaticResource ButtonStyle}"/>
+                        Style="{StaticResource ButtonStyle}"/>-->
                     
                     <xctk:IntegerUpDown
                         Grid.Column="2" Margin="5,0,5,5" Height="22"
@@ -168,6 +197,7 @@
 
                     <ListBox Margin="5,10,5,5"
                         SelectedItem="{Binding Thread}"
+                        SelectedIndex="{Binding ThreadIndex}"
                         ItemsSource="{Binding TheSave.Scripts.Threads}"
                         SelectionChanged="ThreadListBox_SelectionChanged">
                         <ListBox.ItemTemplate>
@@ -175,28 +205,30 @@
                                 <TextBlock Text="{Binding Path=Name}"/>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
+
+                        <ListBox.InputBindings>
+                            <KeyBinding Command="{Binding DeleteThread}" Key="Delete"/>
+                        </ListBox.InputBindings>
                     </ListBox>
 
                     <Grid Grid.Row="1" Margin="5">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition/>
-                            <ColumnDefinition/>
+                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="30"/>
                         </Grid.ColumnDefinitions>
-
                         <!-- TODO -->
                         <Button
-                            Margin="0,0,2.5,0"
+                            Margin="0,-5,2.5,0"
                             Grid.Column="0"
                             Content="+"
                             HorizontalAlignment="Stretch"
-                            />
-
+                            Command="{Binding InsertThread}"/>
                         <!-- TODO -->
                         <Button
-                            Margin="2.5,0,0,0"
+                            Margin="2.5,-5,0,0"
                             Grid.Column="1"
                             Content="&#x2013;"
-                            />
+                            Command="{Binding DeleteThread}"/>
                     </Grid>
 
                 </Grid>
