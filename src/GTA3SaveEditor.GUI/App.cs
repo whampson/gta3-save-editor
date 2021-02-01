@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using GTA3SaveEditor.Core;
+using GTA3SaveEditor.Core.Loaders;
 using GTA3SaveEditor.Core.Util;
 using GTASaveData;
 using GTASaveData.GTA3;

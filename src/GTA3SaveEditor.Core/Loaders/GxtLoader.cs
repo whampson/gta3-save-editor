@@ -4,7 +4,7 @@ using System.IO;
 using GTA3SaveEditor.Core.Util;
 using GTASaveData;
 
-namespace GTA3SaveEditor.Core
+namespace GTA3SaveEditor.Core.Loaders
 {
     public static class GxtLoader
     {

@@ -2,7 +2,7 @@
 using System.IO;
 using GTA3SaveEditor.Core.Util;
 
-namespace GTA3SaveEditor.Core
+namespace GTA3SaveEditor.Core.Loaders
 {
     public static class IdeLoader
     {

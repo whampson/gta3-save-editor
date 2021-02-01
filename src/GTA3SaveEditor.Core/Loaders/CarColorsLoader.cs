@@ -8,7 +8,7 @@ using System.Text;
 using GTA3SaveEditor.Core.Util;
 using GTASaveData.GTA3;
 
-namespace GTA3SaveEditor.Core
+namespace GTA3SaveEditor.Core.Loaders
 {
     public static class CarColorsLoader
     {

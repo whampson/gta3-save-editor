@@ -9,6 +9,7 @@ using System.Windows.Input;
 using GTA3SaveEditor.Core;
 using GTA3SaveEditor.Core.Extensions;
 using GTA3SaveEditor.Core.Helpers;
+using GTA3SaveEditor.Core.Loaders;
 using GTA3SaveEditor.Core.Util;
 using GTA3SaveEditor.GUI.Events;
 using GTA3SaveEditor.GUI.Tabs;
