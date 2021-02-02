@@ -76,7 +76,7 @@ namespace GTA3SaveEditor.GUI
 
         public new void SetStatusText(string status)
         {
-            Log.Info(status);
+            //Log.Info(status);
             base.SetStatusText(status);
         }
 
@@ -84,7 +84,7 @@ namespace GTA3SaveEditor.GUI
             double duration = 5,
             string expiredStatus = "Ready.")
         {
-            Log.Info(status);
+            //Log.Info(status);
             base.SetTimedStatusText(status, duration, expiredStatus);
         }
     }

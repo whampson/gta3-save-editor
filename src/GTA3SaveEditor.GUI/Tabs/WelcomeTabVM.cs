@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Windows.Input;
+using System.Windows.Threading;
 using GTA3SaveEditor.Core;
 using GTA3SaveEditor.Core.Helpers;
 using GTA3SaveEditor.Core.Util;
@@ -13,6 +15,9 @@ namespace GTA3SaveEditor.GUI.Tabs
 {
     public class WelcomeTabVM : TabPageVM
     {
+        const int GameQuoteInterval = 5;
+
+        private readonly DispatcherTimer m_gameQuoteTimer;
         private BackgroundWorker m_lukeFileWalker;
         private BackgroundWorker m_fileListWorker;
         private ObservableCollection<SaveFileInfo> m_saveFiles;
@@ -88,6 +93,7 @@ namespace GTA3SaveEditor.GUI.Tabs
 
         public WelcomeTabVM()
         {
+            m_gameQuoteTimer = new DispatcherTimer();
             SaveFiles = new ObservableCollection<SaveFileInfo>();
             SearchWorker = new BackgroundWorker
             {
@@ -110,6 +116,8 @@ namespace GTA3SaveEditor.GUI.Tabs
             FileListWorker.DoWork += FileListWorker_DoWork;
             FileListWorker.ProgressChanged += FileListWorker_ProgressChanged;
             FileListWorker.RunWorkerCompleted += FileListWorker_RunWorkerCompleted;
+            m_gameQuoteTimer.Tick += GameQuoteTimer_Tick;
+            m_gameQuoteTimer.Interval = TimeSpan.FromSeconds(GameQuoteInterval);
         }
 
         public override void Shutdown()
@@ -121,6 +129,7 @@ namespace GTA3SaveEditor.GUI.Tabs
             FileListWorker.DoWork -= FileListWorker_DoWork;
             FileListWorker.ProgressChanged -= FileListWorker_ProgressChanged;
             FileListWorker.RunWorkerCompleted -= FileListWorker_RunWorkerCompleted;
+            m_gameQuoteTimer.Tick -= GameQuoteTimer_Tick;
         }
 
         public override void Load()
@@ -141,6 +150,7 @@ namespace GTA3SaveEditor.GUI.Tabs
                 SearchForSaveFiles();   // Only search on program launch
             }
 
+            m_gameQuoteTimer.Start();
             m_openedOnce = true;
         }
 
@@ -148,6 +158,8 @@ namespace GTA3SaveEditor.GUI.Tabs
         {
             base.Unload();
             CancelSearch();
+
+            m_gameQuoteTimer.Stop();
         }
 
         public override void Update()
@@ -218,7 +230,7 @@ namespace GTA3SaveEditor.GUI.Tabs
         {
             Random r = new Random();
             int quoteIndex = r.Next(0, GameQuotes.Count);
-            TheWindow.SetTimedStatusText(GameQuotes[quoteIndex], 30);
+            TheWindow.SetStatusText(GameQuotes[quoteIndex]);
         }
 
         public static readonly List<string> GameQuotes = new List<string>()
@@ -246,6 +258,11 @@ namespace GTA3SaveEditor.GUI.Tabs
             "You want the chainsaw, gringo?",
             "It's no problem to kill you!",
         };
+
+        private void GameQuoteTimer_Tick(object sender, EventArgs e)
+        {
+            ShowGameQuote();
+        }
 
         #region Event Handlers
         private void LukeFileWalker_DoWork(object sender, DoWorkEventArgs e)
