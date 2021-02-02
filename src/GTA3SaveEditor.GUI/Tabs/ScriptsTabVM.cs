@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Input;
+using GTA3SaveEditor.Core;
 using GTA3SaveEditor.Core.Loaders;
 using GTA3SaveEditor.Core.Util;
 using GTA3SaveEditor.GUI.Types;
@@ -132,12 +133,15 @@ namespace GTA3SaveEditor.GUI.Tabs
         {
             base.Update();
 
-            IEnumerable<int> g = TheSave?.Scripts?.Globals;
-            if (g == null) return;
-
-            Globals = new ObservableCollection<int>(g);
+            UpdateGlobals();
         }
 
+        public void UpdateGlobals()
+        {
+            IEnumerable<int> g = TheSave?.Scripts?.Globals;
+            Globals = (g == null) ? null : new ObservableCollection<int>(g);
+        }
+        
         public void LoadSymbols(Dictionary<string, string> ini)
         {
             Symbols.Clear();
@@ -235,19 +239,6 @@ namespace GTA3SaveEditor.GUI.Tabs
             }
         }
 
-        public string GenerateThreadId()
-        {
-            Random r = new Random();
-
-            string id = "id_";
-            for (int i = 0; i < 4; i++)
-            {
-                id += r.Next(10).ToString();
-            }
-
-            return id;
-        }
-
         public ICommand InsertThread => new RelayCommand
         (
             () =>
@@ -255,9 +246,7 @@ namespace GTA3SaveEditor.GUI.Tabs
                 int idx = ThreadIndex;
                 if (idx == -1) idx = TheSave.Scripts.Threads.Count;
 
-                
-
-                var t = new RunningScript() { Name = GenerateThreadId() };
+                var t = new RunningScript() { Name = Scripts.GenerateThreadName() };
                 TheSave.Scripts.Threads.Insert(idx, t);
                 Thread = t;
             }

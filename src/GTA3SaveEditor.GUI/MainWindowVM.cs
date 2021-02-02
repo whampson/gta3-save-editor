@@ -4,6 +4,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Windows;
 using System.Windows.Input;
 using GTA3SaveEditor.Core;
@@ -24,6 +25,11 @@ namespace GTA3SaveEditor.GUI
     {
         private const int NumSaveSlots = 8;
         private const string FileFilter = "GTA3 Save Files|*.b|All Files|*.*";
+
+        const string TabNameWelcome = "Welcome";
+        const string TabNameScripts = "Scripts";
+        const string TabNameGangs = "Gangs";
+        const string TabNamePickups = "Pickups";
 
         public event EventHandler LogWindowRequest;
 
@@ -62,10 +68,10 @@ namespace GTA3SaveEditor.GUI
             SaveSlots = new ObservableCollection<SaveSlot>(slots);
             Tabs = new ObservableCollection<TabPageVM>()
             {
-                new WelcomeTabVM() { TheWindow = this, Title = "Welcome", Visibility = TabPageVisibility.WhenNotEditingFile },
-                new GangsTabVM() { TheWindow = this, Title = "Gangs", Visibility = TabPageVisibility.WhenEditingFile },
-                new PickupsTabVM() { TheWindow = this, Title = "Pickups", Visibility = TabPageVisibility.WhenEditingFile },
-                new ScriptsTabVM() { TheWindow = this, Title = "Scripts", Visibility = TabPageVisibility.WhenEditingFile },
+                new WelcomeTabVM()  { TheWindow = this, Title = TabNameWelcome, Visibility = TabPageVisibility.WhenNotEditingFile },
+                new GangsTabVM()    { TheWindow = this, Title = TabNameGangs,   Visibility = TabPageVisibility.WhenEditingFile },
+                new PickupsTabVM()  { TheWindow = this, Title = TabNamePickups, Visibility = TabPageVisibility.WhenEditingFile },
+                new ScriptsTabVM()  { TheWindow = this, Title = TabNameScripts, Visibility = TabPageVisibility.WhenEditingFile },
             };
         }
 
@@ -138,6 +144,11 @@ namespace GTA3SaveEditor.GUI
             }
 
             Title = title;
+        }
+
+        public T GetTab<T>() where T : TabPageVM
+        {
+            return (T) Tabs.Where(t => t is T).FirstOrDefault();
         }
 
         private void InitTabs()
@@ -477,6 +488,41 @@ namespace GTA3SaveEditor.GUI
         public ICommand ExitCommand => new RelayCommand
         (
             () => ExitAppWithConfirmation()
+        );
+
+        public ICommand EditCustomScripts => new RelayCommand
+        (
+            () =>
+            {
+                TheSave.AddCustomScript("msg1", 0x4380, new byte[]
+                {
+                    // msg1:
+                    //    NOP
+                    0x00, 0x00,
+                    //    WAIT 10000
+                    0x01, 0x00, 0x05, 0x10, 0x27,
+                    //    PRINT_BIG 'M_FAIL' 5000 1     // MISSION FAILED!
+                    0xBA, 0x00, 0x4D, 0x5F, 0x46, 0x41, 0x49, 0x4C, 0x00, 0x00, 0x05, 0x88, 0x13, 0x04, 0x01,
+                    //    GOTO entry
+                    0x02, 0x00, 0x05, 0x80, 0x43
+                });
+
+                TheSave.AddCustomScript("msg2", 0x4400, new byte[]
+                {
+                    // msg2:
+                    //    NOP
+                    0x00, 0x00,
+                    //    WAIT 6500
+                    0x01, 0x00, 0x05, 0x64, 0x19,
+                    //    PRINT_NOW 'NRECORD' 5000 1    // ~r~NO NEW RECORD!
+                    0xBC, 0x00, 0x4E, 0x52, 0x45, 0x43, 0x4F, 0x52, 0x44, 0x00, 0x05, 0x88, 0x13, 0x04, 0x01,
+                    //    GOTO entry
+                    0x02, 0x00, 0x05, 0x00, 0x44
+                });
+
+                GetTab<ScriptsTabVM>().UpdateGlobals();
+            },
+            () => Editor.IsEditingFile
         );
 
 #if DEBUG

@@ -129,7 +129,7 @@
                         Command="{Binding ExitCommand}"/>
                 </MenuItem>
                 <MenuItem Header="_Edit">
-                    <MenuItem Header="Import">
+                    <!--<MenuItem Header="Import">
                         <MenuItem Header="Objects"/>
                         <MenuItem Header="Pickups"/>
                         <MenuItem Header="Car Generators"/>
@@ -138,7 +138,10 @@
                         <MenuItem Header="Objects"/>
                         <MenuItem Header="Pickups"/>
                         <MenuItem Header="Car Generators"/>
-                    </MenuItem>
+                    </MenuItem>-->
+                    <MenuItem
+                        Header="Custom Scripts..."
+                        Command="{Binding EditCustomScripts}"/>
                 </MenuItem>
                 <MenuItem Header="_View">
                     <MenuItem
