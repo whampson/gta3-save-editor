@@ -26,8 +26,7 @@
         <c:ScriptSymbolConverter x:Key="ScriptSymbolConverter"/>
         <c:NumberFormatConverter x:Key="NumberFormatConverter"/>
         <c:FloatBitsConverter x:Key="FloatBitsConverter"/>
-        <Style TargetType="ListView">
-            <Setter Property="Foreground" Value="Black"/>
+        <Style TargetType="ListView" BasedOn="{StaticResource ListViewStyle}">
             <Setter Property="FontFamily" Value="Consolas"/>
             <Setter Property="SelectionMode" Value="Single"/>
         </Style>
@@ -79,11 +78,11 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <ListView
+                <ListView Margin="5"
                     ItemsSource="{Binding Globals}"
                     SelectedIndex="{Binding GlobalIndex}"
                     SelectionChanged="GlobalListView_SelectionChanged"
-                    Margin="5">
+                    SelectionMode="Extended">
                     <ListView.View>
                         <GridView>
                             <GridView.Columns>
@@ -199,7 +198,9 @@
                         SelectedItem="{Binding Thread}"
                         SelectedIndex="{Binding ThreadIndex}"
                         ItemsSource="{Binding TheSave.Scripts.Threads}"
-                        SelectionChanged="ThreadListBox_SelectionChanged">
+                        SelectionChanged="ThreadListBox_SelectionChanged"
+                        SelectionMode="Extended">
+
                         <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <TextBlock Text="{Binding Path=Name}"/>
@@ -207,7 +208,7 @@
                         </ListBox.ItemTemplate>
 
                         <ListBox.InputBindings>
-                            <KeyBinding Command="{Binding DeleteThread}" Key="Delete"/>
+                            <KeyBinding Command="{Binding DeleteSelectedThreads}" Key="Delete"/>
                         </ListBox.InputBindings>
                     </ListBox>
 
@@ -228,7 +229,7 @@
                             Margin="2.5,-5,0,0"
                             Grid.Column="1"
                             Content="&#x2013;"
-                            Command="{Binding DeleteThread}"/>
+                            Command="{Binding DeleteSelectedThreads}"/>
                     </Grid>
 
                 </Grid>
@@ -262,14 +263,14 @@
                                 <xctk:IntegerUpDown
                                     Margin="5" Height="22" 
                                     TextAlignment="Left"
-                                    Value="{Binding Thread.InstructionPointer}"
+                                    Value="{Binding Thread.IP}"
                                     Style="{StaticResource Int32UpDownStyle}"/>
                             </GroupBox>
                             <GroupBox Grid.Column="0" Grid.Row="2" Header="Stack Pointer" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}">
                                 <xctk:IntegerUpDown
                                     Margin="5" Height="22" 
                                     TextAlignment="Left"
-                                    Value="{Binding Thread.StackPointer}"
+                                    Value="{Binding Thread.StackIndex}"
                                     Style="{StaticResource Int32UpDownStyle}"/>
                             </GroupBox>
                             <GroupBox Grid.Column="0" Grid.Row="3" Header="Stack" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"

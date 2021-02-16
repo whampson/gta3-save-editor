@@ -13,8 +13,8 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <UseWPF>true</UseWPF>
-    <AssemblyVersion>0.3.0.683</AssemblyVersion>
-    <FileVersion>0.3.0.683</FileVersion>
+    <AssemblyVersion>0.3.0.876</AssemblyVersion>
+    <FileVersion>0.3.0.876</FileVersion>
     <Version>0.3.0</Version>
     <LangVersion>8.0</LangVersion>
     <Configurations>Debug;Release;Release-Standalone</Configurations>
@@ -54,6 +54,7 @@
     <None Remove="Resources\american.gxt" />
     <None Remove="Resources\CustomVariables.ini" />
     <None Remove="Resources\default.ide" />
+    <None Remove="Resources\SCM.INI" />
   </ItemGroup>
 
   <ItemGroup>
@@ -73,6 +74,7 @@
     <Resource Include="Resources\default.ide" />
     <Resource Include="Resources\english.gxt" />
     <Resource Include="Resources\gta3.ide" />
+    <Resource Include="Resources\SCM.INI" />
   </ItemGroup>
 
 </Project>

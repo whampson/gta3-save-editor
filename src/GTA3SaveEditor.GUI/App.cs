@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows;
 using GTA3SaveEditor.Core;
+using GTA3SaveEditor.Core.Game;
 using GTA3SaveEditor.Core.Loaders;
 using GTA3SaveEditor.Core.Util;
 using GTASaveData;
@@ -36,7 +37,7 @@ namespace GTA3SaveEditor.GUI
             Log.Info($"    .NET Runtime: {dotnetVer}");
             Log.Info($"GTASaveData.Core: {saveDataLibVer}");
             Log.Info($"GTASaveData.GTA3: {gta3DataLibVer}");
-            Log.Info($"  Editor Version: {AssemblyFileVersion}");
+            Log.Info($"GTA3 Save Editor: {AssemblyFileVersion}");
 #if DEBUG
             Log.Info($"DEBUG build.");
 #endif
@@ -70,15 +71,28 @@ namespace GTA3SaveEditor.GUI
 
         private void LoadResources()
         {
-            // TODO: load from GTA3 dir if known
+            // TODO: load files from GTA3 dir if known
 
+            LoadGxtTable();
+            LoadCarColors();
+            LoadScmOpcodes();
+            LoadIdeObjects();
+        }
+
+        private void LoadGxtTable()
+        {
+            GTA3.GxtTable = GxtLoader.Load(LoadResource("american.gxt"));
+        }
+
+        private void LoadCarColors()
+        {
+            GTA3.CarColors = CarColorsLoader.LoadColors(LoadResource("carcols.dat"));
+        }
+
+        private void LoadIdeObjects()
+        {
             byte[] gta3Ide = LoadResource("gta3.ide");
             byte[] defaultIde = LoadResource("default.ide");
-            byte[] carcolsDat = LoadResource("carcols.dat");
-            byte[] americanGxt = LoadResource("american.gxt");
-
-            GTA3.GxtTable = GxtLoader.Load(americanGxt);
-            GTA3.CarColors = CarColorsLoader.LoadColors(carcolsDat);
 
             List<IdeObject> objects = new List<IdeObject>();
             objects.Add(new IdeObject(0, ""));
@@ -90,6 +104,25 @@ namespace GTA3SaveEditor.GUI
             cars.Add(new VehicleModel(0, "", ""));
             cars.AddRange(IdeLoader.LoadCars(defaultIde));
             GTA3.Vehicles = cars.OrderBy(x => x.ToString());
+        }
+
+        private void LoadScmOpcodes()
+        {
+            byte[] scmIni = LoadResource("scm.ini");
+
+            var opDefs = new Dictionary<Opcode, int>();
+            var opDefIni = IniLoader.LoadIni(scmIni, "OPCODES");
+
+            foreach (var opDef in opDefIni)
+            {
+                short op = Convert.ToInt16(opDef.Key, 16);
+                string[] def = opDef.Value.Split(',');
+                int cnt = int.Parse(def[0]);
+                opDefs.Add((Opcode) op, cnt);
+            }
+
+            GTA3ScriptParser.OpcodeDefinitions = opDefs;
+            Log.Info($"Loaded {opDefs.Count} SCM opcode definitions.");
         }
 
         private void LoadSettings()

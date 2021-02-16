@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Runtime.ExceptionServices;
 
-namespace GTA3SaveEditor.Core.Helpers
+namespace GTA3SaveEditor.Core.Util
 {
     public static class DebugHelper
     {

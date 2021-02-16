@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
-using System.Globalization;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Input;
-using GTA3SaveEditor.Core;
+using GTA3SaveEditor.Core.Game;
 using GTA3SaveEditor.Core.Loaders;
 using GTA3SaveEditor.Core.Util;
 using GTA3SaveEditor.GUI.Types;
@@ -21,8 +13,6 @@ namespace GTA3SaveEditor.GUI.Tabs
     public class ScriptsTabVM : TabPageVM
     {
         // TODO: buildingswaps, invisibile objects, etc.
-
-        const int ScriptSpaceOverwriteLimit = 36464;    // PC, free space for globals and injecting SCM code >:-)
 
         private Dictionary<int, string> m_symbols;
         private ObservableCollection<int> m_globals;
@@ -252,10 +242,11 @@ namespace GTA3SaveEditor.GUI.Tabs
             }
         );
 
-        public ICommand DeleteThread => new RelayCommand
+        public ICommand DeleteSelectedThreads => new RelayCommand
         (
             () =>
             {
+                // TODO: multiple
                 int idx = ThreadIndex;
                 Thread = null;
                 TheSave.Scripts.Threads.RemoveAt(idx);

@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using GTA3SaveEditor.Core;
+using GTA3SaveEditor.Core.Game;
 
 namespace GTA3SaveEditor.GUI.Converters
 {

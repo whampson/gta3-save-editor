@@ -1,11 +1,7 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
-using GTA3SaveEditor.Core.Helpers;
 
 namespace GTA3SaveEditor.Core.Util
 {

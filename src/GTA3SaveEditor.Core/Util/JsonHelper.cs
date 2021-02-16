@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace GTA3SaveEditor.Core.Helpers
+namespace GTA3SaveEditor.Core.Util
 {
     public static class JsonHelper
     {

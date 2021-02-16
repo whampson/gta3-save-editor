@@ -27,9 +27,9 @@ namespace GTA3SaveEditor.GUI.Dialogs
             Log.LogEvent += Log_LogEvent;
         }
 
-        protected override void OnClosing(CancelEventArgs e)
+        protected override void OnShutdown()
         {
-            base.OnClosing(e);
+            base.OnShutdown();
             Log.LogEvent -= Log_LogEvent;
         }
 

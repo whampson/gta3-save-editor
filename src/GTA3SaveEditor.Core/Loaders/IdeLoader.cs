@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using GTA3SaveEditor.Core.Game;
 using GTA3SaveEditor.Core.Util;
 
 namespace GTA3SaveEditor.Core.Loaders

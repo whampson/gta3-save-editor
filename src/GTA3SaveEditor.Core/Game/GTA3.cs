@@ -4,7 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
-namespace GTA3SaveEditor.Core
+namespace GTA3SaveEditor.Core.Game
 {
     public static class GTA3
     {

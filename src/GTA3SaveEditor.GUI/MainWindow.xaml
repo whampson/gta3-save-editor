@@ -73,6 +73,7 @@
                         IsEnabled="{Binding Settings.RecentFiles.Count, Converter={StaticResource IsNotZero}}"
                         ItemsSource="{Binding Settings.RecentFiles}">
                         <MenuItem.ItemContainerStyle>
+                        <!-- TODO: Underscores in filenames not showing up -->
                             <Style TargetType="{x:Type MenuItem}">
                                 <Setter Property="Command" Value="{Binding DataContext.OpenRecentFileCommand,
                                     RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
@@ -153,7 +154,7 @@
                     <mc:Choice Requires="dbg">
                         <MenuItem Header="Debug">
                             <MenuItem
-                                Header="Debug Tab"
+                                Header="Show Debug Tab"
                                 Command="{Binding DebugShowHideDebugTab}"
                                 IsCheckable="True"
                                 IsChecked="{Binding IsDebugTabVisible}"/>

@@ -3,18 +3,21 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using GTA3SaveEditor.Core.Util;
 
 namespace GTA3SaveEditor.Core.Loaders
 {
     public class IniLoader
     {
-        public static Dictionary<string, string> LoadIni(string path)
+        private static readonly Regex SectionRegex = new Regex("^\\[(.*)\\]$");
+
+        public static Dictionary<string, string> LoadIni(string path, string section = "")
         {
             return LoadIni(File.ReadAllBytes(path));
         }
 
-        public static Dictionary<string, string> LoadIni(byte[] data)
+        public static Dictionary<string, string> LoadIni(byte[] data, string section = "")
         {
             Dictionary<string, string> ini = new Dictionary<string, string>();
 
@@ -23,6 +26,8 @@ namespace GTA3SaveEditor.Core.Loaders
 
             int lineNum = 0;
             string line, key, value;
+            bool sectionFound = false;
+
             while ((line = buf.ReadLine()) != null)
             {
                 line = line.Trim();
@@ -32,7 +37,33 @@ namespace GTA3SaveEditor.Core.Loaders
                     line.StartsWith(";") ||
                     line.StartsWith("#")) continue;
 
-                // TODO: sections
+                // Check if line is a section header.
+                Match match = SectionRegex.Match(line);
+
+                if (!string.IsNullOrEmpty(section))
+                {
+                    if (match.Success)
+                    {
+                        if (sectionFound)
+                        {
+                            // We've already found the section we're looking for and have now
+                            // reached a new section. Time to quit.
+                            break;
+                        }
+                        if (match.Groups[1].Value.Equals(section))
+                        {
+                            // We've just found the section we're looking for!
+                            sectionFound = true;
+                            continue;
+                        }
+                    }
+
+                    // Do nothing until we find our section.
+                    if (!sectionFound)
+                    {
+                        continue;
+                    }
+                }
 
                 if (!line.Contains("="))
                 {

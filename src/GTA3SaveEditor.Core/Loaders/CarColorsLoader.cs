@@ -5,6 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using GTA3SaveEditor.Core.Game;
 using GTA3SaveEditor.Core.Util;
 using GTASaveData.GTA3;
 

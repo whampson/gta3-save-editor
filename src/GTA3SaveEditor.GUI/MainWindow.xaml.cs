@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Windows.Controls;
 using GTA3SaveEditor.GUI.Dialogs;
+using WHampson.ToolUI;
 
 namespace GTA3SaveEditor.GUI
 {
@@ -27,6 +28,7 @@ namespace GTA3SaveEditor.GUI
         {
             base.OnLoad();
             ViewModel.LogWindowRequest += ViewModel_LogWindowRequest;
+            ViewModel.CustomScriptsDialogRequest += ViewModel_CustomScriptsDialogRequest;
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -43,7 +45,7 @@ namespace GTA3SaveEditor.GUI
             ViewModel.LogWindowRequest -= ViewModel_LogWindowRequest;
         }
 
-        private void LazyLoadWindow<T>(T window, out T outWindow) where T : WindowBase, new()
+        private void LazyShowWindow<T>(T window, out T outWindow) where T : WindowBase, new()
         {
             if (window != null && window.IsVisible)
             {
@@ -85,9 +87,20 @@ namespace GTA3SaveEditor.GUI
             m_logWindow = null;
         }
 
+        public void ShowDialog<T>() where T : DialogBase, new()
+        {
+            T dialog = new T() { Owner = this };
+            dialog.ShowDialog();
+        }
+
         private void ViewModel_LogWindowRequest(object sender, EventArgs e)
         {
-            LazyLoadWindow(m_logWindow, out m_logWindow);
+            LazyShowWindow(m_logWindow, out m_logWindow);
+        }
+
+        private void ViewModel_CustomScriptsDialogRequest(object sender, EventArgs e)
+        {
+            ShowDialog<CustomScriptsDialog>();
         }
 
         private void TabControlEx_SelectionChanged(object sender, SelectionChangedEventArgs e)

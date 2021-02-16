@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using GTA3SaveEditor.Core;
+using GTA3SaveEditor.Core.Game;
 using GTASaveData;
 using GTASaveData.GTA3;
 

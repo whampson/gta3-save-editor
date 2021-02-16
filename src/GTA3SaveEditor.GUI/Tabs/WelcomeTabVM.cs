@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GTA3SaveEditor.Core;
-using GTA3SaveEditor.Core.Helpers;
 using GTA3SaveEditor.Core.Util;
 using WpfEssentials.Win32;
 

@@ -67,6 +67,12 @@
             <Setter Property="HorizontalAlignment" Value="Stretch"/>
         </Style>
 
+        <Style x:Key="SplitButtonStyle" TargetType="xctk:SplitButton">
+            <Setter Property="Width" Value="75"/>
+            <Setter Property="Height" Value="25"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        </Style>
+
         <!-- Labels -->
         <Style x:Key="LabelStyle" TargetType="TextBlock">
             <Style.Triggers>
@@ -148,6 +154,11 @@
         <Style x:Key="DecimalUpDownStyle" TargetType="xctk:DecimalUpDown">
             <Setter Property="ClipValueToMinMax" Value="True"/>
             <Setter Property="AutoSelectBehavior" Value="Never"/>
+        </Style>
+
+        <!-- ListView -->
+        <Style x:Key="ListViewStyle" TargetType="ListView">
+            <Setter Property="Foreground" Value="Black"/>
         </Style>
 
         <!-- TabControl -->

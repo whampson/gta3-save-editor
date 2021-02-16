@@ -10,7 +10,6 @@ namespace GTA3SaveEditor.Core
 {
     public partial class SaveEditor
     {
-        #region Singleton Instance
         public static SaveEditor Instance { get; }
         public static Settings Settings { get; set; }
         
@@ -19,9 +18,7 @@ namespace GTA3SaveEditor.Core
             Instance = new SaveEditor();
             Settings = Settings.Defaults;
         }
-        #endregion
 
-        #region Settings
         public static bool LoadSettings(string path)
         {
             string json = File.ReadAllText(path);
@@ -52,9 +49,7 @@ namespace GTA3SaveEditor.Core
             File.WriteAllText(path, json);
             Log.Info("Saved settings.");
         }
-        #endregion
 
-        #region Static File I/O
         public static bool TryLoadFile(string path, out SaveFileGTA3 saveFile)
         {
             return TryLoadFile(path, FileFormat.Default, out saveFile);
@@ -82,12 +77,9 @@ namespace GTA3SaveEditor.Core
                 throw;
             }
         }
-        #endregion
 
-        #region Misc.
         public static string DefaultSaveFileDirectory =>
             Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "GTA3 User Files");
-        #endregion
     }
 
     public enum FileFormatType

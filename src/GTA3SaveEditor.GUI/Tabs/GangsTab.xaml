@@ -7,6 +7,7 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:core="clr-namespace:GTA3SaveEditor.Core;assembly=GTA3SaveEditor.Core"
+    xmlns:game="clr-namespace:GTA3SaveEditor.Core.Game;assembly=GTA3SaveEditor.Core"
     xmlns:g="clr-namespace:GTA3SaveEditor.GUI"
     xmlns:l="clr-namespace:GTA3SaveEditor.GUI.Tabs"
     xmlns:c="clr-namespace:GTA3SaveEditor.GUI.Converters"
@@ -79,7 +80,7 @@
                             <TextBlock Grid.Column="0" Grid.Row="2" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Secondary Weapon:"/>
                             <TextBlock Grid.Column="0" Grid.Row="3" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Ped Model:"/>
                             <ComboBox Grid.Column="1" Grid.Row="0" Margin="5" Width="150"
-                            ItemsSource="{x:Static core:GTA3.Vehicles}" SelectedItem="{Binding Gang.VehicleModel, Converter={StaticResource VehicleModelConverter}}"
+                            ItemsSource="{x:Static game:GTA3.Vehicles}" SelectedItem="{Binding Gang.VehicleModel, Converter={StaticResource VehicleModelConverter}}"
                             Style="{StaticResource ComboBoxStyle}">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
@@ -106,7 +107,7 @@
                                 </ComboBox.ItemTemplate>
                             </ComboBox>
                             <ComboBox Grid.Column="1" Grid.Row="3" Margin="5" Width="150"
-                            ItemsSource="{e:EnumValueCollection EnumType=core:GangPedModelState}"
+                            ItemsSource="{e:EnumValueCollection EnumType=game:GangPedModelState}"
                             SelectedItem="{Binding Gang.PedModelOverride, Converter={StaticResource PedModelOverrideConverter}}"
                             Style="{StaticResource ComboBoxStyle}">
                                 <ComboBox.ItemTemplate>

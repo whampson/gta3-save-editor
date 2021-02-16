@@ -31,12 +31,12 @@ namespace GTA3SaveEditor.GUI
         
         private static readonly StringWriter LogWriter = new StringWriter();
 
-        public static byte[] LoadResource(string resourceName)
+        internal static byte[] LoadResource(string resourceName)
         {
             return LoadResource(new Uri($"pack://application:,,,/Resources/{resourceName}"));
         }
 
-        public static byte[] LoadResource(Uri resourceUri)
+        internal static byte[] LoadResource(Uri resourceUri)
         {
             using MemoryStream m = new MemoryStream();
             GetResourceStream(resourceUri).Stream.CopyTo(m);

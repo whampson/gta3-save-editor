@@ -1,4 +1,4 @@
-﻿namespace GTA3SaveEditor.Core
+﻿namespace GTA3SaveEditor.Core.Game
 {
     public class IdeObject
     {

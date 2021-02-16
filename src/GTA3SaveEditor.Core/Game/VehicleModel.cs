@@ -1,4 +1,4 @@
-﻿namespace GTA3SaveEditor.Core
+﻿namespace GTA3SaveEditor.Core.Game
 {
     public class VehicleModel : IdeObject
     {
@@ -9,10 +9,5 @@
         {
             GameName = gameName;
         }
-
-        //public override string ToString()
-        //{
-        //    return SaveEditor.GetGxtString(GameName);
-        //}
     }
 }
