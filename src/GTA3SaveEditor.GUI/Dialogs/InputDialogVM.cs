@@ -4,7 +4,7 @@ using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.Dialogs
 {
-    public class InputDialogVM : DialogViewModelBase
+    public class InputDialogVM : WindowVMBase
     {
         private string m_label;
         private string m_text;

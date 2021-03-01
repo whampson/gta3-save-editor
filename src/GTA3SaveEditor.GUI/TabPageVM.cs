@@ -4,7 +4,7 @@ using WHampson.ToolUI;
 
 namespace GTA3SaveEditor.GUI
 {
-    public abstract class TabPageVM : UserControlViewModelBase
+    public abstract class TabPageVM : ViewModelBase
     {
         private MainWindowVM m_mainWindow;
         private TabPageVisibility m_visibility;

@@ -15,7 +15,7 @@ using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.Dialogs
 {
-    public class CustomScriptsVM : DialogViewModelBase
+    public class CustomScriptsVM : WindowVMBase
     {
         const string FileFilter = "Custom Scripts (*.cs, *.cm)|*.cs;*.cm|All Files (*.*)|*.*";
 
@@ -29,8 +29,6 @@ namespace GTA3SaveEditor.GUI.Dialogs
         private CustomScript m_selectedScript;
         private bool m_commit;
         private int m_availableSpace;
-
-        public SaveFileGTA3 TheSave => SaveEditor.Instance.ActiveFile;
 
         public ObservableCollection<CustomScript> CustomScripts
         {

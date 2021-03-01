@@ -77,11 +77,6 @@ namespace GTA3SaveEditor.GUI
             base.Init();
             Title = App.Name;
 
-            //OpenFileRequest += OpenFileRequest_Handler;
-            //CloseFileRequest += CloseFileRequest_Handler;
-            //SaveFileRequest += SaveFileRequest_Handler;
-            //RevertFileRequest += RevertFileRequest_Handler;
-
             Editor.FileOpening += FileOpening_Handler;
             Editor.FileOpened += FileOpened_Handler;
             Editor.FileClosing += FileClosing_Handler;
@@ -97,11 +92,6 @@ namespace GTA3SaveEditor.GUI
         public override void Shutdown()
         {
             base.Shutdown();
-
-            //OpenFileRequest -= OpenFileRequest_Handler;
-            //CloseFileRequest -= CloseFileRequest_Handler;
-            //SaveFileRequest -= SaveFileRequest_Handler;
-            //RevertFileRequest -= RevertFileRequest_Handler;
 
             Editor.FileOpening -= FileOpening_Handler;
             Editor.FileOpened -= FileOpened_Handler;

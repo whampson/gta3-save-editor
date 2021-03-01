@@ -80,7 +80,7 @@ namespace GTA3SaveEditor.GUI
             m_logWindow = null;
         }
 
-        public void ShowDialog<T>() where T : DialogBase, new()
+        public void ShowDialog<T>() where T : WindowBase, new()
         {
             T dialog = new T() { Owner = this };
             dialog.ShowDialog();

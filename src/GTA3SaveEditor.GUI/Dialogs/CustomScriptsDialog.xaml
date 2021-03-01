@@ -1,4 +1,4 @@
-﻿<t:DialogBase
+﻿<g:WindowBase
     x:Class="GTA3SaveEditor.GUI.Dialogs.CustomScriptsDialog"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -149,4 +149,4 @@
         </Grid>
     </Grid>
 
-</t:DialogBase>
+</g:WindowBase>
