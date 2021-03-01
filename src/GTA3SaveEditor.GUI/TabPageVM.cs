@@ -30,7 +30,7 @@ namespace GTA3SaveEditor.GUI
         public bool IsVisible
         {
             get { return m_isVisible; }
-            private set { SetVisible(value); OnPropertyChanged(); }
+            set { SetVisible(value); OnPropertyChanged(); }
         }
 
         public string Title
@@ -39,28 +39,20 @@ namespace GTA3SaveEditor.GUI
             set { m_title = value; OnPropertyChanged(); }
         }
 
-        public void UpdateVisibility()
-        {
-            IsVisible =
-                (Visibility == TabPageVisibility.Always) ||
-                (Visibility == TabPageVisibility.WhenEditingFile && SaveEditor.Instance.IsEditingFile) ||
-                (Visibility == TabPageVisibility.WhenNotEditingFile && !SaveEditor.Instance.IsEditingFile);
-        }
-
         private void SetVisible(bool isVisible)
         {
             bool wasVisible = m_isVisible;
-            m_isVisible = isVisible;
-
-            if (wasVisible && !m_isVisible)
+            if (wasVisible && !isVisible)
             {
                 Unload();
             }
-            if (m_isVisible && !wasVisible)
+            if (isVisible && !wasVisible)
             {
                 Load();
                 Update();
             }
+
+            m_isVisible = isVisible;
         }
     }
 

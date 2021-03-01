@@ -12,10 +12,13 @@ namespace GTA3SaveEditor.GUI
 {
     public abstract class WindowVMBase : WHampson.ToolUI.WindowViewModelBase
     {
+        public event EventHandler LogWindowRequest;
+        public event EventHandler CustomScriptsDialogRequest;
         public event EventHandler<FileIOEventArgs> OpenFileRequest;
         public event EventHandler<FileIOEventArgs> CloseFileRequest;
         public event EventHandler<FileIOEventArgs> SaveFileRequest;
         public event EventHandler<FileIOEventArgs> RevertFileRequest;
+        public event EventHandler<InputDialogEventArgs> InputDialogRequest;
 
         public SaveEditor Editor => SaveEditor.Instance;
         public Settings Settings => SaveEditor.Settings;
@@ -64,7 +67,10 @@ namespace GTA3SaveEditor.GUI
 
         public ICommand SaveFileCommand => new RelayCommand
         (
-            () => SaveFile(),
+            () =>
+            {
+                SaveFile();
+            },
             () => Editor.IsEditingFile
         );
 
@@ -86,6 +92,27 @@ namespace GTA3SaveEditor.GUI
         {
             //Log.Info(status);
             base.SetTimedStatusText(status, duration, expiredStatus);
+        }
+
+        public void ShowLogWindow() => LogWindowRequest?.Invoke(this, EventArgs.Empty);
+        public void ShowCustomScriptsDialog() => CustomScriptsDialogRequest?.Invoke(this, EventArgs.Empty);
+
+        public bool ShowInputDialog(string label, out string result)
+        {
+            bool valid = false;
+            string s = null;
+
+            InputDialogRequest?.Invoke(this, new InputDialogEventArgs() {
+                Label = label,
+                Callback = (e) =>
+                {
+                    valid = e.Result != null;
+                    s = e.Result;
+                }
+            });
+
+            result = s;
+            return valid;
         }
     }
 }

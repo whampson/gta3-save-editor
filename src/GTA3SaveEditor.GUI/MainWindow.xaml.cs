@@ -27,8 +27,7 @@ namespace GTA3SaveEditor.GUI
         protected override void OnLoad()
         {
             base.OnLoad();
-            ViewModel.LogWindowRequest += ViewModel_LogWindowRequest;
-            ViewModel.CustomScriptsDialogRequest += ViewModel_CustomScriptsDialogRequest;
+            RegisterHandlers(this);
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -42,7 +41,7 @@ namespace GTA3SaveEditor.GUI
 
             base.OnClosing(e);
             DestroyAllWindows();
-            ViewModel.LogWindowRequest -= ViewModel_LogWindowRequest;
+            UnregisterHandlers(this);
         }
 
         private void LazyShowWindow<T>(T window, out T outWindow) where T : WindowBase, new()
@@ -57,10 +56,7 @@ namespace GTA3SaveEditor.GUI
             if (window == null)
             {
                 window = new T() { Owner = this };
-                window.ViewModel.OpenFileRequest += ViewModel.OpenFileRequest_Handler;
-                window.ViewModel.SaveFileRequest += ViewModel.SaveFileRequest_Handler;
-                window.ViewModel.CloseFileRequest += ViewModel.CloseFileRequest_Handler;
-                window.ViewModel.RevertFileRequest += ViewModel.RevertFileRequest_Handler;
+                RegisterHandlers(window);
             }
 
             outWindow = window;
@@ -73,10 +69,7 @@ namespace GTA3SaveEditor.GUI
             {
                 window.HideOnClose = false;
                 window.Close();
-                window.ViewModel.OpenFileRequest -= ViewModel.OpenFileRequest_Handler;
-                window.ViewModel.SaveFileRequest -= ViewModel.SaveFileRequest_Handler;
-                window.ViewModel.CloseFileRequest -= ViewModel.CloseFileRequest_Handler;
-                window.ViewModel.RevertFileRequest -= ViewModel.RevertFileRequest_Handler;
+                UnregisterHandlers(window);
             }
         }
 
@@ -93,6 +86,30 @@ namespace GTA3SaveEditor.GUI
             dialog.ShowDialog();
         }
 
+        private void RegisterHandlers(WindowBase w)
+        {
+            w.ViewModel.LogWindowRequest += ViewModel_LogWindowRequest;
+            w.ViewModel.CustomScriptsDialogRequest += ViewModel_CustomScriptsDialogRequest;
+            w.ViewModel.OpenFileRequest += ViewModel.OpenFileRequest_Handler;
+            w.ViewModel.SaveFileRequest += ViewModel.SaveFileRequest_Handler;
+            w.ViewModel.CloseFileRequest += ViewModel.CloseFileRequest_Handler;
+            w.ViewModel.RevertFileRequest += ViewModel.RevertFileRequest_Handler;
+            w.ViewModel.InputDialogRequest += ViewModel_InputDialogRequest;
+
+            // TODO: close handler
+        }
+
+        private void UnregisterHandlers(WindowBase w)
+        {
+            w.ViewModel.LogWindowRequest -= ViewModel_LogWindowRequest;
+            w.ViewModel.CustomScriptsDialogRequest -= ViewModel_CustomScriptsDialogRequest;
+            w.ViewModel.OpenFileRequest -= ViewModel.OpenFileRequest_Handler;
+            w.ViewModel.SaveFileRequest -= ViewModel.SaveFileRequest_Handler;
+            w.ViewModel.CloseFileRequest -= ViewModel.CloseFileRequest_Handler;
+            w.ViewModel.RevertFileRequest -= ViewModel.RevertFileRequest_Handler;
+            w.ViewModel.InputDialogRequest -= ViewModel_InputDialogRequest;
+        }
+
         private void ViewModel_LogWindowRequest(object sender, EventArgs e)
         {
             LazyShowWindow(m_logWindow, out m_logWindow);
@@ -101,6 +118,25 @@ namespace GTA3SaveEditor.GUI
         private void ViewModel_CustomScriptsDialogRequest(object sender, EventArgs e)
         {
             ShowDialog<CustomScriptsDialog>();
+        }
+
+        private void ViewModel_InputDialogRequest(object sender, Events.InputDialogEventArgs e)
+        {
+            var vm = new InputDialogVM()
+            {
+                Title = e.Title ?? "Input Required",
+                Label = e.Label ?? "Enter Input:",
+            };
+
+            InputDialog d = new InputDialog()
+            {
+                Owner = this,
+                ViewModel = vm
+            };
+            d.ShowDialog();
+
+            e.Result = vm.Text;
+            e.Callback?.Invoke(e);
         }
 
         private void TabControlEx_SelectionChanged(object sender, SelectionChangedEventArgs e)

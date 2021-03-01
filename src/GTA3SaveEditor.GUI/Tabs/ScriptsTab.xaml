@@ -3,8 +3,8 @@
     x:TypeArguments="l:ScriptsTabVM"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:core="clr-namespace:GTA3SaveEditor.Core;assembly=GTA3SaveEditor.Core"
     xmlns:g="clr-namespace:GTA3SaveEditor.GUI"
@@ -15,7 +15,7 @@
     xmlns:e="clr-namespace:WpfEssentials.Win32.Extensions;assembly=WpfEssentials.Win32"
     xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=DotNetProjects.Wpf.Extended.Toolkit"
     xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"
-    mc:Ignorable="d" 
+    mc:Ignorable="d"
     d:DesignHeight="450" d:DesignWidth="800"
     d:DataContext="{d:DesignInstance Type=l:ScriptsTabVM}">
 
@@ -23,9 +23,9 @@
         <c:ListViewItemIndexConverter x:Key="ListViewItemIndexConverter"/>
         <c:ComparisonConverter x:Key="ComparisonConverter"/>
         <c:SubtractConverter x:Key="SubtractConverter" Clamp="True" ClampValue="0"/>
-        <c:ScriptSymbolConverter x:Key="ScriptSymbolConverter"/>
         <c:NumberFormatConverter x:Key="NumberFormatConverter"/>
         <c:FloatBitsConverter x:Key="FloatBitsConverter"/>
+        <tc:InvertBooleanConverter x:Key="InvertBool"/>
         <Style TargetType="ListView" BasedOn="{StaticResource ListViewStyle}">
             <Setter Property="FontFamily" Value="Consolas"/>
             <Setter Property="SelectionMode" Value="Single"/>
@@ -78,42 +78,39 @@
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
-                <ListView Margin="5"
-                    ItemsSource="{Binding Globals}"
-                    SelectedIndex="{Binding GlobalIndex}"
+                <ListView Margin="5" x:Name="m_globalsList"
+                    ItemsSource="{Binding GlobalInfo}"
                     SelectionChanged="GlobalListView_SelectionChanged"
                     SelectionMode="Extended">
+                    <ListView.Resources>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        </Style>
+                    </ListView.Resources>
+                    <ListView.InputBindings>
+                        <KeyBinding Command="{Binding DeleteGlobals}"
+                            CommandParameter="{Binding ElementName=m_globalsList, Path=SelectedItems}"
+                            Key="Delete"/>
+                    </ListView.InputBindings>
                     <ListView.View>
                         <GridView>
                             <GridView.Columns>
-                                <GridViewColumn Header="ID" Width="45"
+                                <GridViewColumn Header="ID" Width="55"
                                     DisplayMemberBinding="{Binding
                                         RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ListViewItem}},
                                         Converter={StaticResource ListViewItemIndexConverter},
                                         StringFormat={}${0}}"/>
-                                <GridViewColumn Header="Name" Width="200">
-                                    <GridViewColumn.CellTemplate>
-                                        <DataTemplate>
-                                            <TextBlock TextAlignment="Justify">
-                                                <TextBlock.Text>
-                                                    <MultiBinding Converter="{StaticResource ScriptSymbolConverter}">
-                                                        <Binding Path="DataContext.Symbols" ElementName="MainView"/>
-                                                        <Binding
-                                                            RelativeSource="{RelativeSource Mode=FindAncestor, AncestorType={x:Type ListViewItem}}"
-                                                            Converter="{StaticResource ListViewItemIndexConverter}"/>
-                                                    </MultiBinding>
-                                                </TextBlock.Text>
-                                            </TextBlock>
-                                        </DataTemplate>
-                                    </GridViewColumn.CellTemplate>
+                                <GridViewColumn Header="Name" Width="190"
+                                    DisplayMemberBinding="{Binding Name}">
                                 </GridViewColumn>
                                 <GridViewColumn Header="Value" Width="85">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
-                                            <TextBlock TextAlignment="Right">
+                                            <TextBlock TextAlignment="Right" HorizontalAlignment="Right">
                                                 <TextBlock.Text>
                                                     <MultiBinding Converter="{StaticResource NumberFormatConverter}">
-                                                        <Binding Path="."/>
+                                                        <Binding Path="Value"/>
                                                         <Binding Path="DataContext.NumberFormat" ElementName="MainView"/>
                                                     </MultiBinding>
                                                 </TextBlock.Text>
@@ -134,47 +131,59 @@
 
                     <Grid Grid.Row="0" Margin="5">
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="30"/>
-                            <ColumnDefinition Width="30"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <!-- TODO -->
-                        <Button
-                            Margin="0,-5,2.5,0"
-                            Grid.Column="0"
-                            Content="+"
-                            HorizontalAlignment="Stretch"
-                            />
-                        <!-- TODO -->
+                        <xctk:SplitButton
+                            Grid.Column="0" Margin="0,-5,2.5,0"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Bottom"
+                            Style="{StaticResource SplitButtonStyle}"
+                            Content="Insert"
+                            Command="{Binding InsertGlobal}">
+                            <xctk:SplitButton.DropDownContent>
+                                <Menu>
+                                    <MenuItem Header="Insert Multiple..."
+                                        Padding="10,2.5"
+                                        Command="{Binding InsertGlobalMultiple}"/>
+                                </Menu>
+                            </xctk:SplitButton.DropDownContent>
+                        </xctk:SplitButton>
+
                         <Button
                             Margin="2.5,-5,0,0"
                             Grid.Column="1"
-                            Content="&#x2013;"
-                            />
+                            Style="{StaticResource ButtonStyle}"
+                            Content="Delete"
+                            Command="{Binding DeleteGlobals}"
+                            CommandParameter="{Binding ElementName=m_globalsList, Path=SelectedItems}"/>
                     </Grid>
-                    
-                    <!-- TODO -->
+
+                    <!-- TODO: ability to re-load SCM symbols -->
                     <!--<Button
                         Grid.Column="0"
                         Content="Load Symbols..."
                         Margin="5" Width="Auto" MinWidth="100"
                         Style="{StaticResource ButtonStyle}"/>-->
-                    
+
                     <xctk:IntegerUpDown
                         Grid.Column="2" Margin="5,0,5,5" Height="22"
                         Style="{StaticResource IntScriptVariableStyle}"
-                        Value="{Binding GlobalValue}"
-                        ValueChanged="GlobalUpDown_ValueChanged"/>
+                        Value="{Binding SelectedGlobal.Value}"
+                        ValueChanged="GlobalUpDown_ValueChanged"
+                        IsEnabled="{Binding SelectedGlobal, Converter={StaticResource IsNotNull}}"/>
                     <xctk:SingleUpDown
                         Grid.Column="2" Margin="5,0,5,5" Height="22"
                         Style="{StaticResource FloatScriptVariableStyle}"
-                        Value="{Binding GlobalValue, Converter={StaticResource FloatBitsConverter}}"
-                        ValueChanged="GlobalUpDown_ValueChanged"/>
+                        Value="{Binding SelectedGlobal.Value, Converter={StaticResource FloatBitsConverter}}"
+                        ValueChanged="GlobalUpDown_ValueChanged"
+                        IsEnabled="{Binding SelectedGlobal, Converter={StaticResource IsNotNull}}"/>
                     <xctk:IntegerUpDown
                         Grid.Column="2" Margin="5,0,5,5" Height="22"
                         Style="{StaticResource HexScriptVariableStyle}"
-                        Value="{Binding GlobalValue}" ParsingNumberStyle="HexNumber" FormatString="X"
+                        Value="{Binding SelectedGlobal.Value}" ParsingNumberStyle="HexNumber" FormatString="X"
                         ValueChanged="GlobalUpDown_ValueChanged"
-                        IsEnabled="{Binding GlobalValue, Converter={StaticResource IsNotNull}}"/>
+                        IsEnabled="{Binding SelectedGlobal, Converter={StaticResource IsNotNull}}"/>
                 </Grid>
             </Grid>
         </GroupBox>
@@ -195,20 +204,24 @@
                     </Grid.RowDefinitions>
 
                     <ListBox Margin="5,10,5,5"
-                        SelectedItem="{Binding Thread}"
-                        SelectedIndex="{Binding ThreadIndex}"
-                        ItemsSource="{Binding TheSave.Scripts.Threads}"
+                        ItemsSource="{Binding ThreadInfo}"
                         SelectionChanged="ThreadListBox_SelectionChanged"
                         SelectionMode="Extended">
 
+                        <ListBox.Resources>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="IsSelected" Value="{Binding IsSelected, Mode=TwoWay}"/>
+                            </Style>
+                        </ListBox.Resources>
+
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Path=Name}"/>
+                                <TextBlock Text="{Binding Path=Thread.Name}"/>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
 
                         <ListBox.InputBindings>
-                            <KeyBinding Command="{Binding DeleteSelectedThreads}" Key="Delete"/>
+                            <KeyBinding Command="{Binding DeleteThreads}" Key="Delete"/>
                         </ListBox.InputBindings>
                     </ListBox>
 
@@ -217,19 +230,17 @@
                             <ColumnDefinition Width="30"/>
                             <ColumnDefinition Width="30"/>
                         </Grid.ColumnDefinitions>
-                        <!-- TODO -->
                         <Button
                             Margin="0,-5,2.5,0"
                             Grid.Column="0"
                             Content="+"
                             HorizontalAlignment="Stretch"
                             Command="{Binding InsertThread}"/>
-                        <!-- TODO -->
                         <Button
                             Margin="2.5,-5,0,0"
                             Grid.Column="1"
                             Content="&#x2013;"
-                            Command="{Binding DeleteSelectedThreads}"/>
+                            Command="{Binding DeleteThreads}"/>
                     </Grid>
 
                 </Grid>
@@ -237,7 +248,7 @@
                 <GroupBox Grid.Column="1" Header="Thread Info"
                     Margin="5,0,5,5"
                     Style="{StaticResource GroupBoxStyle}"
-                    IsEnabled="{Binding Thread, Converter={StaticResource IsNotNull}}"
+                    IsEnabled="{Binding SelectedThread, Converter={StaticResource IsNotNull}}"
                     Name="m_root">
                     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                         <Grid>
@@ -257,20 +268,20 @@
                             <GroupBox Grid.Column="0" Grid.Row="0" Header="Name" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}">
                                 <TextBox
                                     Height="22" MaxLength="7" Margin="5"
-                                    Text="{Binding Thread.Name, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStyle}"/>
+                                    Text="{Binding SelectedThread.Thread.Name, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStyle}"/>
                             </GroupBox>
                             <GroupBox Grid.Column="0" Grid.Row="1" Header="Instruction Pointer" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}">
                                 <xctk:IntegerUpDown
-                                    Margin="5" Height="22" 
+                                    Margin="5" Height="22"
                                     TextAlignment="Left"
-                                    Value="{Binding Thread.IP}"
+                                    Value="{Binding SelectedThread.Thread.IP}"
                                     Style="{StaticResource Int32UpDownStyle}"/>
                             </GroupBox>
                             <GroupBox Grid.Column="0" Grid.Row="2" Header="Stack Pointer" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}">
                                 <xctk:IntegerUpDown
-                                    Margin="5" Height="22" 
+                                    Margin="5" Height="22"
                                     TextAlignment="Left"
-                                    Value="{Binding Thread.StackIndex}"
+                                    Value="{Binding SelectedThread.Thread.StackIndex}"
                                     Style="{StaticResource Int32UpDownStyle}"/>
                             </GroupBox>
                             <GroupBox Grid.Column="0" Grid.Row="3" Header="Stack" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
@@ -295,7 +306,7 @@
                                     </Grid.RowDefinitions>
                                     <ListView
                                         Grid.Row="0" Margin="5"
-                                        ItemsSource="{Binding Thread.Stack}"
+                                        ItemsSource="{Binding SelectedThread.Thread.Stack}"
                                         SelectedIndex="{Binding StackIndex}"
                                         SelectionChanged="StackListView_SelectionChanged">
                                         <ListView.View>
@@ -327,12 +338,14 @@
                                         Grid.Row="1" Margin="5,0,5,5" Height="22"
                                         Style="{StaticResource IntScriptVariableStyle}"
                                         Value="{Binding StackValue}"
-                                        ValueChanged="StackUpDown_ValueChanged"/>
+                                        ValueChanged="StackUpDown_ValueChanged"
+                                        IsEnabled="{Binding StackValue, Converter={StaticResource IsNotNull}}"/>
                                     <xctk:SingleUpDown
                                         Grid.Row="1" Margin="5,0,5,5" Height="22"
                                         Style="{StaticResource FloatScriptVariableStyle}"
                                         Value="{Binding StackValue, Converter={StaticResource FloatBitsConverter}}"
-                                        ValueChanged="StackUpDown_ValueChanged"/>
+                                        ValueChanged="StackUpDown_ValueChanged"
+                                        IsEnabled="{Binding StackValue, Converter={StaticResource IsNotNull}}"/>
                                     <xctk:IntegerUpDown
                                         Grid.Row="1" Margin="5,0,5,5" Height="22"
                                         Style="{StaticResource HexScriptVariableStyle}"
@@ -345,25 +358,25 @@
                             <GroupBox Grid.Column="1" Grid.Row="0" Header="Timer A" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
                                 Name="m_timerA">
                                 <xctk:IntegerUpDown
-                                        Margin="5" Height="22" 
+                                        Margin="5" Height="22"
                                         TextAlignment="Left"
-                                        Value="{Binding Thread.TimerA}"
+                                        Value="{Binding SelectedThread.Thread.TimerA}"
                                         Style="{StaticResource Int32UpDownStyle}"/>
                             </GroupBox>
                             <GroupBox Grid.Column="1" Grid.Row="1" Header="Timer B" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
                                 Name="m_timerB">
                                 <xctk:IntegerUpDown
-                                        Margin="5" Height="22" 
+                                        Margin="5" Height="22"
                                         TextAlignment="Left"
-                                        Value="{Binding Thread.TimerB}"
+                                        Value="{Binding SelectedThread.Thread.TimerB}"
                                         Style="{StaticResource Int32UpDownStyle}"/>
                             </GroupBox>
                             <GroupBox Grid.Column="1" Grid.Row="2" Header="Wake Time" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
                                 Name="m_wake">
                                 <xctk:IntegerUpDown
-                                        Margin="5" Height="22" 
+                                        Margin="5" Height="22"
                                         TextAlignment="Left"
-                                        Value="{Binding Thread.WakeTime}"
+                                        Value="{Binding SelectedThread.Thread.WakeTime}"
                                         Style="{StaticResource Int32UpDownStyle}"/>
                             </GroupBox>
 
@@ -389,7 +402,7 @@
                                     </Grid.RowDefinitions>
                                     <ListView
                                         Grid.Row="0" Margin="5"
-                                        ItemsSource="{Binding Thread.Locals}"
+                                        ItemsSource="{Binding SelectedThread.Thread.Locals}"
                                         SelectedIndex="{Binding LocalIndex}"
                                         SelectionChanged="LocalListView_SelectionChanged">
                                         <ListView.View>
@@ -422,12 +435,14 @@
                                         Grid.Row="1" Margin="5,0,5,5" Height="22"
                                         Style="{StaticResource IntScriptVariableStyle}"
                                         Value="{Binding LocalValue}"
-                                        ValueChanged="LocalUpDown_ValueChanged"/>
+                                        ValueChanged="LocalUpDown_ValueChanged"
+                                        IsEnabled="{Binding LocalValue, Converter={StaticResource IsNotNull}}"/>
                                     <xctk:SingleUpDown
                                         Grid.Row="1" Margin="5,0,5,5" Height="22"
                                         Style="{StaticResource FloatScriptVariableStyle}"
                                         Value="{Binding LocalValue, Converter={StaticResource FloatBitsConverter}}"
-                                        ValueChanged="LocalUpDown_ValueChanged"/>
+                                        ValueChanged="LocalUpDown_ValueChanged"
+                                        IsEnabled="{Binding LocalValue, Converter={StaticResource IsNotNull}}"/>
                                     <xctk:IntegerUpDown
                                         Grid.Row="1" Margin="5,0,5,5" Height="22"
                                         Style="{StaticResource HexScriptVariableStyle}"
@@ -437,12 +452,12 @@
                                 </Grid>
                             </GroupBox>
 
-                            <!--<GroupBox Grid.Column="0" Grid.Row="4" Header="Conjunctive" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}">
+                            <!--<GroupBox Grid.Column="0" Grid.Row="4" Header="And/Or State" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}">
                                 <ComboBox
-                                        Margin="5" Height="22" 
+                                        Margin="5" Height="22"
                                         ItemsSource="{e:EnumValueCollection EnumType=core:AndOrState}"
                                         Style="{StaticResource ComboBoxStyle}"
-                                        SelectedValue="{Binding Thread.AndOrState, Converter={StaticResource AndOrConverter}}"/>
+                                        SelectedValue="{Binding SelectedThread.Thread.AndOrState, Converter={StaticResource AndOrConverter}}"/>
                             </GroupBox>-->
 
                             <GroupBox Grid.Column="0" Grid.Row="5" Grid.ColumnSpan="2" Header="Flags" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
@@ -454,21 +469,29 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
                                         <CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="Mission Script"
-                                            IsChecked="{Binding Thread.IsMissionScript}"/>
-                                        <CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="Internal Mission"
-                                            IsChecked="{Binding Thread.MissionFlag}"/>
-                                        <!--<CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="'If' Flag"
-                                            IsChecked="{Binding Thread.ConditionResult}"/>
-                                        <CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="'Not' Flag"
-                                            IsChecked="{Binding Thread.NotFlag}"/>
-                                        <CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="Clear Messages"
-                                            IsChecked="{Binding Thread.ClearMessages}"/>-->
+                                            IsChecked="{Binding SelectedThread.Thread.IsMissionScript}"
+                                            ToolTip="This script can invoke a death/arrest check and will perform mission cleanup when finished."
+                                            ToolTipService.InitialShowDelay="1000"/>
+                                        <CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="MAIN.SCM Mission"
+                                            IsChecked="{Binding SelectedThread.Thread.MissionFlag}"
+                                            ToolTip="This script is loaded from MAIN.SCM and uses mission offsets."
+                                            ToolTipService.InitialShowDelay="1000"/>
+                                        <!--<CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="Condition Flag"
+                                            IsChecked="{Binding SelectedThread.Thread.ConditionResult}"/>-->
+                                        <!--<CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="Message Wait"
+                                            IsChecked="{Binding SelectedThread.Thread.ClearMessages}"/>-->
                                     </StackPanel>
                                     <StackPanel Grid.Column="1">
-                                        <CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="Death/Arrest State"
-                                            IsChecked="{Binding Thread.WastedBustedCheckResult}"/>
-                                        <CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="Death/Arrest Check Enabled"
-                                            IsChecked="{Binding Thread.WastedBustedCheckEnabled}"/>
+                                        <CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="Wasted/Busted Check Enabled"
+                                            IsChecked="{Binding SelectedThread.Thread.WastedBustedCheckEnabled}"
+                                            ToolTip="The script will perform a death/arrest check periodically. (Mission Scripts only)"
+                                            ToolTipService.InitialShowDelay="1000"/>
+                                        <CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="Wasted Or Busted"
+                                            IsChecked="{Binding SelectedThread.Thread.WastedBustedCheckResult}"
+                                            ToolTip="Death/Arrest Check result."
+                                            ToolTipService.InitialShowDelay="1000"/>
+                                        <!--<CheckBox Margin="5,2.5,5,2.5" Style="{StaticResource CheckBoxStyle}" Content="'Not' Flag"
+                                            IsChecked="{Binding SelectedThread.Thread.NotFlag}"/>-->
                                     </StackPanel>
                                 </Grid>
                             </GroupBox>

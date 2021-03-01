@@ -62,85 +62,85 @@ namespace GTA3SaveEditor.GUI.Tabs
             get { return m_isHostileMafia; }
             set { m_isHostileMafia = value; OnPropertyChanged(); }
         }
-        
+
         public bool IsHostileTriads
         {
             get { return m_isHostileTriads; }
             set { m_isHostileTriads = value; OnPropertyChanged(); }
         }
-        
+
         public bool IsHostileDiablos
         {
             get { return m_isHostileDiablos; }
             set { m_isHostileDiablos = value; OnPropertyChanged(); }
         }
-        
+
         public bool IsHostileYakuza
         {
             get { return m_isHostileYakuza; }
             set { m_isHostileYakuza = value; OnPropertyChanged(); }
         }
-        
+
         public bool IsHostileYardies
         {
             get { return m_isHostileYardies; }
             set { m_isHostileYardies = value; OnPropertyChanged(); }
         }
-        
+
         public bool IsHostileCartel
         {
             get { return m_isHostileCartel; }
             set { m_isHostileCartel = value; OnPropertyChanged(); }
         }
-        
+
         public bool IsHostileHoods
         {
             get { return m_isHostileHoods; }
             set { m_isHostileHoods = value; OnPropertyChanged(); }
         }
-        
+
         public bool IsHostileGang8
         {
             get { return m_isHostileGang8; }
             set { m_isHostileGang8 = value; OnPropertyChanged(); }
         }
-        
+
         public bool IsHostileGang9
         {
             get { return m_isHostileGang9; }
             set { m_isHostileGang9 = value; OnPropertyChanged(); }
         }
-        
+
         public bool IsHostileCivilians
         {
             get { return m_isHostileCivilians; }
             set { m_isHostileCivilians = value; OnPropertyChanged(); }
         }
-        
+
         public bool IsHostileCops
         {
             get { return m_isHostileCops; }
             set { m_isHostileCops = value; OnPropertyChanged(); }
         }
-        
+
         public bool IsHostileEmergency
         {
             get { return m_isHostileEmergency; }
             set { m_isHostileEmergency = value; OnPropertyChanged(); }
         }
-        
+
         public bool IsHostileFirefighters
         {
             get { return m_isHostileFirefighters; }
             set { m_isHostileFirefighters = value; OnPropertyChanged(); }
         }
-        
+
         public bool IsHostileProstitutes
         {
             get { return m_isHostileProstitutes; }
             set { m_isHostileProstitutes = value; OnPropertyChanged(); }
         }
-        
+
         public bool IsHostileCriminals
         {
             get { return m_isHostileCriminals; }

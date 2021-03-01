@@ -73,13 +73,18 @@
                         IsEnabled="{Binding Settings.RecentFiles.Count, Converter={StaticResource IsNotZero}}"
                         ItemsSource="{Binding Settings.RecentFiles}">
                         <MenuItem.ItemContainerStyle>
-                        <!-- TODO: Underscores in filenames not showing up -->
                             <Style TargetType="{x:Type MenuItem}">
                                 <Setter Property="Command" Value="{Binding DataContext.OpenRecentFileCommand,
                                     RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type MenuItem}, AncestorLevel=1}}"/>
                                 <Setter Property="CommandParameter" Value="{Binding}"/>
                             </Style>
                         </MenuItem.ItemContainerStyle>
+                        <MenuItem.ItemTemplate>
+                            <DataTemplate>
+                                <!-- use a textblock to prevent underscores in path from being recognized as access key delineator -->
+                                <TextBlock Text="{Binding}"/>
+                            </DataTemplate>
+                        </MenuItem.ItemTemplate>
                     </MenuItem>
                     <MenuItem Header="O_pen Slot">
                         <MenuItem Header="{Binding SaveSlots[0].Name}" HeaderStringFormat="1. {0}" IsEnabled="{Binding SaveSlots[0].InUse}" Command="{Binding OpenSlotCommand}" CommandParameter="{StaticResource Int0}"/>

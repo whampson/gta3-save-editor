@@ -20,10 +20,10 @@ namespace GTA3SaveEditor.GUI.Dialogs
         const string FileFilter = "Custom Scripts (*.cs, *.cm)|*.cs;*.cm|All Files (*.*)|*.*";
 
         const string Tag = "CSC\0";
-        const int MaxNumEntries = 64;                   // arbitrary limit: should be enough...
+        const int MaxNumEntries = 64;                   // arbitrary limit, should be enough...
         const int TableAddress = 0x4800;                // semi-arbitrary, chosen to allocate some extra global variable space (close to 300 new globals)
         const int TableSize = 8 + (MaxNumEntries * 4);  // ('CSC\0' + num_active_entries [int32]) + (MaxNumEntries * (entry_address [int16] + entry_size [int16]))
-        const int TotalSpace = 40000;                   // semi-arbitrary, chosen to minimize the risk of making the Scripts block too large
+        const int TotalSpace = 17260;                   // start of object defs in MAIN.SCM (PC). TODO: could possibly overwrite :MAIN code for extra space
 
         private ObservableCollection<CustomScript> m_customScripts;
         private CustomScript m_selectedScript;

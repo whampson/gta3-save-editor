@@ -30,9 +30,6 @@ namespace GTA3SaveEditor.GUI
         const string TabNameGangs = "Gangs";
         const string TabNamePickups = "Pickups";
 
-        public event EventHandler LogWindowRequest;
-        public event EventHandler CustomScriptsDialogRequest;
-
         private ObservableCollection<SaveSlot> m_saveSlots;
         private ObservableCollection<TabPageVM> m_tabs;
         private int m_selectedTabIndex;
@@ -80,10 +77,10 @@ namespace GTA3SaveEditor.GUI
             base.Init();
             Title = App.Name;
 
-            OpenFileRequest += OpenFileRequest_Handler;
-            CloseFileRequest += CloseFileRequest_Handler;
-            SaveFileRequest += SaveFileRequest_Handler;
-            RevertFileRequest += RevertFileRequest_Handler;
+            //OpenFileRequest += OpenFileRequest_Handler;
+            //CloseFileRequest += CloseFileRequest_Handler;
+            //SaveFileRequest += SaveFileRequest_Handler;
+            //RevertFileRequest += RevertFileRequest_Handler;
 
             Editor.FileOpening += FileOpening_Handler;
             Editor.FileOpened += FileOpened_Handler;
@@ -92,8 +89,8 @@ namespace GTA3SaveEditor.GUI
             Editor.FileSaving += FileSaving_Handler;
             Editor.FileSaved += FileSaved_Handler;
 
-            InitTabs();
-            UpdateTabVisibility();
+            InitAllTabs();
+            RefreshTabVisibility();
             RefreshSaveSlots();
         }
 
@@ -101,10 +98,10 @@ namespace GTA3SaveEditor.GUI
         {
             base.Shutdown();
 
-            OpenFileRequest -= OpenFileRequest_Handler;
-            CloseFileRequest -= CloseFileRequest_Handler;
-            SaveFileRequest -= SaveFileRequest_Handler;
-            RevertFileRequest -= RevertFileRequest_Handler;
+            //OpenFileRequest -= OpenFileRequest_Handler;
+            //CloseFileRequest -= CloseFileRequest_Handler;
+            //SaveFileRequest -= SaveFileRequest_Handler;
+            //RevertFileRequest -= RevertFileRequest_Handler;
 
             Editor.FileOpening -= FileOpening_Handler;
             Editor.FileOpened -= FileOpened_Handler;
@@ -113,7 +110,7 @@ namespace GTA3SaveEditor.GUI
             Editor.FileSaving -= FileSaving_Handler;
             Editor.FileSaved -= FileSaved_Handler;
 
-            ShutdownTabs();
+            ShutdownAllTabs();
         }
 
         public void SetDirty()
@@ -151,27 +148,30 @@ namespace GTA3SaveEditor.GUI
             return (T) Tabs.Where(t => t is T).FirstOrDefault();
         }
 
-        private void InitTabs()
+        private void InitAllTabs()
         {
-            foreach (var tab in Tabs)
-            {
-                tab.Init();
-            }
+            foreach (var tab in Tabs) tab.Init();
         }
 
-        private void ShutdownTabs()
+        private void ShutdownAllTabs()
         {
-            foreach (var tab in Tabs)
-            {
-                tab.Shutdown();
-            }
+            foreach (var tab in Tabs) tab.Shutdown();
         }
 
-        private void UpdateTabVisibility()
+        private void UpdateVisibleTabs()
+        {
+            foreach (var tab in Tabs)
+                if (tab.IsVisible) tab.Update();
+        }
+
+        private void RefreshTabVisibility()
         {
             foreach (var tab in Tabs)
             {
-                tab.UpdateVisibility();
+                tab.IsVisible =
+                    (tab.Visibility == TabPageVisibility.Always) ||
+                    (tab.Visibility == TabPageVisibility.WhenEditingFile && Editor.IsEditingFile) ||
+                    (tab.Visibility == TabPageVisibility.WhenNotEditingFile && !Editor.IsEditingFile);
             }
         }
 
@@ -229,8 +229,20 @@ namespace GTA3SaveEditor.GUI
 
         public void SaveFileRequest_Handler(object sender, FileIOEventArgs e)
         {
-            // TODO: test save slot when directory doesn't exist
-            Editor.SaveFile(e.Path);
+            try
+            {
+                // TODO: test save slot when directory doesn't exist
+                Editor.SaveFile(e.Path);
+            }
+            catch (EndOfStreamException)
+            {
+                ShowError("Error saving file! Block size limit exceeded.\n\n" +
+                    "This happens if you tried to add too many things to the save file " +
+                    "(e.g Global Variales, Custom Scripts, Threads, Objects, or Vehicles). " +
+                    "The game has a limit on how large parts of the save file can be and " +
+                    "will crash when attempting to load the save.\n",
+                    "Error Saving File");
+            }
         }
 
         public void RevertFileRequest_Handler(object sender, FileIOEventArgs e)
@@ -250,7 +262,8 @@ namespace GTA3SaveEditor.GUI
             
             RegisterDirtyHandlers(TheSave);
             UpdateTitle();
-            UpdateTabVisibility();
+            RefreshTabVisibility();
+            UpdateVisibleTabs();
             SelectFirstVisibleTab();
 
             OnPropertyChanged(nameof(TheSave));
@@ -281,7 +294,8 @@ namespace GTA3SaveEditor.GUI
 
             ClearDirty();
             UpdateTitle();
-            UpdateTabVisibility();
+            RefreshTabVisibility();
+            UpdateVisibleTabs();
             SelectFirstVisibleTab();
 
             OnPropertyChanged(nameof(TheSave));
@@ -366,6 +380,8 @@ namespace GTA3SaveEditor.GUI
             return true;
         }
 
+        // TODO: provide a way for tabs to add/remove handlers from dirty event
+
         private void RegisterDirtyHandlers(INotifyPropertyChanged o)
         {
             if (o == null) return;
@@ -422,21 +438,21 @@ namespace GTA3SaveEditor.GUI
         {
             SetDirty();
             
-            // TODO: log property
+            // TODO: log property, invoke Dirty event
         }
 
         private void TheSave_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             SetDirty();
 
-            // TODO: log property
+            // TODO: log property, invoke Dirty event
         }
 
         private void TheSave_CollectionElementChanged(object sender, ItemStateChangedEventArgs e)
         {
             SetDirty();
 
-            // TODO: log property
+            // TODO: log property, invoke Dirty event
         }
 
         public ICommand OpenRecentFileCommand => new RelayCommand<string>
@@ -482,7 +498,7 @@ namespace GTA3SaveEditor.GUI
 
         public ICommand ViewLogCommand => new RelayCommand
         (
-            () => LogWindowRequest?.Invoke(this, EventArgs.Empty)
+            () => ShowLogWindow()
         );
 
         public ICommand ExitCommand => new RelayCommand
@@ -494,8 +510,8 @@ namespace GTA3SaveEditor.GUI
         (
             () =>
             {
-                CustomScriptsDialogRequest?.Invoke(this, EventArgs.Empty);
-                GetTab<ScriptsTabVM>().Update(); // Refresh this tab when window closes
+                ShowCustomScriptsDialog();
+                UpdateVisibleTabs();
             },
             () => Editor.IsEditingFile
         );
@@ -530,7 +546,7 @@ namespace GTA3SaveEditor.GUI
                     m_debugTab.Unload();
                     Tabs.Remove(m_debugTab);
                 }
-                UpdateTabVisibility();
+                RefreshTabVisibility();
             }
         );
 
@@ -557,6 +573,7 @@ namespace GTA3SaveEditor.GUI
                         if (r != true) return;
                         GTA3.CarColors = CarColorsLoader.LoadColors(e.FileName);
                         SetTimedStatusText($"Loaded {GTA3.CarColors.Count()} car colors.");
+                        UpdateVisibleTabs();
                     }
                     catch (Exception ex)
                     {
@@ -578,6 +595,7 @@ namespace GTA3SaveEditor.GUI
                         if (r != true) return;
                         GTA3.GxtTable = GxtLoader.Load(e.FileName);
                         SetTimedStatusText($"Loaded {GTA3.GxtTable.Count} GXT entries.");
+                        UpdateVisibleTabs();
                     }
                     catch (Exception ex)
                     {
@@ -599,6 +617,7 @@ namespace GTA3SaveEditor.GUI
                         if (r != true) return;
                         GTA3.IdeObjects = IdeLoader.LoadObjects(e.FileName);
                         SetTimedStatusText($"Loaded {GTA3.IdeObjects.Count()} IDE objects.");
+                        UpdateVisibleTabs();
                     }
                     catch (Exception ex)
                     {

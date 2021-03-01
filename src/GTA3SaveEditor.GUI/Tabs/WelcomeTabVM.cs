@@ -322,7 +322,7 @@ namespace GTA3SaveEditor.GUI.Tabs
                 Log.Exception(e.Error);
 
                 // Filter exceptions.
-                if (e.Error is UnauthorizedAccessException ex)
+                if (e.Error is UnauthorizedAccessException)
                 {
                     return;
                 }

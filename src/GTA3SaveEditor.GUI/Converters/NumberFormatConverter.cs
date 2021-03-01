@@ -17,7 +17,7 @@ namespace GTA3SaveEditor.GUI.Converters
                     {
                         NumberFormat.Int => x.ToString(),
                         NumberFormat.Float => BitConverter.Int32BitsToSingle(x).ToString(),
-                        NumberFormat.Hex => x.ToString("X8"),
+                        NumberFormat.Hex => x.ToString("X"),
                         _ => x.ToString(),
                     };
                 }
