@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Input;
 using GTA3SaveEditor.Core;
@@ -15,6 +17,7 @@ using GTA3SaveEditor.GUI.Events;
 using GTA3SaveEditor.GUI.Tabs;
 using GTASaveData;
 using GTASaveData.GTA3;
+using Newtonsoft.Json;
 using WpfEssentials;
 using WpfEssentials.Win32;
 
@@ -34,6 +37,7 @@ namespace GTA3SaveEditor.GUI
         private ObservableCollection<TabPageVM> m_tabs;
         private int m_selectedTabIndex;
         private bool m_isDirty;
+        private bool m_isReverting;
 
         public ObservableCollection<SaveSlot> SaveSlots
         {
@@ -65,10 +69,10 @@ namespace GTA3SaveEditor.GUI
             SaveSlots = new ObservableCollection<SaveSlot>(slots);
             Tabs = new ObservableCollection<TabPageVM>()
             {
-                new WelcomeTabVM()  { TheWindow = this, Title = TabNameWelcome, Visibility = TabPageVisibility.WhenNotEditingFile },
-                new GangsTabVM()    { TheWindow = this, Title = TabNameGangs,   Visibility = TabPageVisibility.WhenEditingFile },
-                new PickupsTabVM()  { TheWindow = this, Title = TabNamePickups, Visibility = TabPageVisibility.WhenEditingFile },
-                new ScriptsTabVM()  { TheWindow = this, Title = TabNameScripts, Visibility = TabPageVisibility.WhenEditingFile },
+                new WelcomeVM()  { TheWindow = this, Title = TabNameWelcome, Visibility = TabPageVisibility.WhenNotEditingFile },
+                new GangsVM()    { TheWindow = this, Title = TabNameGangs,   Visibility = TabPageVisibility.WhenEditingFile },
+                new PickupsVM()  { TheWindow = this, Title = TabNamePickups, Visibility = TabPageVisibility.WhenEditingFile },
+                new ScriptsVM()  { TheWindow = this, Title = TabNameScripts, Visibility = TabPageVisibility.WhenEditingFile },
             };
         }
 
@@ -103,36 +107,6 @@ namespace GTA3SaveEditor.GUI
             ShutdownAllTabs();
         }
 
-        public void SetDirty()
-        {
-            if (!IsDirty)
-            {
-                IsDirty = true;
-                UpdateTitle();
-            }
-        }
-
-        private void ClearDirty()
-        {
-            IsDirty = false;
-            UpdateTitle();
-        }
-
-        private void UpdateTitle()
-        {
-            string title = App.Name;
-            if (Editor.IsEditingFile)
-            {
-                title += " - " + Editor.ActiveFilePath;
-            }
-            if (IsDirty)
-            {
-                title = "*" + title;
-            }
-
-            Title = title;
-        }
-
         public T GetTab<T>() where T : TabPageVM
         {
             return (T) Tabs.Where(t => t is T).FirstOrDefault();
@@ -140,12 +114,20 @@ namespace GTA3SaveEditor.GUI
 
         private void InitAllTabs()
         {
-            foreach (var tab in Tabs) tab.Init();
+            foreach (var tab in Tabs)
+            {
+                tab.Init();
+                tab.Dirty += MarkDirty;
+            }
         }
 
         private void ShutdownAllTabs()
         {
-            foreach (var tab in Tabs) tab.Shutdown();
+            foreach (var tab in Tabs)
+            {
+                tab.Dirty -= MarkDirty;
+                tab.Shutdown();
+            }
         }
 
         private void UpdateVisibleTabs()
@@ -200,6 +182,46 @@ namespace GTA3SaveEditor.GUI
             CloseFileRoutine(() => Application.Current.Shutdown());
         }
 
+        public void MarkDirty(string name, object value = null, object oldValue = null)
+        {
+            //const string Prefix = "PropertyChanged: ";
+
+            string msg = $"{name}";
+            if (value != null) msg += $" = {value}";
+            if (oldValue != null) msg += $" (was {oldValue})";
+
+            Log.Info(msg);
+
+            if (!IsDirty)
+            {
+                IsDirty = true;
+                UpdateTitle();
+                Log.Debug("Dirty bit set.");
+            }
+        }
+
+        private void ClearDirty()
+        {
+            IsDirty = false;
+            UpdateTitle();
+            Log.Debug("Dirty bit cleared.");
+        }
+
+        private void UpdateTitle()
+        {
+            string title = App.Name;
+            if (Editor.IsEditingFile)
+            {
+                title += " - " + Editor.ActiveFilePath;
+            }
+            if (IsDirty)
+            {
+                title = "*" + title;
+            }
+
+            Title = title;
+        }
+
         public void OpenFileRequest_Handler(object sender, FileIOEventArgs e)
         {
             if (IsDirty)
@@ -208,7 +230,6 @@ namespace GTA3SaveEditor.GUI
                 return;
             }
 
-            //Settings.SetLastAccess(e.Path);
             OpenFileRoutine(e.Path, suppressDialogs: e.SuppressDialogs);
         }
 
@@ -237,8 +258,10 @@ namespace GTA3SaveEditor.GUI
 
         public void RevertFileRequest_Handler(object sender, FileIOEventArgs e)
         {
-            // TODO
-            throw new NotImplementedException();
+            // TODO: dim the layout or pop a 'wait' dialog or something
+            RevertFileRoutine();
+            SetTimedStatusText("File reverted.");
+
         }
 
         private void FileOpening_Handler(object sender, string e)
@@ -251,16 +274,26 @@ namespace GTA3SaveEditor.GUI
             SuppressExternalChangesCheck = false;
             
             RegisterDirtyHandlers(TheSave);
-            UpdateTitle();
-            RefreshTabVisibility();
+
+            if (!m_isReverting)
+            {
+                UpdateTitle();
+                RefreshTabVisibility();
+            }
+
             UpdateVisibleTabs();
-            SelectFirstVisibleTab();
+
+            if (!m_isReverting)
+            {
+                SelectFirstVisibleTab();
+            }
 
             OnPropertyChanged(nameof(TheSave));
             SetTimedStatusText("File opened.");
 
             string lastMissionKey = TheSave.Stats.LastMissionPassedName;
             string lastMission = GTA3.GetGxtString(lastMissionKey);
+            Log.Info($"=============== FILE INFO ===============");
             Log.Info($"   File Type: {TheSave.FileFormat}");
             Log.Info($"       Title: {TheSave.GetSaveName()}");
             Log.Info($"Last Mission: {lastMission}");
@@ -270,6 +303,7 @@ namespace GTA3SaveEditor.GUI
             Log.Info($"Num. Globals: {TheSave.Scripts.Globals.Count()}");
             Log.Info($"Num. Threads: {TheSave.Scripts.Threads.Count}");
             Log.Info($"Num. Objects: {TheSave.Objects.Objects.Count}");
+            Log.Info($"=========================================");
         }
 
         private void FileClosing_Handler(object sender, EventArgs e)
@@ -283,10 +317,14 @@ namespace GTA3SaveEditor.GUI
             SuppressExternalChangesCheck = false;
 
             ClearDirty();
-            UpdateTitle();
-            RefreshTabVisibility();
-            UpdateVisibleTabs();
-            SelectFirstVisibleTab();
+
+            if (!m_isReverting)
+            {
+                UpdateTitle();
+                RefreshTabVisibility();
+                UpdateVisibleTabs();
+                SelectFirstVisibleTab();
+            }
 
             OnPropertyChanged(nameof(TheSave));
             SetTimedStatusText("File closed.", expiredStatus: null);
@@ -310,6 +348,7 @@ namespace GTA3SaveEditor.GUI
             try
             {
                 Editor.OpenFile(path);
+                foreach (var t in Tabs) t.Load();
                 onFileOpened?.Invoke();
                 return true;
             }
@@ -338,10 +377,10 @@ namespace GTA3SaveEditor.GUI
         {
             if (!Editor.IsEditingFile)
             {
-                onFileClosed?.Invoke();
-                return true;
+                goto Done;
             }
 
+            // prompt
             if (IsDirty && !suppressDialogs)
             {
                 bool retval = false;
@@ -365,12 +404,33 @@ namespace GTA3SaveEditor.GUI
                 return retval;
             }
 
+            // close-file routine
             Editor.CloseFile();
+            foreach (var t in Tabs) t.Unload();
+
+        Done:
             onFileClosed?.Invoke();
             return true;
         }
 
-        // TODO: provide a way for tabs to add/remove handlers from dirty event
+        private void RevertFileRoutine()
+        {
+            // prompt
+            if (IsDirty)
+            {
+                PromptYesNo("Are you sure you want to revert this file? You will lose all unsaved changes.", "Confirm Revert",
+                    yesAction: () =>
+                    {
+                        ClearDirty();
+                        RevertFileRoutine();
+                    });
+                return;
+            }
+
+            m_isReverting = true;
+            CloseFileRoutine(() => OpenFileRoutine(Editor.ActiveFilePath), suppressDialogs: true);
+            m_isReverting = false;
+        }
 
         private void RegisterDirtyHandlers(INotifyPropertyChanged o)
         {
@@ -379,15 +439,22 @@ namespace GTA3SaveEditor.GUI
             foreach (var p in o.GetType().GetProperties().Where(x => x.GetIndexParameters().Length == 0))
             {
                 object v = p.GetValue(o, null);
+
+                // Exclude fully-replaceable lists
+                if (v == TheSave.Scripts.ScriptSpace)
+                {
+                    continue;
+                }
+
                 if (p.PropertyType.GetInterface(nameof(INotifyItemStateChanged)) != null)
                 {
                     (v as INotifyItemStateChanged).ItemStateChanged += TheSave_CollectionElementChanged;
-                    Log.Debug($"Registered ItemStateChanged handler on {p.PropertyType}");
+                    Log.Debug($"Registered ItemStateChanged handler on '{p.Name}' ({p.PropertyType})");
                 }
                 if (p.PropertyType.GetInterface(nameof(INotifyCollectionChanged)) != null)
                 {
                     (v as INotifyCollectionChanged).CollectionChanged += TheSave_CollectionChanged;
-                    Log.Debug($"Registered CollectionChanged handler on {p.PropertyType}");
+                    Log.Debug($"Registered CollectionChanged handler on '{p.Name}' ({p.PropertyType})");
                 }
                 if (p.PropertyType.GetInterface(nameof(INotifyPropertyChanged)) != null)
                 {
@@ -395,7 +462,6 @@ namespace GTA3SaveEditor.GUI
                 }
             }
             o.PropertyChanged += TheSave_PropertyChanged;
-            Log.Debug($"Registered PropertyChanged handler on {o}");
         }
 
         private void UnregisterDirtyHandlers(INotifyPropertyChanged o)
@@ -405,15 +471,22 @@ namespace GTA3SaveEditor.GUI
             foreach (var p in o.GetType().GetProperties().Where(x => x.GetIndexParameters().Length == 0))
             {
                 object v = p.GetValue(o, null);
+
+                // Exclude fully-replaceable lists
+                if (v == TheSave.Scripts.ScriptSpace)
+                {
+                    continue;
+                }
+
                 if (p.PropertyType.GetInterface(nameof(INotifyItemStateChanged)) != null)
                 {
                     (v as INotifyItemStateChanged).ItemStateChanged -= TheSave_CollectionElementChanged;
-                    Log.Debug($"Unregistered ItemStateChanged handler on {p.PropertyType}");
+                    Log.Debug($"Unregistered ItemStateChanged handler on '{p.Name}' ({p.PropertyType})");
                 }
                 if (p.PropertyType.GetInterface(nameof(INotifyCollectionChanged)) != null)
                 {
                     (v as INotifyCollectionChanged).CollectionChanged -= TheSave_CollectionChanged;
-                    Log.Debug($"Unregistered CollectionChanged handler on {p.PropertyType}");
+                    Log.Debug($"Unregistered CollectionChanged handler on '{p.Name}' ({p.PropertyType})");
                 }
                 if (p.PropertyType.GetInterface(nameof(INotifyPropertyChanged)) != null)
                 {
@@ -421,28 +494,128 @@ namespace GTA3SaveEditor.GUI
                 }
             }
             o.PropertyChanged -= TheSave_PropertyChanged;
-            Log.Debug($"Unregistered PropertyChanged handler on {o}");
         }
 
         private void TheSave_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            SetDirty();
-            
-            // TODO: log property, invoke Dirty event
+            var type = sender.GetType();
+            var prop = type.GetProperty(e.PropertyName, BindingFlags.Public | BindingFlags.Instance);
+            if (prop.GetIndexParameters().Length == 0)
+            {
+                // Only deal with non-indexer properties
+                var data = prop.GetValue(sender);
+                MarkDirty($"{type.Name}.{e.PropertyName}", data);
+            }
         }
 
         private void TheSave_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
-            SetDirty();
+            var type = sender.GetType().GetGenericArguments()[0];
+            var name = type.Name;
 
-            // TODO: log property, invoke Dirty event
+            //if (sender == TheSave.Scripts.ScriptSpace)
+            //{
+            //    name = $"{nameof(Scripts)}.ScriptSpace";
+            //}
+            //else if (sender == Stats.PedsKilledOfThisType)
+            //{
+            //    name = $"{nameof(Stats)}.{nameof(Stats.PedsKilledOfThisType)}";
+            //}
+            //else if (sender == Stats.BestBanditLapTimes)
+            //{
+            //    name = $"{nameof(Stats)}.{nameof(Stats.BestBanditLapTimes)}";
+            //}
+            //else if (sender == Stats.BestBanditPositions)
+            //{
+            //    name = $"{nameof(Stats)}.{nameof(Stats.BestBanditPositions)}";
+            //}
+            //else if (sender == Stats.BestStreetRacePositions)
+            //{
+            //    name = $"{nameof(Stats)}.{nameof(Stats.BestStreetRacePositions)}";
+            //}
+            //else if (sender == Stats.FastestStreetRaceLapTimes)
+            //{
+            //    name = $"{nameof(Stats)}.{nameof(Stats.FastestStreetRaceLapTimes)}";
+            //}
+            //else if (sender == Stats.FastestStreetRaceTimes)
+            //{
+            //    name = $"{nameof(Stats)}.{nameof(Stats.FastestStreetRaceTimes)}";
+            //}
+            //else if (sender == Stats.FastestDirtBikeLapTimes)
+            //{
+            //    name = $"{nameof(Stats)}.{nameof(Stats.FastestDirtBikeLapTimes)}";
+            //}
+            //else if (sender == Stats.FastestDirtBikeTimes)
+            //{
+            //    name = $"{nameof(Stats)}.{nameof(Stats.FastestDirtBikeTimes)}";
+            //}
+            //else if (sender == Stats.FavoriteRadioStationList)
+            //{
+            //    name = $"{nameof(Stats)}.{nameof(Stats.FavoriteRadioStationList)}";
+            //}
+
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                {
+                    for (int i = 0; i < e.NewItems.Count; i++)
+                    {
+                        var data = e.NewItems[i];
+                        if (data is SaveDataObject o) data = o.ToJsonString(Formatting.None);
+                        MarkDirty($"{name}[{e.NewStartingIndex + i}]", data);
+                    }
+                    break;
+                }
+                case NotifyCollectionChangedAction.Remove:
+                {
+                    for (int i = 0; i < e.OldItems.Count; i++)
+                    {
+                        var data = e.OldItems[i];
+                        if (data is SaveDataObject o) data = o.ToJsonString(Formatting.None);
+                        MarkDirty($"Removed {name}[{e.OldStartingIndex + i}]", oldValue: data);
+                    }
+                    break;
+                }
+                case NotifyCollectionChangedAction.Replace:
+                {
+                    for (int i = 0; i < e.NewItems.Count; i++)
+                    {
+                        var data = e.NewItems[i];
+                        if (data is SaveDataObject o) data = o.ToJsonString(Formatting.None);
+                        MarkDirty($"{name}[{e.NewStartingIndex + i}]", data);
+                    }
+                    break;
+                }
+                case NotifyCollectionChangedAction.Move:
+                {
+                    for (int i = 0; i < e.NewItems.Count; i++)
+                    {
+                        MarkDirty($"{name}[{e.OldStartingIndex + i}] => {name}[{e.NewStartingIndex + i}]");
+                    }
+                    break;
+                }
+                case NotifyCollectionChangedAction.Reset:
+                {
+                    MarkDirty($"Cleared {name}");
+                    break;
+                }
+            }
         }
 
         private void TheSave_CollectionElementChanged(object sender, ItemStateChangedEventArgs e)
         {
-            SetDirty();
+            if (!(sender is IList list))
+            {
+                return;
+            }
 
-            // TODO: log property, invoke Dirty event
+            var item = list[e.ItemIndex];
+            var type = item.GetType();
+            var prop = type.GetProperty(e.PropertyName, BindingFlags.Public | BindingFlags.Instance);
+            var data = prop.GetValue(item);
+            if (data is SaveDataObject o) data = o.ToJsonString(Formatting.None);
+
+            MarkDirty($"{type.Name}[{e.ItemIndex}].{e.PropertyName}", data);
         }
 
         public ICommand OpenRecentFileCommand => new RelayCommand<string>
@@ -522,7 +695,7 @@ namespace GTA3SaveEditor.GUI
             {
                 if (m_debugTab == null)
                 {
-                    m_debugTab = new DebugTabVM() { TheWindow = this, Title = "Debug", Visibility = TabPageVisibility.Always };
+                    m_debugTab = new DebugVM() { TheWindow = this, Title = "Debug", Visibility = TabPageVisibility.Always };
                     m_debugTab.Init();
                 }
 
@@ -542,13 +715,13 @@ namespace GTA3SaveEditor.GUI
 
         public ICommand DebugSetDirtyCommand => new RelayCommand
         (
-            () => { SetDirty(); Log.Debug("Dirty bit set."); },
+            () => { MarkDirty(nameof(DebugSetDirtyCommand), true); },
             () => Editor.IsEditingFile
         );
 
         public ICommand DebugClearDirtyCommand => new RelayCommand
         (
-            () => { ClearDirty(); Log.Debug("Dirty bit cleared."); },
+            () => { ClearDirty(); },
             () => Editor.IsEditingFile
         );
 

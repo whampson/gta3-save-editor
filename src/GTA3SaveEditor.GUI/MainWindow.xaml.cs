@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Windows;
 using System.Windows.Controls;
+using GTA3SaveEditor.Core.Util;
 using GTA3SaveEditor.GUI.Dialogs;
 using WHampson.ToolUI;
 
@@ -28,6 +30,8 @@ namespace GTA3SaveEditor.GUI
         {
             base.OnLoad();
             RegisterHandlers(this);
+
+            Log.Info("Ready.");
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -146,6 +150,11 @@ namespace GTA3SaveEditor.GUI
                 int i = ViewModel.SelectedTabIndex;
                 if (i != -1) ViewModel.Tabs[i].Update();
             }
+        }
+
+        private void Window_GotFocus(object sender, RoutedEventArgs e)
+        {
+            ViewModel.CheckForExternalChanges();
         }
     }
 }

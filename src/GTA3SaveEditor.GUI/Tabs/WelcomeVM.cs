@@ -11,9 +11,9 @@ using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.Tabs
 {
-    public class WelcomeTabVM : TabPageVM
+    public class WelcomeVM : TabPageVM
     {
-        const int GameQuoteInterval = 5;
+        const int GameQuoteInterval = 20;
 
         private readonly DispatcherTimer m_gameQuoteTimer;
         private BackgroundWorker m_lukeFileWalker;
@@ -89,7 +89,7 @@ namespace GTA3SaveEditor.GUI.Tabs
             set { m_isSearching = value; OnPropertyChanged(); }
         }
 
-        public WelcomeTabVM()
+        public WelcomeVM()
         {
             m_gameQuoteTimer = new DispatcherTimer();
             SaveFiles = new ObservableCollection<SaveFileInfo>();
@@ -115,7 +115,6 @@ namespace GTA3SaveEditor.GUI.Tabs
             FileListWorker.ProgressChanged += FileListWorker_ProgressChanged;
             FileListWorker.RunWorkerCompleted += FileListWorker_RunWorkerCompleted;
             m_gameQuoteTimer.Tick += GameQuoteTimer_Tick;
-            m_gameQuoteTimer.Interval = TimeSpan.FromSeconds(GameQuoteInterval);
         }
 
         public override void Shutdown()
@@ -148,6 +147,7 @@ namespace GTA3SaveEditor.GUI.Tabs
                 SearchForSaveFiles();   // Only search on program launch
             }
 
+            m_gameQuoteTimer.Interval = TimeSpan.FromSeconds(GameQuoteInterval);
             m_gameQuoteTimer.Start();
             m_openedOnce = true;
         }
@@ -233,10 +233,11 @@ namespace GTA3SaveEditor.GUI.Tabs
 
         public static readonly List<string> GameQuotes = new List<string>()
         {
-            // creepy guy
+            // creepy trenchcoat guy
             "My mother's my sister!",
             "What? She's my cousin?!",
             //"I swear I thought she was my second cousin.",
+            "Yep, I've been drinking again.",
 
             // mafia
             "Real good red sauce, like blood!",
@@ -247,14 +248,48 @@ namespace GTA3SaveEditor.GUI.Tabs
             // dock worker
             "You can sail the seven seas!",
             "In the Navy!",
+            "Where's my damn tools?",
 
             // triads
             "You feeling lucky punk?",
             "I see pain in your future!",
+            "Ok, ok, we make deal.",
 
             // colombians
             "You want the chainsaw, gringo?",
             "It's no problem to kill you!",
+
+            // pink haired lady
+            "Ooh look at me I'm drippin'!",
+
+            // cab driver
+            "Watch the cab, punk!",
+            "No good driver!",
+
+            // male01
+            "Shift it, prick!",
+            "I've got a better car than you!",
+            "Rush rush, do the yay-yo!",
+            "My name's Brad, but I guess you knew that.",
+            "Stripe summer!",
+            "Hey, watch the threads!",
+
+            // SPANK'ed up mad man
+            "Tick tock, what's on my clock?",
+            "Here ya go, I got a present for ya!",
+            "Come to daddy!",
+            "Special delivery! TNT!",
+
+            // generic lady
+            "I'm hot and you're not!",
+
+            // police scanner
+            "Suspect is on foot.",
+
+            // Cop
+            "Get that guy!",
+            "Don't move a muscle!",
+            "You are risking your life!",
         };
 
         private void GameQuoteTimer_Tick(object sender, EventArgs e)

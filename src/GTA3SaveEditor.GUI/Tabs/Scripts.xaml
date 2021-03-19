@@ -1,6 +1,6 @@
 ﻿<g:TabPage
     x:Class="GTA3SaveEditor.GUI.Tabs.ScriptsTab"
-    x:TypeArguments="l:ScriptsTabVM"
+    x:TypeArguments="l:ScriptsVM"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -17,7 +17,7 @@
     xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"
     mc:Ignorable="d"
     d:DesignHeight="450" d:DesignWidth="800"
-    d:DataContext="{d:DesignInstance Type=l:ScriptsTabVM}">
+    d:DataContext="{d:DesignInstance Type=l:ScriptsVM}">
 
     <UserControl.Resources>
         <c:ListViewItemIndexConverter x:Key="ListViewItemIndexConverter"/>
@@ -80,6 +80,7 @@
                 </Grid.RowDefinitions>
                 <ListView Margin="5" x:Name="m_globalsList"
                     ItemsSource="{Binding GlobalInfo}"
+                    SelectedIndex="{Binding SelectedGlobalIndex}"
                     SelectionChanged="GlobalListView_SelectionChanged"
                     SelectionMode="Extended">
                     <ListView.Resources>
@@ -104,7 +105,7 @@
                                 <GridViewColumn Header="Name" Width="190"
                                     DisplayMemberBinding="{Binding Name}">
                                 </GridViewColumn>
-                                <GridViewColumn Header="Value" Width="85">
+                                <GridViewColumn Header="Value" Width="95">
                                     <GridViewColumn.CellTemplate>
                                         <DataTemplate>
                                             <TextBlock TextAlignment="Right" HorizontalAlignment="Right">
@@ -169,21 +170,21 @@
                     <xctk:IntegerUpDown
                         Grid.Column="2" Margin="5,0,5,5" Height="22"
                         Style="{StaticResource IntScriptVariableStyle}"
-                        Value="{Binding SelectedGlobal.Value}"
+                        Value="{Binding SelectedGlobalValue}"
                         ValueChanged="GlobalUpDown_ValueChanged"
-                        IsEnabled="{Binding SelectedGlobal, Converter={StaticResource IsNotNull}}"/>
+                        IsEnabled="{Binding SelectedGlobalValue, Converter={StaticResource IsNotNull}}"/>
                     <xctk:SingleUpDown
                         Grid.Column="2" Margin="5,0,5,5" Height="22"
                         Style="{StaticResource FloatScriptVariableStyle}"
-                        Value="{Binding SelectedGlobal.Value, Converter={StaticResource FloatBitsConverter}}"
+                        Value="{Binding SelectedGlobalValue, Converter={StaticResource FloatBitsConverter}}"
                         ValueChanged="GlobalUpDown_ValueChanged"
-                        IsEnabled="{Binding SelectedGlobal, Converter={StaticResource IsNotNull}}"/>
+                        IsEnabled="{Binding SelectedGlobalValue, Converter={StaticResource IsNotNull}}"/>
                     <xctk:IntegerUpDown
                         Grid.Column="2" Margin="5,0,5,5" Height="22"
                         Style="{StaticResource HexScriptVariableStyle}"
-                        Value="{Binding SelectedGlobal.Value}" ParsingNumberStyle="HexNumber" FormatString="X"
+                        Value="{Binding SelectedGlobalValue}" ParsingNumberStyle="HexNumber" FormatString="X"
                         ValueChanged="GlobalUpDown_ValueChanged"
-                        IsEnabled="{Binding SelectedGlobal, Converter={StaticResource IsNotNull}}"/>
+                        IsEnabled="{Binding SelectedGlobalValue, Converter={StaticResource IsNotNull}}"/>
                 </Grid>
             </Grid>
         </GroupBox>

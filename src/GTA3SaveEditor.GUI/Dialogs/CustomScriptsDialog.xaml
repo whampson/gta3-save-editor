@@ -10,7 +10,7 @@
     xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=DotNetProjects.Wpf.Extended.Toolkit"
     mc:Ignorable="d" 
     Title="Custom Scripts"
-    Height="300" Width="400"
+    Height="300" Width="375"
     WindowStartupLocation="CenterOwner">
 
     <Window.InputBindings>
@@ -50,11 +50,11 @@
             <ListView.View>
                 <GridView>
                     <GridView.Columns>
-                        <GridViewColumn Header="Name" Width="175"
+                        <GridViewColumn Header="Name" Width="125"
                             DisplayMemberBinding="{Binding Code.Name}"/>
-                        <GridViewColumn Header="Size" Width="75"
+                        <GridViewColumn Header="Size" Width="100"
                             DisplayMemberBinding="{Binding Code.Length}"/>
-                        <GridViewColumn Header="Enabled" Width="75"
+                        <GridViewColumn Header="Enabled" Width="100"
                             DisplayMemberBinding="{Binding Enabled}"/>
                     </GridView.Columns>
                 </GridView>
@@ -92,10 +92,10 @@
                 Style="{StaticResource CheckBoxStyle}"
                 IsChecked="{Binding SelectedScript.Enabled}"
                 Command="{Binding EnableScriptCommand}"/>
-            <TextBlock Grid.Row="0" Grid.Column="2"
+            <!--<TextBlock Grid.Row="0" Grid.Column="2"
                 Margin="5,0" HorizontalAlignment="Right"
                 Style="{StaticResource LabelStyleLeft}"
-                Text="{Binding AvailableSpace, StringFormat={}{0} bytes free}"/>
+                Text="{Binding AvailableSpace, StringFormat={}{0} bytes free}"/>-->
 
         </Grid>
 
@@ -118,9 +118,8 @@
                     <Menu>
                         <!-- TODO: implement and include these -->
                         <MenuItem Header="Mission Replayer"/>
-                        <MenuItem Header="Coords Viewer"/>
+                        <MenuItem Header="Player Coords"/>
                         <MenuItem Header="Car Spawner"/>
-                        <MenuItem Header="Skin Selector"/>
                     </Menu>
                 </xctk:SplitButton.DropDownContent>
             </xctk:SplitButton>

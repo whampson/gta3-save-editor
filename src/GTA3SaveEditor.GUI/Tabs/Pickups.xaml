@@ -1,6 +1,6 @@
 ﻿<g:TabPage
     x:Class="GTA3SaveEditor.GUI.Tabs.PickupsTab"
-    x:TypeArguments="l:PickupsTabVM"
+    x:TypeArguments="l:PickupsVM"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -14,7 +14,7 @@
     xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"
     mc:Ignorable="d" 
     d:DesignHeight="450" d:DesignWidth="800"
-    d:DataContext="{d:DesignInstance Type=l:PickupsTabVM}">
+    d:DataContext="{d:DesignInstance Type=l:PickupsVM}">
 
     <UserControl.Resources>
         <c:ModelNameConverter x:Key="ModelNameConverter"/>
@@ -69,7 +69,7 @@
                     <DataTemplate>
                         <ComboBox
                             IsEditable="True"
-                            ItemsSource="{x:Static l:PickupsTabVM.ObjectModels}"
+                            ItemsSource="{x:Static l:PickupsVM.ObjectModels}"
                             SelectedItem="{Binding ModelIndex, Converter={StaticResource ModelNameConverter}, UpdateSourceTrigger=PropertyChanged}"
                             Text="{Binding ModelIndex, Converter={StaticResource ModelNameConverter}, UpdateSourceTrigger=LostFocus}">
                             <ComboBox.ItemsPanel>

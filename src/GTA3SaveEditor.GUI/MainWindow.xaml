@@ -13,8 +13,9 @@
     xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=DotNetProjects.Wpf.Extended.Toolkit"
     xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"
     mc:Ignorable="d"
+    Height="775" Width="1000"
     Title="{Binding Title}"
-    Height="775" Width="1000">
+    GotFocus="Window_GotFocus">
 
     <Window.DataContext>
         <l:MainWindowVM/>
@@ -32,19 +33,19 @@
 
         <BooleanToVisibilityConverter x:Key="BoolToVisibility"/>
 
-        <DataTemplate DataType="{x:Type tab:WelcomeTabVM}">
+        <DataTemplate DataType="{x:Type tab:WelcomeVM}">
             <tab:WelcomeTab/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type tab:GangsTabVM}">
+        <DataTemplate DataType="{x:Type tab:GangsVM}">
             <tab:GangsTab/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type tab:PickupsTabVM}">
+        <DataTemplate DataType="{x:Type tab:PickupsVM}">
             <tab:PickupsTab/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type tab:ScriptsTabVM}">
+        <DataTemplate DataType="{x:Type tab:ScriptsVM}">
             <tab:ScriptsTab/>
         </DataTemplate>
-        <DataTemplate DataType="{x:Type tab:DebugTabVM}">
+        <DataTemplate DataType="{x:Type tab:DebugVM}">
             <tab:DebugTab/>
         </DataTemplate>
     </Window.Resources>

@@ -201,9 +201,24 @@ namespace GTA3SaveEditor.Core.Game
         private byte ReadInt8() => m_codeReader.ReadByte();
         private short ReadInt16() => m_codeReader.ReadInt16();
         private int ReadInt32() => m_codeReader.ReadInt32();
-        private string ReadText() => Encoding.ASCII.GetString(m_codeReader.ReadBytes(TextImmediateLength)).Trim('\0');
         private ushort ReadOpcode() => m_codeReader.ReadUInt16();
         private ArgType ReadArgType() => (ArgType) ReadInt8();
+        private string ReadText()
+        {
+            string s = "";
+            int len = 0;
+            bool foundNull = false;
+
+            while (len < TextImmediateLength)
+            {
+                char c = (char) m_codeReader.ReadByte();
+                if (c == '\0') foundNull = true;
+                if (!foundNull) s += c;
+                len++;
+            }
+
+            return s;
+        }
     }
 
     public enum ArgType

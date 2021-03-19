@@ -4,7 +4,7 @@ using System.Text;
 
 namespace GTA3SaveEditor.GUI.Tabs
 {
-    public class DebugTabVM : TabPageVM
+    public class DebugVM : TabPageVM
     {
 
     }

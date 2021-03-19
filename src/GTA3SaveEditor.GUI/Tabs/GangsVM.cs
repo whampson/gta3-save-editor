@@ -7,7 +7,7 @@ using WpfEssentials.Win32;
 namespace GTA3SaveEditor.GUI.Tabs
 {
 
-    public class GangsTabVM : TabPageVM
+    public class GangsVM : TabPageVM
     {
         // TODO: zone picker
 
@@ -189,7 +189,7 @@ namespace GTA3SaveEditor.GUI.Tabs
             set { m_carDensityNight = value; OnPropertyChanged(); }
         }
 
-        public GangsTabVM()
+        public GangsVM()
         {
             Zones = new ObservableCollection<Zone>();
         }
@@ -280,7 +280,7 @@ namespace GTA3SaveEditor.GUI.Tabs
             }
 
             GetDayZone(SelectedZone).GangPedDensity[GangIndex] = PedDensityDay;
-            TheWindow.SetDirty();
+            MarkDirty($"GangPedDensity[{GangIndex}]", PedDensityDay);
         }
 
         public void WritePedDensityNight()
@@ -291,7 +291,7 @@ namespace GTA3SaveEditor.GUI.Tabs
             }
 
             GetNightZone(SelectedZone).GangPedDensity[GangIndex] = PedDensityNight;
-            TheWindow.SetDirty();
+            MarkDirty($"GangPedDensity[{GangIndex}]", PedDensityNight);
         }
 
         // TODO: figure this out

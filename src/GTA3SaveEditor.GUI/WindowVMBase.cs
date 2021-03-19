@@ -6,11 +6,12 @@ using GTA3SaveEditor.Core;
 using GTA3SaveEditor.Core.Util;
 using GTA3SaveEditor.GUI.Events;
 using GTASaveData.GTA3;
+using WHampson.ToolUI;
 using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI
 {
-    public abstract class WindowVMBase : WHampson.ToolUI.WindowViewModelBase
+    public abstract class WindowVMBase : WindowViewModelBase
     {
         public event EventHandler LogWindowRequest;
         public event EventHandler CustomScriptsDialogRequest;
@@ -82,7 +83,7 @@ namespace GTA3SaveEditor.GUI
 
         public new void SetStatusText(string status)
         {
-            //Log.Info(status);
+            Log.Info($"Status: {status}");
             base.SetStatusText(status);
         }
 
@@ -90,7 +91,7 @@ namespace GTA3SaveEditor.GUI
             double duration = 5,
             string expiredStatus = "Ready.")
         {
-            //Log.Info(status);
+            Log.Info($"Status: {status}");
             base.SetTimedStatusText(status, duration, expiredStatus);
         }
 

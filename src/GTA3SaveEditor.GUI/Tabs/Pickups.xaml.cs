@@ -5,7 +5,7 @@ namespace GTA3SaveEditor.GUI.Tabs
     /// <summary>
     /// Interaction logic for PickupsTab.xaml
     /// </summary>
-    public partial class PickupsTab : TabPage<PickupsTabVM>
+    public partial class PickupsTab : TabPage<PickupsVM>
     {
         public PickupsTab()
         {

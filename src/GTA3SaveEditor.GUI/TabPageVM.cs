@@ -10,10 +10,14 @@ namespace GTA3SaveEditor.GUI
         private TabPageVisibility m_visibility;
         private bool m_isVisible;
         private string m_title;
+        private bool m_suppressDirty;
 
         public SaveEditor Editor => SaveEditor.Instance;
         public Settings Settings => SaveEditor.Settings;
         public SaveFileGTA3 TheSave => SaveEditor.Instance.ActiveFile;
+
+        public delegate void DirtyChangedHandler(string propertyName, object value, object oldValue);
+        public event DirtyChangedHandler Dirty;
 
         public MainWindowVM TheWindow
         {
@@ -39,6 +43,8 @@ namespace GTA3SaveEditor.GUI
             set { m_title = value; OnPropertyChanged(); }
         }
 
+        public bool IsDirtySuppressed => m_suppressDirty;
+
         private void SetVisible(bool isVisible)
         {
             bool wasVisible = m_isVisible;
@@ -49,11 +55,21 @@ namespace GTA3SaveEditor.GUI
             if (isVisible && !wasVisible)
             {
                 Load();
-                Update();
             }
 
             m_isVisible = isVisible;
         }
+
+        public void MarkDirty(string message, object value = null, object oldValue = null)
+        {
+            if (!m_suppressDirty)
+            {
+                Dirty?.Invoke(message, value, oldValue);
+            }
+        }
+
+        protected void AllowDirty() => m_suppressDirty = false;
+        protected void SuppressDirty() => m_suppressDirty = true;
     }
 
     public enum TabPageVisibility

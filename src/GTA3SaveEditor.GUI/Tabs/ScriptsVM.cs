@@ -12,18 +12,20 @@ using GTASaveData.GTA3;
 using WpfEssentials;
 using WpfEssentials.Win32;
 using System.Collections;
+using System.Collections.Specialized;
 
 namespace GTA3SaveEditor.GUI.Tabs
 {
     // TODO: buildingswaps, invisibile objects, etc.
 
 
-    public class ScriptsTabVM : TabPageVM
+    public class ScriptsVM : TabPageVM
     {
         private Dictionary<int, string> m_symbols;
-        private ObservableCollection<VarInfo> m_globals;
+        private ObservableCollection<GlobalVarInfo> m_globals;
         private ObservableCollection<ThreadInfo> m_threads;
-        private VarInfo m_selectedGlobal;
+        private int m_selectedGlobalIndex;
+        private int? m_selectedGlobalValue;
         private ThreadInfo m_selectedThread;
         private bool m_multipleGlobalsSelected;
         private bool m_multipleThreadsSelected;
@@ -31,8 +33,6 @@ namespace GTA3SaveEditor.GUI.Tabs
         private int? m_stackValue;
         private int m_localIndex;
         private int m_stackIndex;
-        private bool m_suppressReadGlobal;
-        private bool m_suppressWriteGlobal;
         private bool m_suppressWriteLocal;
         private bool m_suppressWriteStack;
         private NumberFormat m_numFormat;
@@ -43,7 +43,7 @@ namespace GTA3SaveEditor.GUI.Tabs
             set { m_symbols = value; OnPropertyChanged(); }
         }
 
-        public ObservableCollection<VarInfo> GlobalInfo
+        public ObservableCollection<GlobalVarInfo> GlobalInfo
         {
             get { return m_globals; }
             set { m_globals = value; OnPropertyChanged(); }
@@ -55,10 +55,16 @@ namespace GTA3SaveEditor.GUI.Tabs
             set { m_threads = value; OnPropertyChanged(); }
         }
 
-        public VarInfo SelectedGlobal
+        public int SelectedGlobalIndex
         {
-            get { return m_selectedGlobal; }
-            set { m_selectedGlobal = value; OnPropertyChanged(); }
+            get { return m_selectedGlobalIndex; }
+            set { m_selectedGlobalIndex = value; OnPropertyChanged(); }
+        }
+
+        public int? SelectedGlobalValue
+        {
+            get { return m_selectedGlobalValue; }
+            set { m_selectedGlobalValue = value; OnPropertyChanged(); }
         }
 
         public ThreadInfo SelectedThread
@@ -109,10 +115,10 @@ namespace GTA3SaveEditor.GUI.Tabs
             set { m_numFormat = value; OnPropertyChanged(); }
         }
 
-        public ScriptsTabVM()
+        public ScriptsVM()
         {
             Symbols = new Dictionary<int, string>();
-            GlobalInfo = new ObservableCollection<VarInfo>();
+            GlobalInfo = new ObservableCollection<GlobalVarInfo>();
             ThreadInfo = new ObservableCollection<ThreadInfo>();
         }
 
@@ -121,15 +127,73 @@ namespace GTA3SaveEditor.GUI.Tabs
             base.Init();
 
             // TODO: allow user to choose
-            LoadSymbols(IniLoader.LoadIni(App.LoadResource("CustomVariables.ini")));
+            LoadScmSymbols(IniLoader.LoadIni(App.LoadResource("CustomVariables.ini")));
+
+            //GlobalInfo.CollectionChanged += GlobalInfo_CollectionChanged;
+            //ThreadInfo.CollectionChanged += ThreadInfo_CollectionChanged;
         }
+
+        public override void Shutdown()
+        {
+            base.Shutdown();
+
+            //GlobalInfo.CollectionChanged -= GlobalInfo_CollectionChanged;
+            //ThreadInfo.CollectionChanged -= ThreadInfo_CollectionChanged;
+        }
+
+        //private void ThreadInfo_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        //{
+        //    switch (e.Action)
+        //    {
+        //        case NotifyCollectionChangedAction.Add:
+        //            foreach (var item in e.NewItems)
+        //            {
+        //                var t = item as ThreadInfo;
+        //                SetDirty("Thread pool", t);
+        //            }
+        //            break;
+        //        case NotifyCollectionChangedAction.Remove:
+        //            foreach (var item in e.NewItems)
+        //            {
+        //                var t = item as ThreadInfo;
+        //                SetDirty("Thread pool", t);
+        //            }
+        //            break;
+        //    }
+        //}
+
+        //private void GlobalInfo_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        //{
+        //    switch (e.Action)
+        //    {
+        //        case NotifyCollectionChangedAction.Add:
+        //            foreach (var item in e.NewItems)
+        //                MarkDirty("GlobalVars: Added", item as GlobalVarInfo);
+        //            break;
+        //        case NotifyCollectionChangedAction.Remove:
+        //            foreach (var item in e.OldItems)
+        //                MarkDirty("GlobalVars: Removed", item as GlobalVarInfo);
+        //            break;
+        //        case NotifyCollectionChangedAction.Replace:
+        //            for (int i = 0; i < e.OldItems.Count; i++)
+        //            {
+        //                var o = e.OldItems[i] as GlobalVarInfo;
+        //                var n = e.NewItems[i] as GlobalVarInfo;
+        //                MarkDirty("GlobalVars: Changed", n, o);
+        //            }
+        //            break;
+        //        case NotifyCollectionChangedAction.Move:
+        //        case NotifyCollectionChangedAction.Reset:
+        //            break;
+        //    }
+        //}
 
         public override void Load()
         {
             base.Load();
 
-            SelectedGlobal = null;
             SelectedThread = null;
+            SelectedGlobalIndex = -1;
             LocalIndex = -1;
             StackIndex = -1;
         }
@@ -146,20 +210,20 @@ namespace GTA3SaveEditor.GUI.Tabs
             var globalValues = new List<int>(TheSave?.Scripts?.Globals);
             if (globalValues == null)
             {
-                GlobalInfo = null;
+                GlobalInfo.Clear();
                 return;
             }
 
-            var globalInfo = new ObservableCollection<VarInfo>();
+            SuppressDirty();
+            GlobalInfo.Clear();
             for (int i = 0; i < globalValues.Count; i++)
             {
                 if (!Symbols.TryGetValue(i, out string name))
                     name = "";
 
-                globalInfo.Add(new VarInfo(name, i, globalValues[i]));
+                GlobalInfo.Add(new GlobalVarInfo(name, i, globalValues[i]));
             }
-
-            GlobalInfo = globalInfo;
+            AllowDirty();
         }
 
         public void ReadThreads()
@@ -172,15 +236,15 @@ namespace GTA3SaveEditor.GUI.Tabs
             }
 
             var threadInfo = new ObservableCollection<ThreadInfo>();
-            foreach (var t in actualThreads)
+            for (int i = 0; i < actualThreads.Count; i++)
             {
-                threadInfo.Add(new ThreadInfo(t));
+                threadInfo.Add(new ThreadInfo(i, actualThreads[i]));
             }
 
             ThreadInfo = threadInfo;
         }
         
-        public void LoadSymbols(Dictionary<string, string> ini)
+        public void LoadScmSymbols(Dictionary<string, string> ini)
         {
             Symbols.Clear();
             foreach (var sym in ini)
@@ -190,42 +254,6 @@ namespace GTA3SaveEditor.GUI.Tabs
                     Log.Warn($"Invalid index '{sym.Key}' for symbol '{sym.Value}'");
                 }
                 Symbols.Add(index, sym.Value);
-            }
-        }
-
-        public void ReadSelectedGlobalValue()
-        {
-            if (m_suppressReadGlobal || SelectedGlobal == null) return;
-
-            int index = SelectedGlobal.Index;
-            if (index >= 0)
-            {
-                m_suppressWriteGlobal = true;
-                SelectedGlobal.Value = TheSave.Scripts.GetGlobal(index);
-                m_suppressWriteGlobal = false;
-            }
-            else
-            {
-                SelectedGlobal.Value = null;
-            }
-        }
-
-        public void WriteGlobalValue()
-        {
-            if (m_suppressWriteGlobal || SelectedGlobal == null) return;
-
-            // TODO: this gets called too often
-            // TODO: bug also allows null value until item selected again
-
-            int index = SelectedGlobal.Index;
-            if (index >= 0 && SelectedGlobal.Value.HasValue)
-            {
-                m_suppressWriteGlobal = true;
-                int value = SelectedGlobal.Value.Value;
-                GlobalInfo[index].Value = value;
-                TheSave.Scripts.SetGlobal(index, value);
-                m_suppressWriteGlobal = false;
-                TheWindow.SetDirty();       // TODO: subscribe to Dirty event in main window
             }
         }
 
@@ -248,9 +276,11 @@ namespace GTA3SaveEditor.GUI.Tabs
             if (!m_suppressWriteLocal && SelectedThread != null && LocalIndex >= 0 && LocalValue.HasValue)
             {
                 int oldIdx = LocalIndex;
-                SelectedThread.Thread.Locals[LocalIndex] = LocalValue.Value;
+                var t = SelectedThread.Thread;
+                var i = SelectedThread.Index;
+                t.Locals[LocalIndex] = LocalValue.Value;
                 LocalIndex = oldIdx;
-                TheWindow.SetDirty();
+                MarkDirty($"{nameof(RunningScript)}[{i}].@{LocalIndex}", LocalValue.Value);
             }
         }
 
@@ -273,9 +303,11 @@ namespace GTA3SaveEditor.GUI.Tabs
             if (!m_suppressWriteStack && SelectedThread != null && StackIndex >= 0 && StackValue.HasValue)
             {
                 int oldIdx = StackIndex;
-                SelectedThread.Thread.Stack[StackIndex] = StackValue.Value;
+                var t = SelectedThread.Thread;
+                var i = SelectedThread.Index;
+                t.Stack[StackIndex] = StackValue.Value;
                 StackIndex = oldIdx;
-                TheWindow.SetDirty();
+                MarkDirty($"{nameof(RunningScript)}[{i}].Stack[{StackIndex}]", StackValue.Value);
             }
         }
 
@@ -293,11 +325,12 @@ namespace GTA3SaveEditor.GUI.Tabs
                     index = actualThreads.Count;
 
                 var newThread = new RunningScript() { Name = Scripts.GenerateThreadName() };
+                var newThreadInfo = new ThreadInfo(index, newThread);
                 actualThreads.Insert(index, newThread);
-
-                var newThreadInfo = new ThreadInfo(newThread);
                 ThreadInfo.Insert(index, newThreadInfo);
+
                 // TODO: scroll to new thread
+                // TODO: dirty
             },
             () => !MultipleThreadsSelected
         );
@@ -324,18 +357,20 @@ namespace GTA3SaveEditor.GUI.Tabs
         (
             () =>
             {
-                int index = -1;
-                if (SelectedGlobal != null)
-                    index = SelectedGlobal.Index;
+                int index = SelectedGlobalIndex;
 
                 var actualGlobals = TheSave.Scripts.Globals.ToList();
                 if (index < 0)
                     index = actualGlobals.Count;
 
+                // Insert into local copy
                 actualGlobals.Insert(index, 0);
+                MarkDirty($"{nameof(TheSave.Scripts.Globals)}[{index}]", 0);
 
+                // Update the global variables / script space pool
                 TheSave.Scripts.SetScriptSpace(actualGlobals);
                 ReadGlobals();
+
                 // TODO: scroll to new variable
             },
             () => !MultipleGlobalsSelected
@@ -348,19 +383,23 @@ namespace GTA3SaveEditor.GUI.Tabs
                 TheWindow.ShowInputDialog("Enter amount:", out string amountString);
                 int.TryParse(amountString, out int amount);
 
-                int index = -1;
-                if (SelectedGlobal != null)
-                    index = SelectedGlobal.Index;
+                int index = SelectedGlobalIndex;
 
                 var actualGlobals = TheSave.Scripts.Globals.ToList();
                 if (index < 0)
                     index = actualGlobals.Count;
 
                 for (int i = 0; i < amount; i++)    // TODO: limit?
+                {
+                    // Insert into local copy
                     actualGlobals.Insert(index + i, 0);
+                    MarkDirty($"{nameof(TheSave.Scripts.Globals)}[{index + i}]", 0);
+                }
 
+                // Update the global variables / script space pool
                 TheSave.Scripts.SetScriptSpace(actualGlobals);
                 ReadGlobals();
+
                 // TODO: scroll to new variables
             }
         );
@@ -369,23 +408,28 @@ namespace GTA3SaveEditor.GUI.Tabs
         (
             (x) =>
             {
-                var selected = (x as IList)?.Cast<VarInfo>().OrderByDescending(g => g.Index).ToList();
+                var selected = (x as IList)?.Cast<GlobalVarInfo>().OrderByDescending(g => g.Index).ToList();
                 if (selected == null)
                     return;
 
                 if (selected.Count == 1)
-                    Debug.Assert(SelectedGlobal.Equals(selected.First()));
+                    Debug.Assert(SelectedGlobalValue.Equals(selected.First().Value));
 
                 var globals = TheSave.Scripts.Globals.ToList();
                 foreach (var g in selected)
                 {
+                    // remove from local copy
                     globals.RemoveAt(g.Index);
+                    MarkDirty($"Remove {nameof(TheSave.Scripts.Globals)}[{g.Index}]");
                 }
 
+                // Update the global variables / script space pool
                 TheSave.Scripts.SetScriptSpace(globals);
                 ReadGlobals();
+
+                // TODO: dirty
             },
-            (_) => SelectedGlobal != null || MultipleGlobalsSelected
+            (_) => SelectedGlobalValue != null || MultipleGlobalsSelected
         );
     }
 
@@ -403,7 +447,7 @@ namespace GTA3SaveEditor.GUI.Tabs
         }
     }
 
-    public class VarInfo : ListViewItemInfo
+    public class GlobalVarInfo : ListViewItemInfo
     {
         private string m_name;
         private int m_index;
@@ -418,7 +462,7 @@ namespace GTA3SaveEditor.GUI.Tabs
         public int Index
         {
             get { return m_index; }
-            set { m_index = value; OnPropertyChanged(); }
+            private set { m_index = value; OnPropertyChanged(); }
         }
 
         public int? Value
@@ -427,20 +471,23 @@ namespace GTA3SaveEditor.GUI.Tabs
             set { m_value = value; OnPropertyChanged(); }
         }
 
-        public VarInfo()
-        { }
-
-        public VarInfo(string name, int index, int value)
+        public GlobalVarInfo(string name, int index, int value)
         {
             Name = name;
             Index = index;
             Value = value;
+        }
+
+        public override string ToString()
+        {
+            return $"GlobalVar[{Index}]: {Name}, {Value}";
         }
     }
 
     public class ThreadInfo : ListViewItemInfo
     {
         private RunningScript m_thread;
+        private int m_index;
 
         public RunningScript Thread
         {
@@ -448,12 +495,21 @@ namespace GTA3SaveEditor.GUI.Tabs
             set { m_thread = value; OnPropertyChanged(); }
         }
 
-        public ThreadInfo()
-        { }
+        public int Index
+        {
+            get { return m_index; }
+            private set { m_index = value; OnPropertyChanged(); }
+        }
 
-        public ThreadInfo(RunningScript thread)
+        public ThreadInfo(int index, RunningScript thread)
         {
             Thread = thread;
+            Index = index;
+        }
+
+        public override string ToString()
+        {
+            return $"Thread[{Index}]: {Thread.Name}, {Thread.IP}";
         }
     }
 }

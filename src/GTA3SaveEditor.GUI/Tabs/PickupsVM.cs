@@ -6,11 +6,11 @@ using GTASaveData.GTA3;
 
 namespace GTA3SaveEditor.GUI.Tabs
 {
-    public class PickupsTabVM : TabPageVM
+    public class PickupsVM : TabPageVM
     {
         public static List<string> ObjectModels { get; }
 
-        static PickupsTabVM()
+        static PickupsVM()
         {
             ObjectModels = GTA3.IdeObjects
                 .Select(o => o.ModelName)
