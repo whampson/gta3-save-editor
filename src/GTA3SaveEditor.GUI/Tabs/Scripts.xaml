@@ -33,7 +33,7 @@
         <Style TargetType="ListViewItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
         </Style>
-        <Style x:Key="IntScriptVariableStyle" TargetType="xctk:IntegerUpDown" BasedOn="{StaticResource Int32UpDownStyle}">
+        <Style x:Key="IntValueStyle" TargetType="xctk:IntegerUpDown" BasedOn="{StaticResource Int32UpDownStyle}">
             <Setter Property="Visibility" Value="Collapsed"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding NumberFormat}" Value="Int">
@@ -41,7 +41,7 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-        <Style x:Key="HexScriptVariableStyle" TargetType="xctk:IntegerUpDown" BasedOn="{StaticResource Int32UpDownStyle}">
+        <Style x:Key="HexValueStyle" TargetType="xctk:IntegerUpDown" BasedOn="{StaticResource Int32UpDownStyle}">
             <Setter Property="Visibility" Value="Collapsed"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding NumberFormat}" Value="Hex">
@@ -49,11 +49,14 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-        <Style x:Key="FloatScriptVariableStyle" TargetType="xctk:SingleUpDown" BasedOn="{StaticResource FloatUpDownStyle}">
+        <Style x:Key="FloatValueStyle" TargetType="xctk:SingleUpDown" BasedOn="{StaticResource FloatUpDownStyle}">
             <Setter Property="Visibility" Value="Collapsed"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding NumberFormat}" Value="Float">
                     <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Value}" Value="{x:Null}">
+                    <Setter Property="IsEnabled" Value="False"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -167,21 +170,22 @@
                         Margin="5" Width="Auto" MinWidth="100"
                         Style="{StaticResource ButtonStyle}"/>-->
 
+                    <!-- Gotta have three... one for each number type. Is there a better way? -->
                     <xctk:IntegerUpDown
                         Grid.Column="2" Margin="5,0,5,5" Height="22"
-                        Style="{StaticResource IntScriptVariableStyle}"
+                        Style="{StaticResource IntValueStyle}"
                         Value="{Binding SelectedGlobalValue}"
                         ValueChanged="GlobalUpDown_ValueChanged"
                         IsEnabled="{Binding SelectedGlobalValue, Converter={StaticResource IsNotNull}}"/>
                     <xctk:SingleUpDown
                         Grid.Column="2" Margin="5,0,5,5" Height="22"
-                        Style="{StaticResource FloatScriptVariableStyle}"
+                        Style="{StaticResource FloatValueStyle}"
                         Value="{Binding SelectedGlobalValue, Converter={StaticResource FloatBitsConverter}}"
                         ValueChanged="GlobalUpDown_ValueChanged"
                         IsEnabled="{Binding SelectedGlobalValue, Converter={StaticResource IsNotNull}}"/>
                     <xctk:IntegerUpDown
                         Grid.Column="2" Margin="5,0,5,5" Height="22"
-                        Style="{StaticResource HexScriptVariableStyle}"
+                        Style="{StaticResource HexValueStyle}"
                         Value="{Binding SelectedGlobalValue}" ParsingNumberStyle="HexNumber" FormatString="X"
                         ValueChanged="GlobalUpDown_ValueChanged"
                         IsEnabled="{Binding SelectedGlobalValue, Converter={StaticResource IsNotNull}}"/>
@@ -272,18 +276,36 @@
                                     Text="{Binding SelectedThread.Thread.Name, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource TextBoxStyle}"/>
                             </GroupBox>
                             <GroupBox Grid.Column="0" Grid.Row="1" Header="Instruction Pointer" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}">
-                                <xctk:IntegerUpDown
-                                    Margin="5" Height="22"
-                                    TextAlignment="Left"
-                                    Value="{Binding SelectedThread.Thread.IP}"
-                                    Style="{StaticResource Int32UpDownStyle}"/>
+                                <Grid>
+                                    <xctk:IntegerUpDown
+                                        Margin="5" Height="22"
+                                        Style="{StaticResource IntValueStyle}"
+                                        Value="{Binding SelectedThread.Thread.IP}"/>
+                                    <xctk:SingleUpDown
+                                        Margin="5" Height="22"
+                                        Style="{StaticResource FloatValueStyle}"
+                                        Value="{Binding SelectedThread.Thread.IP, Converter={StaticResource FloatBitsConverter}}"/>
+                                    <xctk:IntegerUpDown
+                                        Grid.Column="2" Margin="5" Height="22"
+                                        Style="{StaticResource HexValueStyle}"
+                                        Value="{Binding SelectedThread.Thread.IP}" ParsingNumberStyle="HexNumber" FormatString="X"/>
+                                </Grid>
                             </GroupBox>
                             <GroupBox Grid.Column="0" Grid.Row="2" Header="Stack Pointer" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}">
-                                <xctk:IntegerUpDown
-                                    Margin="5" Height="22"
-                                    TextAlignment="Left"
-                                    Value="{Binding SelectedThread.Thread.StackIndex}"
-                                    Style="{StaticResource Int32UpDownStyle}"/>
+                                <Grid>
+                                    <xctk:IntegerUpDown
+                                        Margin="5" Height="22"
+                                        Style="{StaticResource IntValueStyle}"
+                                        Value="{Binding SelectedThread.Thread.StackIndex}"/>
+                                    <xctk:SingleUpDown
+                                        Margin="5" Height="22"
+                                        Style="{StaticResource FloatValueStyle}"
+                                        Value="{Binding SelectedThread.Thread.StackIndex, Converter={StaticResource FloatBitsConverter}}"/>
+                                    <xctk:IntegerUpDown
+                                        Grid.Column="2" Margin="5" Height="22"
+                                        Style="{StaticResource HexValueStyle}"
+                                        Value="{Binding SelectedThread.Thread.StackIndex}" ParsingNumberStyle="HexNumber" FormatString="X"/>
+                                </Grid>
                             </GroupBox>
                             <GroupBox Grid.Column="0" Grid.Row="3" Header="Stack" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
                                 MinHeight="150">
@@ -337,19 +359,19 @@
                                     </ListView>
                                     <xctk:IntegerUpDown
                                         Grid.Row="1" Margin="5,0,5,5" Height="22"
-                                        Style="{StaticResource IntScriptVariableStyle}"
+                                        Style="{StaticResource IntValueStyle}"
                                         Value="{Binding StackValue}"
                                         ValueChanged="StackUpDown_ValueChanged"
                                         IsEnabled="{Binding StackValue, Converter={StaticResource IsNotNull}}"/>
                                     <xctk:SingleUpDown
                                         Grid.Row="1" Margin="5,0,5,5" Height="22"
-                                        Style="{StaticResource FloatScriptVariableStyle}"
+                                        Style="{StaticResource FloatValueStyle}"
                                         Value="{Binding StackValue, Converter={StaticResource FloatBitsConverter}}"
                                         ValueChanged="StackUpDown_ValueChanged"
                                         IsEnabled="{Binding StackValue, Converter={StaticResource IsNotNull}}"/>
                                     <xctk:IntegerUpDown
                                         Grid.Row="1" Margin="5,0,5,5" Height="22"
-                                        Style="{StaticResource HexScriptVariableStyle}"
+                                        Style="{StaticResource HexValueStyle}"
                                         Value="{Binding StackValue}" ParsingNumberStyle="HexNumber" FormatString="X"
                                         ValueChanged="StackUpDown_ValueChanged"
                                         IsEnabled="{Binding StackValue, Converter={StaticResource IsNotNull}}"/>
@@ -358,27 +380,54 @@
 
                             <GroupBox Grid.Column="1" Grid.Row="0" Header="Timer A" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
                                 Name="m_timerA">
-                                <xctk:IntegerUpDown
+                                <Grid>
+                                    <xctk:IntegerUpDown
                                         Margin="5" Height="22"
-                                        TextAlignment="Left"
-                                        Value="{Binding SelectedThread.Thread.TimerA}"
-                                        Style="{StaticResource Int32UpDownStyle}"/>
+                                        Style="{StaticResource IntValueStyle}"
+                                        Value="{Binding SelectedThread.Thread.TimerA}"/>
+                                    <xctk:SingleUpDown
+                                        Margin="5" Height="22"
+                                        Style="{StaticResource FloatValueStyle}"
+                                        Value="{Binding SelectedThread.Thread.TimerA, Converter={StaticResource FloatBitsConverter}}"/>
+                                    <xctk:IntegerUpDown
+                                        Grid.Column="2" Margin="5" Height="22"
+                                        Style="{StaticResource HexValueStyle}"
+                                        Value="{Binding SelectedThread.Thread.TimerA}" ParsingNumberStyle="HexNumber" FormatString="X"/>
+                                </Grid>
                             </GroupBox>
                             <GroupBox Grid.Column="1" Grid.Row="1" Header="Timer B" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
                                 Name="m_timerB">
-                                <xctk:IntegerUpDown
+                                <Grid>
+                                    <xctk:IntegerUpDown
                                         Margin="5" Height="22"
-                                        TextAlignment="Left"
-                                        Value="{Binding SelectedThread.Thread.TimerB}"
-                                        Style="{StaticResource Int32UpDownStyle}"/>
+                                        Style="{StaticResource IntValueStyle}"
+                                        Value="{Binding SelectedThread.Thread.TimerB}"/>
+                                    <xctk:SingleUpDown
+                                        Margin="5" Height="22"
+                                        Style="{StaticResource FloatValueStyle}"
+                                        Value="{Binding SelectedThread.Thread.TimerB, Converter={StaticResource FloatBitsConverter}}"/>
+                                    <xctk:IntegerUpDown
+                                        Grid.Column="2" Margin="5" Height="22"
+                                        Style="{StaticResource HexValueStyle}"
+                                        Value="{Binding SelectedThread.Thread.TimerB}" ParsingNumberStyle="HexNumber" FormatString="X"/>
+                                </Grid>
                             </GroupBox>
                             <GroupBox Grid.Column="1" Grid.Row="2" Header="Wake Time" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
                                 Name="m_wake">
-                                <xctk:IntegerUpDown
+                                <Grid>
+                                    <xctk:IntegerUpDown
                                         Margin="5" Height="22"
-                                        TextAlignment="Left"
-                                        Value="{Binding SelectedThread.Thread.WakeTime}"
-                                        Style="{StaticResource Int32UpDownStyle}"/>
+                                        Style="{StaticResource IntValueStyle}"
+                                        Value="{Binding SelectedThread.Thread.WakeTime}"/>
+                                    <xctk:SingleUpDown
+                                        Margin="5" Height="22"
+                                        Style="{StaticResource FloatValueStyle}"
+                                        Value="{Binding SelectedThread.Thread.WakeTime, Converter={StaticResource FloatBitsConverter}}"/>
+                                    <xctk:IntegerUpDown
+                                        Grid.Column="2" Margin="5" Height="22"
+                                        Style="{StaticResource HexValueStyle}"
+                                        Value="{Binding SelectedThread.Thread.WakeTime}" ParsingNumberStyle="HexNumber" FormatString="X"/>
+                                </Grid>
                             </GroupBox>
 
                             <GroupBox Grid.Column="1" Grid.Row="3" Grid.RowSpan="2" Header="Locals" Margin="5,0,5,5" Style="{StaticResource GroupBoxStyle}"
@@ -434,19 +483,19 @@
                                     </ListView>
                                     <xctk:IntegerUpDown
                                         Grid.Row="1" Margin="5,0,5,5" Height="22"
-                                        Style="{StaticResource IntScriptVariableStyle}"
+                                        Style="{StaticResource IntValueStyle}"
                                         Value="{Binding LocalValue}"
                                         ValueChanged="LocalUpDown_ValueChanged"
                                         IsEnabled="{Binding LocalValue, Converter={StaticResource IsNotNull}}"/>
                                     <xctk:SingleUpDown
                                         Grid.Row="1" Margin="5,0,5,5" Height="22"
-                                        Style="{StaticResource FloatScriptVariableStyle}"
+                                        Style="{StaticResource FloatValueStyle}"
                                         Value="{Binding LocalValue, Converter={StaticResource FloatBitsConverter}}"
                                         ValueChanged="LocalUpDown_ValueChanged"
                                         IsEnabled="{Binding LocalValue, Converter={StaticResource IsNotNull}}"/>
                                     <xctk:IntegerUpDown
                                         Grid.Row="1" Margin="5,0,5,5" Height="22"
-                                        Style="{StaticResource HexScriptVariableStyle}"
+                                        Style="{StaticResource HexValueStyle}"
                                         Value="{Binding LocalValue}" ParsingNumberStyle="HexNumber" FormatString="X"
                                         ValueChanged="LocalUpDown_ValueChanged"
                                         IsEnabled="{Binding LocalValue, Converter={StaticResource IsNotNull}}"/>
