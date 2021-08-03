@@ -23,15 +23,19 @@ using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI
 {
+    public class DummyVM :   TabPageVM
+    { }
+
     public class MainWindowVM : WindowVMBase
     {
         private const int NumSaveSlots = 8;
         private const string FileFilter = "GTA3 Save Files (*.b)|*.b|All Files|*.*";
 
-        const string TabNameWelcome = "Welcome";
-        const string TabNameScripts = "Scripts";
-        const string TabNameGangs = "Gangs";
-        const string TabNamePickups = "Pickups";
+        private const string TabNameWelcome = "Welcome";
+        private const string TabNameGarages = "Garages";
+        private const string TabNameGangs = "Gangs & Peds";
+        private const string TabNamePickups = "Pickups";
+        private const string TabNameScripts = "Scripts";
 
         private ObservableCollection<SaveSlot> m_saveSlots;
         private ObservableCollection<TabPageVM> m_tabs;
@@ -67,12 +71,18 @@ namespace GTA3SaveEditor.GUI
         {
             var slots = Enumerable.Range(0, NumSaveSlots).Select(slot => new SaveSlot());
             SaveSlots = new ObservableCollection<SaveSlot>(slots);
-            Tabs = new ObservableCollection<TabPageVM>()
+            Tabs = ConstructTabs();
+        }
+
+        private ObservableCollection<TabPageVM> ConstructTabs()
+        {
+            return new ObservableCollection<TabPageVM>()
             {
                 new WelcomeVM()  { TheWindow = this, Title = TabNameWelcome, Visibility = TabPageVisibility.WhenNotEditingFile },
-                new GangsVM()    { TheWindow = this, Title = TabNameGangs,   Visibility = TabPageVisibility.WhenEditingFile },
-                new PickupsVM()  { TheWindow = this, Title = TabNamePickups, Visibility = TabPageVisibility.WhenEditingFile },
-                new ScriptsVM()  { TheWindow = this, Title = TabNameScripts, Visibility = TabPageVisibility.WhenEditingFile },
+                new GaragesVM()  { TheWindow = this, Title = TabNameGarages, Visibility = TabPageVisibility.WhenEditingFile },      // Save Garages
+                new GangsVM()    { TheWindow = this, Title = TabNameGangs,   Visibility = TabPageVisibility.WhenEditingFile },      // Gangs
+                new PickupsVM()  { TheWindow = this, Title = TabNamePickups, Visibility = TabPageVisibility.WhenEditingFile },      // All pickups
+                new ScriptsVM()  { TheWindow = this, Title = TabNameScripts, Visibility = TabPageVisibility.WhenEditingFile },      // GlobalVars and Threads
             };
         }
 
@@ -89,7 +99,7 @@ namespace GTA3SaveEditor.GUI
             Editor.FileSaved += FileSaved_Handler;
 
             InitAllTabs();
-            RefreshTabVisibility();
+            UpdateTabVisibility();
             RefreshSaveSlots();
         }
 
@@ -130,13 +140,30 @@ namespace GTA3SaveEditor.GUI
             }
         }
 
-        private void UpdateVisibleTabs()
+        private void UpdateTabs()
         {
             foreach (var tab in Tabs)
-                if (tab.IsVisible) tab.Update();
+            {
+                if (tab.IsVisible)
+                {
+                    tab.Update();
+                }
+            }
         }
 
-        private void RefreshTabVisibility()
+        private void ReloadTabs()
+        {
+            foreach (var tab in Tabs)
+            {
+                if (tab.IsVisible)
+                {
+                    tab.Unload();
+                    tab.Load();
+                }
+            }
+        }
+
+        private void UpdateTabVisibility()
         {
             foreach (var tab in Tabs)
             {
@@ -278,10 +305,10 @@ namespace GTA3SaveEditor.GUI
             if (!m_isReverting)
             {
                 UpdateTitle();
-                RefreshTabVisibility();
+                UpdateTabVisibility();
             }
 
-            UpdateVisibleTabs();
+            ReloadTabs();
 
             if (!m_isReverting)
             {
@@ -310,19 +337,19 @@ namespace GTA3SaveEditor.GUI
         {
             SetTimedStatusText("Closing file...");
             UnregisterDirtyHandlers(TheSave);
+
+            ClearDirty();
         }
 
         private void FileClosed_Handler(object sender, EventArgs e)
         {
             SuppressExternalChangesCheck = false;
 
-            ClearDirty();
-
             if (!m_isReverting)
             {
                 UpdateTitle();
-                RefreshTabVisibility();
-                UpdateVisibleTabs();
+                UpdateTabVisibility();
+                ReloadTabs();
                 SelectFirstVisibleTab();
             }
 
@@ -348,7 +375,6 @@ namespace GTA3SaveEditor.GUI
             try
             {
                 Editor.OpenFile(path);
-                foreach (var t in Tabs) t.Load();
                 onFileOpened?.Invoke();
                 return true;
             }
@@ -404,9 +430,7 @@ namespace GTA3SaveEditor.GUI
                 return retval;
             }
 
-            // close-file routine
             Editor.CloseFile();
-            foreach (var t in Tabs) t.Unload();
 
         Done:
             onFileClosed?.Invoke();
@@ -674,7 +698,7 @@ namespace GTA3SaveEditor.GUI
             () =>
             {
                 ShowCustomScriptsDialog();
-                UpdateVisibleTabs();
+                UpdateTabs();
             },
             () => Editor.IsEditingFile
         );
@@ -709,7 +733,7 @@ namespace GTA3SaveEditor.GUI
                     m_debugTab.Unload();
                     Tabs.Remove(m_debugTab);
                 }
-                RefreshTabVisibility();
+                UpdateTabVisibility();
             }
         );
 
@@ -736,7 +760,7 @@ namespace GTA3SaveEditor.GUI
                         if (r != true) return;
                         GTA3.CarColors = CarColorsLoader.LoadColors(e.FileName);
                         SetTimedStatusText($"Loaded {GTA3.CarColors.Count()} car colors.");
-                        UpdateVisibleTabs();
+                        UpdateTabs();
                     }
                     catch (Exception ex)
                     {
@@ -758,7 +782,7 @@ namespace GTA3SaveEditor.GUI
                         if (r != true) return;
                         GTA3.GxtTable = GxtLoader.Load(e.FileName);
                         SetTimedStatusText($"Loaded {GTA3.GxtTable.Count} GXT entries.");
-                        UpdateVisibleTabs();
+                        UpdateTabs();
                     }
                     catch (Exception ex)
                     {
@@ -780,7 +804,7 @@ namespace GTA3SaveEditor.GUI
                         if (r != true) return;
                         GTA3.IdeObjects = IdeLoader.LoadObjects(e.FileName);
                         SetTimedStatusText($"Loaded {GTA3.IdeObjects.Count()} IDE objects.");
-                        UpdateVisibleTabs();
+                        UpdateTabs();
                     }
                     catch (Exception ex)
                     {
