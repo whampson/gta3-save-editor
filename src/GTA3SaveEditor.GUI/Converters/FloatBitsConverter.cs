@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Text;
 using System.Windows;
 using System.Windows.Data;
+using GTA3SaveEditor.Core.Extensions;
 
 namespace GTA3SaveEditor.GUI.Converters
 {
@@ -12,9 +13,10 @@ namespace GTA3SaveEditor.GUI.Converters
     {
         public override object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is int x)
+            if (value is int || value is uint)
             {
-                return BitConverter.Int32BitsToSingle(x);
+                int int32Value = (int) System.Convert.ChangeType(value, typeof(int));
+                return BitConverter.Int32BitsToSingle(int32Value);
             }
 
             return DependencyProperty.UnsetValue;
@@ -24,7 +26,12 @@ namespace GTA3SaveEditor.GUI.Converters
         {
             if (value is float f)
             {
-                return BitConverter.SingleToInt32Bits(f);
+                Type t = Nullable.GetUnderlyingType(targetType) ?? targetType;
+                if (t == typeof(int) || t == typeof(uint))
+                {
+                    int bits = BitConverter.SingleToInt32Bits(f);
+                    return System.Convert.ChangeType(bits, t);
+                }
             }
 
             return DependencyProperty.UnsetValue;
