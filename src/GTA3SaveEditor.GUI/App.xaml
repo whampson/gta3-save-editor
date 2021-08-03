@@ -5,6 +5,7 @@
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:cntl="clr-namespace:WHampson.ToolUI.Controls;assembly=WHampson.ToolUI"
     xmlns:conv="clr-namespace:WHampson.ToolUI.Converters;assembly=WHampson.ToolUI"
+    xmlns:conv2="clr-namespace:GTA3SaveEditor.GUI.Converters"
     xmlns:wpfe="clr-namespace:WpfEssentials.Win32.Converters;assembly=WpfEssentials.Win32"
     xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=DotNetProjects.Wpf.Extended.Toolkit"
     ShutdownMode="OnMainWindowClose">
@@ -19,6 +20,9 @@
         <conv:IsZeroConverter x:Key="IsNotZero" Invert="True"/>
         <conv:InvertBooleanConverter x:Key="IsFalse" DefaultValue="True"/>
         <conv:VectorConverter x:Key="VectorConverter"/>
+        <conv2:VehicleModelConverter x:Key="VehicleModelConverter"/>
+        <conv2:CarColorConverter x:Key="CarColorConverter"/>
+        <conv2:EnumFlagsConverter x:Key="EnumFlagsConverter"/>
         <wpfe:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
@@ -45,7 +49,7 @@
 
         <!-- Text Boxes -->
         <Style x:Key="TextBoxStyle" TargetType="TextBox">
-            <Setter Property="Height" Value="25"/>
+            <Setter Property="Height" Value="22"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <EventSetter Event="GotKeyboardFocus" Handler="TextBox_GotKeyboardFocus"/>
         </Style>
