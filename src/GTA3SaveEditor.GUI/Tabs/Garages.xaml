@@ -11,6 +11,7 @@
     xmlns:g="clr-namespace:GTA3SaveEditor.GUI"
     xmlns:l="clr-namespace:GTA3SaveEditor.GUI.Tabs"
     xmlns:c="clr-namespace:GTA3SaveEditor.GUI.Converters"
+    xmlns:t="clr-namespace:WHampson.ToolUI.Controls;assembly=WHampson.ToolUI"
     xmlns:tc="clr-namespace:WHampson.ToolUI.Converters;assembly=WHampson.ToolUI"
     xmlns:e="clr-namespace:WpfEssentials.Win32.Extensions;assembly=WpfEssentials.Win32"
     xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=DotNetProjects.Wpf.Extended.Toolkit"
@@ -48,7 +49,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="175"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
@@ -85,6 +86,7 @@
 
                         <Grid>
                             <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="Auto"/>
@@ -203,6 +205,17 @@
                                     Content="Melee Proof"
                                     ToolTip="The vehicle is resistant to melee damage. (bugged in vanilla game)"/>
                             </Grid>
+
+                            <t:CoordinatePicker3D
+                                Grid.Column="5" Grid.Row="0" Grid.RowSpan="3" Margin="25,0,0,0"
+                                Width="150" UpDownHeight="22"
+                                Value="{Binding SelectedCar.Position}"/>
+
+                            <t:CoordinatePicker3D
+                                Grid.Column="5" Grid.Row="3" Grid.RowSpan="3" Margin="25,0,0,0"
+                                Width="150" UpDownHeight="22"
+                                Value="{Binding SelectedCar.Angle}"/>
+
                         </Grid>
                     </ScrollViewer>
                 </GroupBox>
@@ -216,17 +229,17 @@
             Style="{StaticResource GroupBoxStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="200"/>
+                    <ColumnDefinition Width="175"/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
 
                 <ListBox
                     Grid.Column="0" Margin="5,10,5,5"
-                    ItemsSource="{Binding TheSave.Garages.Garages}"
+                    ItemsSource="{Binding Garages}"
                     SelectedItem="{Binding SelectedGarage}">
                     <ListBox.ItemTemplate>
                         <DataTemplate>
-                            <TextBlock Text="{Binding Path=Type}"/>
+                            <TextBlock Text="{Binding Path=Type, Converter={StaticResource EnumDescriptionConverter}}"/>
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
@@ -237,6 +250,170 @@
                     Style="{StaticResource GroupBoxStyle}"
                     IsEnabled="{Binding SelectedGarage, Converter={StaticResource IsNotNull}}">
                     <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            
+                            <Grid Grid.Column="1" Margin="5,0,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Margin="5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="125"/>
+                                        <ColumnDefinition Width="125"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    
+                                </Grid>
+
+                                <TextBlock Grid.Column="0" Grid.Row="1" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Type:"/>
+                                <TextBlock Grid.Column="0" Grid.Row="2" Margin="5" Style="{StaticResource LabelStyleRight}" Text="State:"/>
+                                <TextBlock Grid.Column="0" Grid.Row="3" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Door Offset:"/>
+                                <TextBlock Grid.Column="0" Grid.Row="4" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Door Max:"/>
+
+                                <ComboBox
+                                    Grid.Column="1" Grid.Row="1" Margin="5" Width="190"
+                                    ItemsSource="{e:EnumValueCollection EnumType=gta3:GarageType}"
+                                    SelectedItem="{Binding SelectedGarage.Type}"
+                                    Style="{StaticResource ComboBoxStyle}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Path=., Converter={StaticResource EnumDescriptionConverter}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+
+                                <ComboBox
+                                    Grid.Column="1" Grid.Row="2" Margin="5"
+                                    ItemsSource="{e:EnumValueCollection EnumType=gta3:GarageState}"
+                                    SelectedItem="{Binding SelectedGarage.State}"
+                                    Style="{StaticResource ComboBoxStyle}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Path=., Converter={StaticResource EnumDescriptionConverter}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+
+                                <xctk:SingleUpDown
+                                    Grid.Column="1" Grid.Row="3" Margin="5"
+                                    Style="{StaticResource FloatUpDownStyle}"
+                                    Value="{Binding SelectedGarage.DoorOpenOffset}"/>
+
+                                <xctk:SingleUpDown
+                                    Grid.Column="1" Grid.Row="4" Margin="5"
+                                    Style="{StaticResource FloatUpDownStyle}"
+                                    Value="{Binding SelectedGarage.DoorOpenMax}"/>
+
+                                <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="5" Margin="20,10,5,5">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <CheckBox
+                                        Grid.Column="0" Grid.Row="0" Margin="5"
+                                        Style="{StaticResource CheckBoxStyle}"
+                                        IsChecked="{Binding SelectedGarage.Deactivated}"
+                                        Content="Deactivated"/>
+
+                                    <CheckBox
+                                        Grid.Column="0" Grid.Row="1" Margin="5"
+                                        Style="{StaticResource CheckBoxStyle}"
+                                        IsChecked="{Binding SelectedGarage.RotatingDoor}"
+                                        Content="Rotating Door(s)"/>
+
+                                    <CheckBox
+                                        Grid.Column="0" Grid.Row="2" Margin="5"
+                                        Style="{StaticResource CheckBoxStyle}"
+                                        IsChecked="{Binding SelectedGarage.CameraFollowsPlayer}"
+                                        Content="Camera Follows Player"/>
+                                </Grid>
+                            </Grid>
+
+                            <Grid Grid.Column="0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="150"/>
+                                </Grid.ColumnDefinitions>
+
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+
+                                <GroupBox
+                                    Grid.Column="0" Grid.Row="0" Margin="0,5,2.5,0"
+                                    Header="Position (minor)">
+                                    <t:CoordinatePicker3D
+                                        Margin="5" UpDownHeight="22"
+                                        Value="{Binding SelectedGarage.PositionMin}"/>
+                                </GroupBox>
+
+                                <GroupBox
+                                    Grid.Column="1" Grid.Row="0" Margin="2.5,5,0,0"
+                                    Header="Position (major)">
+                                    <t:CoordinatePicker3D
+                                        Margin="5" UpDownHeight="22"
+                                        Value="{Binding SelectedGarage.PositionMax}"/>
+                                </GroupBox>
+
+                                <GroupBox
+                                    Grid.Column="0" Grid.Row="1" Margin="0,5,2.5,0"
+                                    Header="Door 1">
+                                    <StackPanel>
+                                        <t:CoordinatePicker3D
+                                            Margin="5" UpDownHeight="22"
+                                            Value="{Binding SelectedGarage.Door1Position}"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource LabelStyleRight}" Margin="5" Text="Handle:"/>
+                                            <xctk:ByteUpDown
+                                                Margin="5" Width="75"
+                                                Style="{StaticResource UInt8UpDownStyle}"
+                                                Value="{Binding SelectedGarage.Door1Handle}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+
+                                <GroupBox
+                                    Grid.Column="1" Grid.Row="1" Margin="2.5,5,0,0"
+                                    Header="Door 2">
+                                    <StackPanel>
+                                        <t:CoordinatePicker3D
+                                            Margin="5" UpDownHeight="22"
+                                            Value="{Binding SelectedGarage.Door2Position}"/>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Style="{StaticResource LabelStyleRight}" Margin="5" Text="Handle:"/>
+                                            <xctk:ByteUpDown
+                                                Margin="5" Width="75"
+                                                Style="{StaticResource UInt8UpDownStyle}"
+                                                Value="{Binding SelectedGarage.Door2Handle}"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </GroupBox>
+                            </Grid>
+                            
+                        </Grid>
                     </ScrollViewer>
 
                 </GroupBox>

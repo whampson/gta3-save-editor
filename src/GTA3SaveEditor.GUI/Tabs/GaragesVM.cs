@@ -17,6 +17,7 @@ namespace GTA3SaveEditor.GUI.Tabs
                 GTA3.CarColors.Select(x => new ColorItem(x.Color.ToMediaColor(), x.Name)));
 
         private ObservableCollection<StoredCar> m_safehouseCars;
+        private ObservableCollection<Garage> m_garages;
         private Level m_selectedSafehouse;
         private StoredCar m_selectedCar;
         private Garage m_selectedGarage;
@@ -25,6 +26,12 @@ namespace GTA3SaveEditor.GUI.Tabs
         {
             get { return m_safehouseCars; }
             set { m_safehouseCars = value; OnPropertyChanged(); }
+        }
+
+        public ObservableCollection<Garage> Garages
+        {
+            get { return m_garages; }
+            set { m_garages = value; OnPropertyChanged(); }
         }
 
         public Level SelectedSafehouse
@@ -48,6 +55,7 @@ namespace GTA3SaveEditor.GUI.Tabs
         public GaragesVM()
         {
             StoredCars = new ObservableCollection<StoredCar>();
+            Garages = new ObservableCollection<Garage>();
         }
 
         public override void Load()
@@ -59,7 +67,11 @@ namespace GTA3SaveEditor.GUI.Tabs
                 SelectedSafehouse = Level.Industrial;
             }
 
+            SelectedCar = null;
+            SelectedGarage = null;
+
             UpdateStoredCarList();
+            UpdateGarageList();
         }
 
         public void UpdateStoredCarList()
@@ -76,6 +88,11 @@ namespace GTA3SaveEditor.GUI.Tabs
                     StoredCars = new ObservableCollection<StoredCar>(TheSave.Garages.StoredCarsShoreside);
                     break;
             }
+        }
+
+        public void UpdateGarageList()
+        {
+            Garages = new ObservableCollection<Garage>(TheSave.Garages.Garages);
         }
     }
 }
