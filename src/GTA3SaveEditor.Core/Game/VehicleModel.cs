@@ -9,5 +9,12 @@
         {
             GameName = gameName;
         }
+
+        public override string ToString()
+        {
+            return (Id != 0)
+                ? GTA3.GetGxtString(GameName)
+                : "(none)";
+        }
     }
 }
