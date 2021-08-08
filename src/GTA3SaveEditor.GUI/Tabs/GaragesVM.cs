@@ -18,7 +18,7 @@ namespace GTA3SaveEditor.GUI.Tabs
 
         private ObservableCollection<StoredCar> m_safehouseCars;
         private ObservableCollection<Garage> m_garages;
-        private Level m_selectedSafehouse;
+        private LevelName m_selectedSafehouse;
         private StoredCar m_selectedCar;
         private Garage m_selectedGarage;
 
@@ -34,7 +34,7 @@ namespace GTA3SaveEditor.GUI.Tabs
             set { m_garages = value; OnPropertyChanged(); }
         }
 
-        public Level SelectedSafehouse
+        public LevelName SelectedSafehouse
         {
             get { return m_selectedSafehouse; }
             set { m_selectedSafehouse = value; OnPropertyChanged(); }
@@ -62,9 +62,9 @@ namespace GTA3SaveEditor.GUI.Tabs
         {
             base.Load();
 
-            if (SelectedSafehouse == Level.None)
+            if (SelectedSafehouse == LevelName.None)
             {
-                SelectedSafehouse = Level.Industrial;
+                SelectedSafehouse = LevelName.Industrial;
             }
 
             SelectedCar = null;
@@ -78,13 +78,13 @@ namespace GTA3SaveEditor.GUI.Tabs
         {
             switch (SelectedSafehouse)
             {
-                case Level.Industrial:
+                case LevelName.Industrial:
                     StoredCars = new ObservableCollection<StoredCar>(TheSave.Garages.StoredCarsPortland);
                     break;
-                case Level.Commercial:
+                case LevelName.Commercial:
                     StoredCars = new ObservableCollection<StoredCar>(TheSave.Garages.StoredCarsStaunton);
                     break;
-                case Level.Suburban:
+                case LevelName.Suburban:
                     StoredCars = new ObservableCollection<StoredCar>(TheSave.Garages.StoredCarsShoreside);
                     break;
             }

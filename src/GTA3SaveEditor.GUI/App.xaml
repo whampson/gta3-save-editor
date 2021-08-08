@@ -124,40 +124,54 @@
             <Setter Property="Maximum" Value="127"/>
             <Setter Property="ClipValueToMinMax" Value="True"/>
             <Setter Property="AutoSelectBehavior" Value="Never"/>
+            <Setter Property="DefaultValue" Value="0"/>
+            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
         </Style>
         <Style x:Key="UInt8UpDownStyle" TargetType="xctk:ByteUpDown">
             <Setter Property="Minimum" Value="0"/>
             <Setter Property="Maximum" Value="255"/>
             <Setter Property="ClipValueToMinMax" Value="True"/>
             <Setter Property="AutoSelectBehavior" Value="Never"/>
+            <Setter Property="DefaultValue" Value="0"/>
+            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
         </Style>
         <Style x:Key="Int16UpDownStyle" TargetType="xctk:ShortUpDown">
             <Setter Property="Minimum" Value="-32768"/>
             <Setter Property="Maximum" Value="32767"/>
             <Setter Property="ClipValueToMinMax" Value="True"/>
             <Setter Property="AutoSelectBehavior" Value="Never"/>
+            <Setter Property="DefaultValue" Value="0"/>
+            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
         </Style>
         <Style x:Key="UInt16UpDownStyle" TargetType="xctk:UShortUpDown">
             <Setter Property="Minimum" Value="0"/>
             <Setter Property="Maximum" Value="65535"/>
             <Setter Property="ClipValueToMinMax" Value="True"/>
             <Setter Property="AutoSelectBehavior" Value="Never"/>
+            <Setter Property="DefaultValue" Value="0"/>
+            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
         </Style>
         <Style x:Key="Int32UpDownStyle" TargetType="xctk:IntegerUpDown">
             <Setter Property="Minimum" Value="-2147483648"/>
             <Setter Property="Maximum" Value="2147483647"/>
             <Setter Property="ClipValueToMinMax" Value="True"/>
             <Setter Property="AutoSelectBehavior" Value="Never"/>
+            <Setter Property="DefaultValue" Value="0"/>
+            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
         </Style>
         <Style x:Key="FloatUpDownStyle" TargetType="xctk:SingleUpDown">
             <Setter Property="Minimum" Value="{x:Static sys:Single.MinValue}"/>
             <Setter Property="Maximum" Value="{x:Static sys:Single.MaxValue}"/>
             <Setter Property="ClipValueToMinMax" Value="True"/>
             <Setter Property="AutoSelectBehavior" Value="Never"/>
+            <Setter Property="DefaultValue" Value="0"/>
+            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
         </Style>
         <Style x:Key="DecimalUpDownStyle" TargetType="xctk:DecimalUpDown">
             <Setter Property="ClipValueToMinMax" Value="True"/>
             <Setter Property="AutoSelectBehavior" Value="Never"/>
+            <Setter Property="DefaultValue" Value="0"/>
+            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
         </Style>
 
         <!-- ListView -->
