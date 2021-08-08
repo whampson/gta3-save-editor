@@ -193,7 +193,7 @@
             </Grid>
         </GroupBox>
 
-        <GroupBox Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Header="Threads"
+        <GroupBox Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Header="Running Scripts (Threads)"
             Margin="5,0,5,5"
             Style="{StaticResource GroupBoxStyle}">
             <Grid>
@@ -250,7 +250,7 @@
 
                 </Grid>
 
-                <GroupBox Grid.Column="1" Header="Thread Info"
+                <GroupBox Grid.Column="1" Header="Script Info"
                     Margin="5,0,5,5"
                     Style="{StaticResource GroupBoxStyle}"
                     IsEnabled="{Binding SelectedThread, Converter={StaticResource IsNotNull}}"
