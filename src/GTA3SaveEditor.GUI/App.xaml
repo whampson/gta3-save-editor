@@ -51,7 +51,6 @@
         <Style x:Key="TextBoxStyle" TargetType="TextBox">
             <Setter Property="Height" Value="22"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <EventSetter Event="GotKeyboardFocus" Handler="TextBox_GotKeyboardFocus"/>
         </Style>
 
         <!-- Check Boxes -->

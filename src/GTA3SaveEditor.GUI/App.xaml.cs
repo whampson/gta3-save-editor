@@ -1,17 +1,50 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
 
 namespace GTA3SaveEditor.GUI
 {
     public partial class App : Application
     {
-        private void TextBox_GotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        private void InitUIElements()
         {
-            if (sender is TextBox tb)
+            // Select the text in a TextBox when it receives focus.
+            EventManager.RegisterClassHandler(typeof(TextBox), TextBox.PreviewMouseLeftButtonDownEvent,
+                new MouseButtonEventHandler(SelectivelyIgnoreMouseButton));
+            EventManager.RegisterClassHandler(typeof(TextBox), TextBox.GotKeyboardFocusEvent,
+                new RoutedEventHandler(SelectAllText));
+            EventManager.RegisterClassHandler(typeof(TextBox), TextBox.MouseDoubleClickEvent,
+                new RoutedEventHandler(SelectAllText));
+        }
+
+        private void SelectivelyIgnoreMouseButton(object sender, MouseButtonEventArgs e)
+        {
+            // Find the TextBox
+            DependencyObject parent = e.OriginalSource as UIElement;
+            while (parent != null && !(parent is TextBox))
             {
-                tb.SelectAll();
+                parent = VisualTreeHelper.GetParent(parent);
             }
+
+            if (parent != null)
+            {
+                TextBox textBox = (TextBox) parent;
+                if (!textBox.IsKeyboardFocusWithin)
+                {
+                    // If the text box is not yet focused, give it the focus and
+                    // stop further processing of this click event.
+                    textBox.Focus();
+                    e.Handled = true;
+                }
+            }
+        }
+
+        private void SelectAllText(object sender, RoutedEventArgs e)
+        {
+            var textBox = e.OriginalSource as TextBox;
+            if (textBox != null)
+                textBox.SelectAll();
         }
     }
 }

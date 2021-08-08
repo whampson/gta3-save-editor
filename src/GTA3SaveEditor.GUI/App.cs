@@ -19,6 +19,9 @@ namespace GTA3SaveEditor.GUI
     {
         protected override void OnStartup(StartupEventArgs e)
         {
+            InitUIElements();
+            base.OnStartup(e);
+
             AppDomain.CurrentDomain.UnhandledException += App_UnhandledException;
 
             Log.InfoStream = LogWriter;
@@ -67,6 +70,8 @@ namespace GTA3SaveEditor.GUI
                 }
                 File.WriteAllText(logFilePath, LogText);
             }
+
+            base.OnExit(e);
         }
 
         private void LoadResources()
