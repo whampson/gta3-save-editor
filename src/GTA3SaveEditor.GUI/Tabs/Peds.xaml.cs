@@ -7,11 +7,11 @@ namespace GTA3SaveEditor.GUI.Tabs
     /// <summary>
     /// Interaction logic for GangsTab.xaml
     /// </summary>
-    public partial class GangsTab : TabPage<GangsVM>
+    public partial class PedsTab : TabPage<PedsVM>
     {
         private bool m_suppressDensityChanged;
 
-        public GangsTab()
+        public PedsTab()
         {
             InitializeComponent();
         }

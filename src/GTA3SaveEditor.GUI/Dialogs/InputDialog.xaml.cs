@@ -17,7 +17,7 @@ namespace GTA3SaveEditor.GUI.Dialogs
     /// <summary>
     /// Interaction logic for InputDialog.xaml
     /// </summary>
-    public partial class InputDialog : WindowBase
+    public partial class InputDialog : BaseWindow
     {
         public new InputDialogVM ViewModel
         {

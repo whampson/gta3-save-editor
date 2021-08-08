@@ -1,10 +1,9 @@
 ﻿using System.Windows.Input;
-using WHampson.ToolUI;
 using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.Dialogs
 {
-    public class InputDialogVM : WindowVMBase
+    public class InputDialogVM : BaseWindowVM
     {
         private string m_label;
         private string m_text;

@@ -5,6 +5,6 @@ using WHampson.ToolUI;
 
 namespace GTA3SaveEditor.GUI
 {
-    public class VMBase : ViewModelBase
+    public class BaseVM : ViewModelBase
     { }
 }

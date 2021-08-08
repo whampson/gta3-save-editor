@@ -4,18 +4,15 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Windows.Input;
-using GTA3SaveEditor.Core;
 using GTA3SaveEditor.Core.Extensions;
 using GTA3SaveEditor.Core.Game;
 using GTA3SaveEditor.Core.Util;
 using GTASaveData;
-using GTASaveData.GTA3;
-using WHampson.ToolUI;
 using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.Dialogs
 {
-    public class CustomScriptsVM : WindowVMBase
+    public class CustomScriptsVM : BaseWindowVM
     {
         const string FileFilter = "Custom Scripts (*.cs, *.cm)|*.cs;*.cm|All Files (*.*)|*.*";
 

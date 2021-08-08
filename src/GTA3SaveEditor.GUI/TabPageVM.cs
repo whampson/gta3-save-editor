@@ -6,7 +6,7 @@ namespace GTA3SaveEditor.GUI
 {
     public abstract class TabPageVM : ViewModelBase
     {
-        private MainWindowVM m_mainWindow;
+        private MainVM m_mainWindow;
         private TabPageVisibility m_visibility;
         private bool m_isVisible;
         private string m_title;
@@ -19,7 +19,7 @@ namespace GTA3SaveEditor.GUI
         public delegate void DirtyChangedHandler(string propertyName, object value, object oldValue);
         public event DirtyChangedHandler Dirty;
 
-        public MainWindowVM TheWindow
+        public MainVM TheWindow
         {
             get { return m_mainWindow; }
             set { m_mainWindow = value; OnPropertyChanged(); }

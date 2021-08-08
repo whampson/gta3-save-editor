@@ -8,7 +8,7 @@ namespace GTA3SaveEditor.GUI.Dialogs
     /// <summary>
     /// Interaction logic for CustomScriptsDialog.xaml
     /// </summary>
-    public partial class CustomScriptsDialog : WindowBase
+    public partial class CustomScriptsDialog : BaseWindow
     {
         public new CustomScriptsVM ViewModel
         {

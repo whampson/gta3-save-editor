@@ -11,7 +11,7 @@ using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI
 {
-    public abstract class WindowVMBase : WindowViewModelBase
+    public abstract class BaseWindowVM : WindowViewModelBase
     {
         public event EventHandler LogWindowRequest;
         public event EventHandler CustomScriptsDialogRequest;

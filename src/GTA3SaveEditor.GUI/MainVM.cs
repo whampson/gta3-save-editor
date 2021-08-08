@@ -26,7 +26,7 @@ namespace GTA3SaveEditor.GUI
     public class DummyVM :   TabPageVM
     { }
 
-    public class MainWindowVM : WindowVMBase
+    public class MainVM : BaseWindowVM
     {
         private const int NumSaveSlots = 8;
         private const string FileFilter = "GTA3 Save Files (*.b)|*.b|All Files|*.*";
@@ -67,7 +67,7 @@ namespace GTA3SaveEditor.GUI
             private set { m_isDirty = value; OnPropertyChanged(); }
         }
 
-        public MainWindowVM()
+        public MainVM()
         {
             var slots = Enumerable.Range(0, NumSaveSlots).Select(slot => new SaveSlot());
             SaveSlots = new ObservableCollection<SaveSlot>(slots);
@@ -80,7 +80,7 @@ namespace GTA3SaveEditor.GUI
             {
                 new WelcomeVM()  { TheWindow = this, Title = TabNameWelcome, Visibility = TabPageVisibility.WhenNotEditingFile },
                 new GaragesVM()  { TheWindow = this, Title = TabNameGarages, Visibility = TabPageVisibility.WhenEditingFile },      // Save Garages
-                new GangsVM()    { TheWindow = this, Title = TabNameGangs,   Visibility = TabPageVisibility.WhenEditingFile },      // Gangs
+                new PedsVM()    { TheWindow = this, Title = TabNameGangs,   Visibility = TabPageVisibility.WhenEditingFile },      // Gangs
                 new PickupsVM()  { TheWindow = this, Title = TabNamePickups, Visibility = TabPageVisibility.WhenEditingFile },      // All pickups
                 new ScriptsVM()  { TheWindow = this, Title = TabNameScripts, Visibility = TabPageVisibility.WhenEditingFile },      // GlobalVars and Threads
             };

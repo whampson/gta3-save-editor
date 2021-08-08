@@ -1,13 +1,12 @@
 ﻿using GTA3SaveEditor.Core.Util;
 using System;
-using System.ComponentModel;
 
 namespace GTA3SaveEditor.GUI.Dialogs
 {
     /// <summary>
     /// Interaction logic for LogWindow.xaml
     /// </summary>
-    public partial class LogWindow : WindowBase
+    public partial class LogWindow : BaseWindow
     {
         public new LogWindowVM ViewModel
         {

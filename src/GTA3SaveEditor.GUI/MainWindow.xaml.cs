@@ -11,13 +11,13 @@ namespace GTA3SaveEditor.GUI
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow : WindowBase
+    public partial class MainWindow : BaseWindow
     {
         private LogWindow m_logWindow;
 
-        public new MainWindowVM ViewModel
+        public new MainVM ViewModel
         {
-            get { return (MainWindowVM) DataContext; }
+            get { return (MainVM) DataContext; }
             set { DataContext = value; }
         }
 
@@ -48,7 +48,7 @@ namespace GTA3SaveEditor.GUI
             UnregisterHandlers(this);
         }
 
-        private void LazyShowWindow<T>(T window, out T outWindow) where T : WindowBase, new()
+        private void LazyShowWindow<T>(T window, out T outWindow) where T : BaseWindow, new()
         {
             if (window != null && window.IsVisible)
             {
@@ -67,7 +67,7 @@ namespace GTA3SaveEditor.GUI
             window.Show();
         }
 
-        private void DestroyWindow<T>(T window) where T : WindowBase
+        private void DestroyWindow<T>(T window) where T : BaseWindow
         {
             if (window != null)
             {
@@ -84,13 +84,13 @@ namespace GTA3SaveEditor.GUI
             m_logWindow = null;
         }
 
-        public void ShowDialog<T>() where T : WindowBase, new()
+        public void ShowDialog<T>() where T : BaseWindow, new()
         {
             T dialog = new T() { Owner = this };
             dialog.ShowDialog();
         }
 
-        private void RegisterHandlers(WindowBase w)
+        private void RegisterHandlers(BaseWindow w)
         {
             w.ViewModel.LogWindowRequest += ViewModel_LogWindowRequest;
             w.ViewModel.CustomScriptsDialogRequest += ViewModel_CustomScriptsDialogRequest;
@@ -103,7 +103,7 @@ namespace GTA3SaveEditor.GUI
             // TODO: close handler
         }
 
-        private void UnregisterHandlers(WindowBase w)
+        private void UnregisterHandlers(BaseWindow w)
         {
             w.ViewModel.LogWindowRequest -= ViewModel_LogWindowRequest;
             w.ViewModel.CustomScriptsDialogRequest -= ViewModel_CustomScriptsDialogRequest;

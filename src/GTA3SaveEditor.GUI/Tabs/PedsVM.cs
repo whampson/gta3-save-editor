@@ -7,9 +7,9 @@ using WpfEssentials.Win32;
 namespace GTA3SaveEditor.GUI.Tabs
 {
 
-    public class GangsVM : TabPageVM
+    public class PedsVM : TabPageVM
     {
-        // TODO: zone picker
+        // TODO: gang territory zone picker
 
         private Gang m_selectedGang;
         private int m_selectedGangIndex;
@@ -189,7 +189,7 @@ namespace GTA3SaveEditor.GUI.Tabs
             set { m_carDensityNight = value; OnPropertyChanged(); }
         }
 
-        public GangsVM()
+        public PedsVM()
         {
             Zones = new ObservableCollection<Zone>();
         }
