@@ -25,6 +25,7 @@
         <c:WeaponTypeNameConverter x:Key="WeaponTypeNameConverter"/>
         <c:VehicleModelConverter x:Key="VehicleModelConverter" NoneValue="-1"/>
         <c:VehicleModelNameConverter x:Key="VehicleModelNameConverter"/>
+        <c:PedTypeNameConverter x:Key="PedTypeNameConverter"/>
     </UserControl.Resources>
 
     <Grid>
@@ -46,11 +47,11 @@
                     SelectedIndex="{Binding SelectedPedIndex}"
                     ItemsSource="{e:EnumValueCollection EnumType=gta3:PedTypeId}"
                     SelectionChanged="ListBox_SelectionChanged">
-                    <!--<ListBox.ItemTemplate>
+                    <ListBox.ItemTemplate>
                         <DataTemplate>
                             <TextBlock Text="{Binding Path=., Converter={StaticResource PedTypeNameConverter}}"/>
                         </DataTemplate>
-                    </ListBox.ItemTemplate>-->
+                    </ListBox.ItemTemplate>
                 </ListBox>
 
                 <GroupBox

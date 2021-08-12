@@ -2,6 +2,7 @@
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows;
 using GTA3SaveEditor.Core;
 using GTA3SaveEditor.Core.Util;
 using Semver;
@@ -41,6 +42,11 @@ namespace GTA3SaveEditor.GUI
             using MemoryStream m = new MemoryStream();
             GetResourceStream(resourceUri).Stream.CopyTo(m);
             return m.ToArray();
+        }
+
+        internal static string FindString(string key)
+        {
+            return (string) Application.Current.FindResource(key);
         }
 
         public static async Task<GitHubReleaseInfo> CheckForUpdate()
