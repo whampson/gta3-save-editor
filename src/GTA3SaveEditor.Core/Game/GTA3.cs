@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using GTASaveData.GTA3;
 
 namespace GTA3SaveEditor.Core.Game
 {
@@ -51,6 +52,23 @@ namespace GTA3SaveEditor.Core.Game
         public static VehicleModel GetVehicle(int id)
         {
             return Vehicles.Where(x => x.Id == (short) id).FirstOrDefault();
+        }
+
+        public static GangType GetGangType(PedTypeId pedType)
+        {
+            return pedType switch
+            {
+                PedTypeId.Gang1 => GangType.Mafia,
+                PedTypeId.Gang2 => GangType.Triads,
+                PedTypeId.Gang3 => GangType.Diablos,
+                PedTypeId.Gang4 => GangType.Yakuza,
+                PedTypeId.Gang5 => GangType.Yardies,
+                PedTypeId.Gang6 => GangType.Cartel,
+                PedTypeId.Gang7 => GangType.Hoods,
+                PedTypeId.Gang8 => GangType.Gang8,
+                PedTypeId.Gang9 => GangType.Gang9,
+                _ => throw new InvalidOperationException(pedType + " is not a gang!")
+            };
         }
     }
 

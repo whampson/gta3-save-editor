@@ -21,7 +21,6 @@
 
     <UserControl.Resources>
         <c:GangPedModelOverrideConverter x:Key="PedModelOverrideConverter"/>
-        <c:GangTypeNameConverter x:Key="GangTypeNameConverter"/>
         <c:GxtStringConverter x:Key="GxtStringConverter"/>
         <c:WeaponTypeNameConverter x:Key="WeaponTypeNameConverter"/>
         <c:VehicleModelConverter x:Key="VehicleModelConverter" NoneValue="-1"/>
@@ -29,256 +28,535 @@
     </UserControl.Resources>
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="150"/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
+        <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+            
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-        <ListBox
-            Grid.Column="0" Margin="5,10,5,5"
-            ItemsSource="{e:EnumValueCollection EnumType=gta3:GangType}"
-            SelectedIndex="{Binding GangIndex}"
-            SelectionChanged="ListBox_SelectionChanged">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Path=., Converter={StaticResource GangTypeNameConverter}}"/>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+                <ListBox
+                    Grid.Row="0" Grid.RowSpan="3" Grid.Column="0" Margin="5,10,5,5"
+                    SelectedIndex="{Binding SelectedPedIndex}"
+                    ItemsSource="{e:EnumValueCollection EnumType=gta3:PedTypeId}"
+                    SelectionChanged="ListBox_SelectionChanged">
+                    <!--<ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Path=., Converter={StaticResource PedTypeNameConverter}}"/>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>-->
+                </ListBox>
 
-        <GroupBox Grid.Column="1" Header="Gang Properties"
-            Margin="5,0,5,5"
-            Style="{StaticResource GroupBoxStyle}"
-            IsEnabled="{Binding Gang, Converter={StaticResource IsNotNull}}">
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                <GroupBox
+                    Grid.Column="1" Margin="5,0,5,5"
+                    Header="Ped Properties"
+                    Style="{StaticResource GroupBoxStyle}"
+                    IsEnabled="{Binding SelectedPed, Converter={StaticResource IsNotNull}}">
 
-                <Grid>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <GroupBox
+                            Grid.Row="0" Grid.Column="0"
+                            Header="Hostility"
+                            Margin="5,0,5,5"
+                            Style="{StaticResource GroupBoxStyle}"
+                            IsEnabled="{Binding SelectedPed, Converter={StaticResource IsNotNull}}">
+
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <CheckBox Grid.Column="0" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType00Name}"
+                                    IsChecked="{Binding IsThreatPlayer1}"
+                                    Command="{Binding SetThreatPlayer1}"/>
+                                <CheckBox Grid.Column="0" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType01Name}"
+                                    IsChecked="{Binding IsThreatPlayer2}"
+                                    Command="{Binding SetThreatPlayer2}"/>
+                                <CheckBox Grid.Column="0" Grid.Row="2" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType02Name}"
+                                    IsChecked="{Binding IsThreatPlayer3}"
+                                    Command="{Binding SetThreatPlayer3}"/>
+                                <CheckBox Grid.Column="0" Grid.Row="3" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType03Name}"
+                                    IsChecked="{Binding IsThreatPlayer4}"
+                                    Command="{Binding SetThreatPlayer4}"/>
+                                <CheckBox Grid.Column="0" Grid.Row="4" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType04Name}"
+                                    IsChecked="{Binding IsThreatCivMale}"
+                                    Command="{Binding SetThreatCivMale}"/>
+                                <CheckBox Grid.Column="0" Grid.Row="5" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType05Name}"
+                                    IsChecked="{Binding IsThreatCivFemale}"
+                                    Command="{Binding SetThreatCivFemale}"/>
+                                <CheckBox Grid.Column="1" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType06Name}"
+                                    IsChecked="{Binding IsThreatCop}"
+                                    Command="{Binding SetThreatCop}"/>
+                                <CheckBox Grid.Column="1" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType07Name}"
+                                    IsChecked="{Binding IsThreatGang1}"
+                                    Command="{Binding SetThreatGang1}"/>
+                                <CheckBox Grid.Column="1" Grid.Row="2" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType08Name}"
+                                    IsChecked="{Binding IsThreatGang2}"
+                                    Command="{Binding SetThreatGang2}"/>
+                                <CheckBox Grid.Column="1" Grid.Row="3" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType09Name}"
+                                    IsChecked="{Binding IsThreatGang3}"
+                                    Command="{Binding SetThreatGang3}"/>
+                                <CheckBox Grid.Column="1" Grid.Row="4" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType10Name}"
+                                    IsChecked="{Binding IsThreatGang4}"
+                                    Command="{Binding SetThreatGang4}"/>
+                                <CheckBox Grid.Column="1" Grid.Row="5" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType11Name}"
+                                    IsChecked="{Binding IsThreatGang5}"
+                                    Command="{Binding SetThreatGang5}"/>
+                                <CheckBox Grid.Column="2" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType12Name}"
+                                    IsChecked="{Binding IsThreatGang6}"
+                                    Command="{Binding SetThreatGang6}"/>
+                                <CheckBox Grid.Column="2" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType13Name}"
+                                    IsChecked="{Binding IsThreatGang7}"
+                                    Command="{Binding SetThreatGang7}"/>
+                                <CheckBox Grid.Column="2" Grid.Row="2" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType14Name}"
+                                    IsChecked="{Binding IsThreatGang8}"
+                                    Command="{Binding SetThreatGang8}"/>
+                                <CheckBox Grid.Column="2" Grid.Row="3" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType15Name}"
+                                    IsChecked="{Binding IsThreatGang9}"
+                                    Command="{Binding SetThreatGang9}"/>
+                                <CheckBox Grid.Column="2" Grid.Row="4" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType16Name}"
+                                    IsChecked="{Binding IsThreatEmergency}"
+                                    Command="{Binding SetThreatEmergency}"/>
+                                <CheckBox Grid.Column="2" Grid.Row="5" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType17Name}"
+                                    IsChecked="{Binding IsThreatFireman}"
+                                    Command="{Binding SetThreatFireman}"/>
+                                <CheckBox Grid.Column="3" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType18Name}"
+                                    IsChecked="{Binding IsThreatCriminal}"
+                                    Command="{Binding SetThreatCriminal}"/>
+                                <CheckBox Grid.Column="3" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType20Name}"
+                                    IsChecked="{Binding IsThreatProstitute}"
+                                    Command="{Binding SetThreatProstitute}"/>
+                                <CheckBox Grid.Column="3" Grid.Row="2" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType21Name}"
+                                    IsChecked="{Binding IsThreatSpecial}"
+                                    Command="{Binding SetThreatSpecial}"/>
+                                <CheckBox Grid.Column="3" Grid.Row="3" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedTypeFlag20Name}"
+                                    IsChecked="{Binding IsThreatGun}"
+                                    Command="{Binding SetThreatGun}"/>
+                                <CheckBox Grid.Column="3" Grid.Row="4" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedTypeFlag23Name}"
+                                    IsChecked="{Binding IsThreatExplosion}"
+                                    Command="{Binding SetThreatExplosion}"/>
+                                <CheckBox Grid.Column="3" Grid.Row="5" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedTypeFlag25Name}"
+                                    IsChecked="{Binding IsThreatDeadPeds}"
+                                    Command="{Binding SetThreatDeadPeds}"/>
+                                <CheckBox Grid.Column="4" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedTypeFlag21Name}"
+                                    IsChecked="{Binding IsThreatCopCar}"
+                                    Command="{Binding SetThreatCopCar}"/>
+                                <CheckBox Grid.Column="4" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedTypeFlag22Name}"
+                                    IsChecked="{Binding IsThreatFastCar}"
+                                    Command="{Binding SetThreatFastCar}"/>
+
+                                <Separator Grid.Column="5" Background="Transparent"/>
+
+                                <Grid
+                                    Grid.Column="6" Grid.Row="0" Grid.RowSpan="6"
+                                    HorizontalAlignment="Right">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Button
+                                        Grid.Row="0" Margin="10,5" Width="100"
+                                        Style="{StaticResource ButtonStyle}"
+                                        Content="Dislike All"
+                                        Command="{Binding HostileAll}"/>
+                                    <Button
+                                        Grid.Row="1" Margin="10,5" Width="100"
+                                        Style="{StaticResource ButtonStyle}"
+                                        Content="Dislike None"
+                                        Command="{Binding HostileNone}"/>
+                                    <Separator Grid.Row="2" Background="Transparent" />
+                                    <Button
+                                        Grid.Row="3" Margin="10,5" Width="100"
+                                        Style="{StaticResource ButtonStyle}"
+                                        Content="Reset"
+                                        Command="{Binding ResetThreats}"/>
+                                </Grid>
+                            </Grid>
+                        </GroupBox>
+
+                        <GroupBox
+                            Grid.Row="1" Grid.Column="0"
+                            Header="Avoids"
+                            Margin="5,0,5,5"
+                            Style="{StaticResource GroupBoxStyle}"
+                            IsEnabled="{Binding SelectedPed, Converter={StaticResource IsNotNull}}">
+
+                            <Grid Margin="0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="20"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                    <RowDefinition/>
+                                </Grid.RowDefinitions>
+
+                                <CheckBox Grid.Column="0" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType00Name}"
+                                    IsChecked="{Binding IsAvoidPlayer1}"
+                                    Command="{Binding SetAvoidPlayer1}"/>
+                                <CheckBox Grid.Column="0" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType01Name}"
+                                    IsChecked="{Binding IsAvoidPlayer2}"
+                                    Command="{Binding SetAvoidPlayer2}"/>
+                                <CheckBox Grid.Column="0" Grid.Row="2" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType02Name}"
+                                    IsChecked="{Binding IsAvoidPlayer3}"
+                                    Command="{Binding SetAvoidPlayer3}"/>
+                                <CheckBox Grid.Column="0" Grid.Row="3" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType03Name}"
+                                    IsChecked="{Binding IsAvoidPlayer4}"
+                                    Command="{Binding SetAvoidPlayer4}"/>
+                                <CheckBox Grid.Column="0" Grid.Row="4" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType04Name}"
+                                    IsChecked="{Binding IsAvoidCivMale}"
+                                    Command="{Binding SetAvoidCivMale}"/>
+                                <CheckBox Grid.Column="0" Grid.Row="5" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType05Name}"
+                                    IsChecked="{Binding IsAvoidCivFemale}"
+                                    Command="{Binding SetAvoidCivFemale}"/>
+                                <CheckBox Grid.Column="1" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType06Name}"
+                                    IsChecked="{Binding IsAvoidCop}"
+                                    Command="{Binding SetAvoidCop}"/>
+                                <CheckBox Grid.Column="1" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType07Name}"
+                                    IsChecked="{Binding IsAvoidGang1}"
+                                    Command="{Binding SetAvoidGang1}"/>
+                                <CheckBox Grid.Column="1" Grid.Row="2" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType08Name}"
+                                    IsChecked="{Binding IsAvoidGang2}"
+                                    Command="{Binding SetAvoidGang2}"/>
+                                <CheckBox Grid.Column="1" Grid.Row="3" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType09Name}"
+                                    IsChecked="{Binding IsAvoidGang3}"
+                                    Command="{Binding SetAvoidGang3}"/>
+                                <CheckBox Grid.Column="1" Grid.Row="4" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType10Name}"
+                                    IsChecked="{Binding IsAvoidGang4}"
+                                    Command="{Binding SetAvoidGang4}"/>
+                                <CheckBox Grid.Column="1" Grid.Row="5" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType11Name}"
+                                    IsChecked="{Binding IsAvoidGang5}"
+                                    Command="{Binding SetAvoidGang5}"/>
+                                <CheckBox Grid.Column="2" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType12Name}"
+                                    IsChecked="{Binding IsAvoidGang6}"
+                                    Command="{Binding SetAvoidGang6}"/>
+                                <CheckBox Grid.Column="2" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType13Name}"
+                                    IsChecked="{Binding IsAvoidGang7}"
+                                    Command="{Binding SetAvoidGang7}"/>
+                                <CheckBox Grid.Column="2" Grid.Row="2" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType14Name}"
+                                    IsChecked="{Binding IsAvoidGang8}"
+                                    Command="{Binding SetAvoidGang8}"/>
+                                <CheckBox Grid.Column="2" Grid.Row="3" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType15Name}"
+                                    IsChecked="{Binding IsAvoidGang9}"
+                                    Command="{Binding SetAvoidGang9}"/>
+                                <CheckBox Grid.Column="2" Grid.Row="4" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType16Name}"
+                                    IsChecked="{Binding IsAvoidEmergency}"
+                                    Command="{Binding SetAvoidEmergency}"/>
+                                <CheckBox Grid.Column="2" Grid.Row="5" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType17Name}"
+                                    IsChecked="{Binding IsAvoidFireman}"
+                                    Command="{Binding SetAvoidFireman}"/>
+                                <CheckBox Grid.Column="3" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType18Name}"
+                                    IsChecked="{Binding IsAvoidCriminal}"
+                                    Command="{Binding SetAvoidCriminal}"/>
+                                <CheckBox Grid.Column="3" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType20Name}"
+                                    IsChecked="{Binding IsAvoidProstitute}"
+                                    Command="{Binding SetAvoidProstitute}"/>
+                                <CheckBox Grid.Column="3" Grid.Row="2" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedType21Name}"
+                                    IsChecked="{Binding IsAvoidSpecial}"
+                                    Command="{Binding SetAvoidSpecial}"/>
+                                <CheckBox Grid.Column="3" Grid.Row="3" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedTypeFlag20Name}"
+                                    IsChecked="{Binding IsAvoidGun}"
+                                    Command="{Binding SetAvoidGun}"/>
+                                <CheckBox Grid.Column="3" Grid.Row="4" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedTypeFlag23Name}"
+                                    IsChecked="{Binding IsAvoidExplosion}"
+                                    Command="{Binding SetAvoidExplosion}"/>
+                                <CheckBox Grid.Column="3" Grid.Row="5" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedTypeFlag25Name}"
+                                    IsChecked="{Binding IsAvoidDeadPeds}"
+                                    Command="{Binding SetAvoidDeadPeds}"/>
+                                <CheckBox Grid.Column="4" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedTypeFlag21Name}"
+                                    IsChecked="{Binding IsAvoidCopCar}"
+                                    Command="{Binding SetAvoidCopCar}"/>
+                                <CheckBox Grid.Column="4" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
+                                    Content="{StaticResource PedTypeFlag22Name}"
+                                    IsChecked="{Binding IsAvoidFastCar}"
+                                    Command="{Binding SetAvoidFastCar}"/>
+
+                                <Separator Grid.Column="5" Background="Transparent"/>
+
+                                <Grid
+                                    Grid.Column="6" Grid.Row="0" Grid.RowSpan="6"
+                                    HorizontalAlignment="Right">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Button
+                                        Grid.Row="0" Margin="10,5" Width="100"
+                                        Style="{StaticResource ButtonStyle}"
+                                        Content="Avoid All"
+                                        Command="{Binding AvoidAll}"/>
+                                    <Button
+                                        Grid.Row="1" Margin="10,5" Width="100"
+                                        Style="{StaticResource ButtonStyle}"
+                                        Content="Avoid None"
+                                        Command="{Binding AvoidNone}"/>
+                                    <Separator Grid.Row="2" Background="Transparent" />
+                                    <Button
+                                        Grid.Row="3" Margin="10,5" Width="100"
+                                        Style="{StaticResource ButtonStyle}"
+                                        Content="Reset"
+                                        Command="{Binding ResetAvoids}"/>
+                                </Grid>
+                            </Grid>
+                        </GroupBox>
+
+                        <GroupBox
+                            Grid.Row="2"
+                            Header="Gang Properties"
+                            Margin="5,0,5,5"
+                            Style="{StaticResource GroupBoxStyle}"
+                            IsEnabled="{Binding SelectedGang, Converter={StaticResource IsNotNull}}">
+
+                            <Grid Grid.Column="0" Grid.Row="0" Margin="0,5">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
+                                </Grid.RowDefinitions>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBlock Grid.Column="0" Grid.Row="0" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Vehicle:"/>
+                                <TextBlock Grid.Column="0" Grid.Row="1" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Primary Weapon:"/>
+                                <TextBlock Grid.Column="0" Grid.Row="2" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Secondary Weapon:"/>
+                                <TextBlock Grid.Column="0" Grid.Row="3" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Ped Model:"/>
+
+                                <ComboBox
+                                    Grid.Column="1" Grid.Row="0" Margin="5" Width="150"
+                                    ItemsSource="{x:Static game:GTA3.Vehicles}"
+                                    SelectedItem="{Binding SelectedGang.VehicleModel, Converter={StaticResource VehicleModelConverter}}"
+                                    Style="{StaticResource ComboBoxStyle}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Path=., Converter={StaticResource VehicleModelNameConverter}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+
+                                <ComboBox
+                                    Grid.Column="1" Grid.Row="1" Margin="5" Width="150"
+                                    ItemsSource="{e:EnumValueCollection EnumType=gta3:WeaponType}"
+                                    SelectedItem="{Binding SelectedGang.Weapon1}"
+                                    Style="{StaticResource ComboBoxStyle}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Path=., Converter={StaticResource WeaponTypeNameConverter}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+
+                                <ComboBox
+                                    Grid.Column="1" Grid.Row="2" Margin="5" Width="150"
+                                    ItemsSource="{e:EnumValueCollection EnumType=gta3:WeaponType}"
+                                    SelectedItem="{Binding SelectedGang.Weapon2}"
+                                    Style="{StaticResource ComboBoxStyle}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Path=., Converter={StaticResource WeaponTypeNameConverter}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+
+                                <ComboBox
+                                    Grid.Column="1" Grid.Row="3" Margin="5" Width="150"
+                                    ItemsSource="{e:EnumValueCollection EnumType=game:GangPedModelState}"
+                                    SelectedItem="{Binding SelectedGang.PedModelOverride, Converter={StaticResource PedModelOverrideConverter}}"
+                                    Style="{StaticResource ComboBoxStyle}">
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Path=., Converter={StaticResource EnumDescriptionConverter}}"/>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+
+                                <Grid
+                                    Grid.Column="2" Grid.Row="0" Grid.RowSpan="4"
+                                    HorizontalAlignment="Right">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="*"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <Button Grid.Row="1" Margin="10,5" Width="100" Style="{StaticResource ButtonStyle}"
+                                        Content="Reset"
+                                        Command="{Binding ResetGang}"/>
+                                </Grid>
+                            </Grid>
+                        </GroupBox>
+                    </Grid>
+                </GroupBox>
+
+                <Grid Grid.Row="2" Grid.Column="2">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-                    <GroupBox Grid.Column="0" Grid.Row="0" Margin="5" Header="General" Style="{StaticResource GroupBoxStyle}">
-                        <Grid Grid.Column="0" Grid.Row="0">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <TextBlock Grid.Column="0" Grid.Row="0" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Vehicle:"/>
-                            <TextBlock Grid.Column="0" Grid.Row="1" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Primary Weapon:"/>
-                            <TextBlock Grid.Column="0" Grid.Row="2" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Secondary Weapon:"/>
-                            <TextBlock Grid.Column="0" Grid.Row="3" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Ped Model:"/>
-                            <ComboBox Grid.Column="1" Grid.Row="0" Margin="5" Width="150"
-                            ItemsSource="{x:Static game:GTA3.Vehicles}" SelectedItem="{Binding Gang.VehicleModel, Converter={StaticResource VehicleModelConverter}}"
-                            Style="{StaticResource ComboBoxStyle}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Path=., Converter={StaticResource VehicleModelNameConverter}}"/>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <ComboBox Grid.Column="1" Grid.Row="1" Margin="5" Width="150"
-                            ItemsSource="{e:EnumValueCollection EnumType=gta3:WeaponType}" SelectedItem="{Binding Gang.Weapon1}"
-                            Style="{StaticResource ComboBoxStyle}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Path=., Converter={StaticResource WeaponTypeNameConverter}}"/>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <ComboBox Grid.Column="1" Grid.Row="2" Margin="5" Width="150"
-                            ItemsSource="{e:EnumValueCollection EnumType=gta3:WeaponType}" SelectedItem="{Binding Gang.Weapon2}"
-                            Style="{StaticResource ComboBoxStyle}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Path=., Converter={StaticResource WeaponTypeNameConverter}}"/>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                            <ComboBox Grid.Column="1" Grid.Row="3" Margin="5" Width="150"
-                            ItemsSource="{e:EnumValueCollection EnumType=game:GangPedModelState}"
-                            SelectedItem="{Binding Gang.PedModelOverride, Converter={StaticResource PedModelOverrideConverter}}"
-                            Style="{StaticResource ComboBoxStyle}">
-                                <ComboBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Path=., Converter={StaticResource EnumDescriptionConverter}}"/>
-                                    </DataTemplate>
-                                </ComboBox.ItemTemplate>
-                            </ComboBox>
-                        </Grid>
-                    </GroupBox>
-
-                    <GroupBox Grid.Column="0" Grid.Row="1" Margin="5,0" Header="Hostility" Style="{StaticResource GroupBoxStyle}">
-                        <Grid Margin="0,5">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                                <RowDefinition/>
-                            </Grid.RowDefinitions>
-                            <CheckBox Grid.Column="0" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="Player"
-                                IsChecked="{Binding IsHostilePlayer}"
-                                Command="{Binding SetHostilityPlayer}"/>
-                            <CheckBox Grid.Column="0" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="{Binding Source={x:Static gta3:GangType.Mafia}, Converter={StaticResource GangTypeNameConverter}}"
-                                IsChecked="{Binding IsHostileMafia}"
-                                Command="{Binding SetHostilityMafia}"/>
-                            <CheckBox Grid.Column="0" Grid.Row="2" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="{Binding Source={x:Static gta3:GangType.Triads}, Converter={StaticResource GangTypeNameConverter}}"
-                                IsChecked="{Binding IsHostileTriads}"
-                                Command="{Binding SetHostilityTriads}"/>
-                            <CheckBox Grid.Column="0" Grid.Row="3" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="{Binding Source={x:Static gta3:GangType.Diablos}, Converter={StaticResource GangTypeNameConverter}}"
-                                IsChecked="{Binding IsHostileDiablos}"
-                                Command="{Binding SetHostilityDiablos}"/>
-                            <CheckBox Grid.Column="0" Grid.Row="4" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="{Binding Source={x:Static gta3:GangType.Yakuza}, Converter={StaticResource GangTypeNameConverter}}"
-                                IsChecked="{Binding IsHostileYakuza}"
-                                Command="{Binding SetHostilityYakuza}"/>
-                            <CheckBox Grid.Column="0" Grid.Row="5" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="{Binding Source={x:Static gta3:GangType.Yardies}, Converter={StaticResource GangTypeNameConverter}}"
-                                IsChecked="{Binding IsHostileYardies}"
-                                Command="{Binding SetHostilityYardies}"/>
-                            <CheckBox Grid.Column="1" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="{Binding Source={x:Static gta3:GangType.Cartel}, Converter={StaticResource GangTypeNameConverter}}"
-                                IsChecked="{Binding IsHostileCartel}"
-                                Command="{Binding SetHostilityCartel}"/>
-                            <CheckBox Grid.Column="1" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="{Binding Source={x:Static gta3:GangType.Hoods}, Converter={StaticResource GangTypeNameConverter}}"
-                                IsChecked="{Binding IsHostileHoods}"
-                                Command="{Binding SetHostilityHoods}"/>
-                            <CheckBox Grid.Column="1" Grid.Row="2" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="{Binding Source={x:Static gta3:GangType.Gang8}, Converter={StaticResource GangTypeNameConverter}}"
-                                IsChecked="{Binding IsHostileGang8}"
-                                Command="{Binding SetHostilityGang8}"/>
-                            <CheckBox Grid.Column="1" Grid.Row="3" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="{Binding Source={x:Static gta3:GangType.Gang9}, Converter={StaticResource GangTypeNameConverter}}"
-                                IsChecked="{Binding IsHostileGang9}"
-                                Command="{Binding SetHostilityGang9}"/>
-                            <CheckBox Grid.Column="1" Grid.Row="4" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="Civilians"
-                                IsChecked="{Binding IsHostileCivilians}"
-                                Command="{Binding SetHostilityCivilians}"/>
-                            <CheckBox Grid.Column="1" Grid.Row="5" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="Cops"
-                                IsChecked="{Binding IsHostileCops}"
-                                Command="{Binding SetHostilityCops}"/>
-                            <CheckBox Grid.Column="2" Grid.Row="0" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="Emergency"
-                                IsChecked="{Binding IsHostileEmergency}"
-                                Command="{Binding SetHostilityEmergency}"/>
-                            <CheckBox Grid.Column="2" Grid.Row="1" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="Firefighters"
-                                IsChecked="{Binding IsHostileFirefighters}"
-                                Command="{Binding SetHostilityFirefighters}"/>
-                            <CheckBox Grid.Column="2" Grid.Row="2" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="Prostitutes"
-                                IsChecked="{Binding IsHostileProstitutes}"
-                                Command="{Binding SetHostilityProstitutes}"/>
-                            <CheckBox Grid.Column="3" Grid.Row="3" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="Criminals"
-                                IsChecked="{Binding IsHostileCriminals}"
-                                Command="{Binding SetHostilityCriminals}"/>
-                            <CheckBox Grid.Column="3" Grid.Row="4" Style="{StaticResource CheckBoxStyle}" Margin="10,2.5,5,2.5" 
-                                Content="Special"
-                                IsChecked="{Binding IsHostileSpecial}"
-                                Command="{Binding SetHostilitySpecial}"/>
-                        </Grid>
-                    </GroupBox>
-
-                    <!--<GroupBox Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Margin="5,5,5,0" Header="Territories" Style="{StaticResource GroupBoxStyle}">
+                    <GroupBox
+                        Grid.Column="0"
+                        Header="Cheats"
+                        Margin="5,0,5,5"
+                        Style="{StaticResource GroupBoxStyle}">
                         <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="175"/>
+                            </Grid.ColumnDefinitions>
                             <Grid.RowDefinitions>
-                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <ListBox Grid.Column="0" Grid.Row="0" Margin="5,5,5,2.5" Width="125" Height="250"
-                                ItemsSource="{Binding Zones}"
-                                SelectedItem="{Binding SelectedZone}"
-                                SelectionChanged="ZoneListBox_SelectionChanged">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <TextBlock Text="{Binding Path=Name}"/>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
 
-                            <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Vertical"
-                                IsEnabled="{Binding SelectedZone, Converter={StaticResource IsNotNull}}">
-                                <GroupBox Grid.Column="0" Grid.Row="0" Margin="5,-5" Header="Ped Density (Day)" Style="{StaticResource GroupBoxStyle}">
-                                    <xctk:ShortUpDown
-                                        Grid.Column="1" Grid.Row="0"
-                                        Margin="5" Height="22" Style="{StaticResource Int16UpDownStyle}"
-                                        Value="{Binding PedDensityDay}" ValueChanged="PedDensityDay_ValueChanged" Minimum="0"/>
-                                </GroupBox>
-                                <Separator Height="15" Background="Transparent"/>
-                                <GroupBox Grid.Column="0" Grid.Row="0" Margin="5,-5" Header="Ped Density (Night)" Style="{StaticResource GroupBoxStyle}">
-                                    <xctk:ShortUpDown
-                                        Grid.Column="1" Grid.Row="0"
-                                        Margin="5" Height="22" Style="{StaticResource Int16UpDownStyle}"
-                                        Value="{Binding PedDensityNight}" ValueChanged="PedDensityNight_ValueChanged" Minimum="0"/>
-                                </GroupBox>
-                                --><!--<Separator Height="15" Background="Transparent"/>
-                                <GroupBox Grid.Column="0" Grid.Row="0" Margin="5,-5" Header="Car Density (Day)" Style="{StaticResource GroupBoxStyle}">
-                                    <xctk:ShortUpDown
-                                        Grid.Column="1" Grid.Row="0"
-                                        Margin="5" Height="22" Style="{StaticResource Int16UpDownStyle}"
-                                        Value="{Binding CarDensityDay}" ValueChanged="CarDensityDay_ValueChanged" Minimum="0"/>
-                                </GroupBox>
-                                <Separator Height="15" Background="Transparent"/>
-                                <GroupBox Grid.Column="0" Grid.Row="0" Margin="5,-5" Header="Car Density (Night)" Style="{StaticResource GroupBoxStyle}">
-                                    <xctk:ShortUpDown
-                                        Grid.Column="1" Grid.Row="0"
-                                        Margin="5" Height="22" Style="{StaticResource Int16UpDownStyle}"
-                                        Value="{Binding CarDensityNight}" ValueChanged="CarDensityNight_ValueChanged" Minimum="0"/>
-                                </GroupBox>--><!--
-                            </StackPanel>
-
-                            <Grid Grid.Row="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="*"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <Button Grid.Column="0" Grid.Row="0" Content="+" Width="35" Margin="5,2.5,2.5,5" Style="{StaticResource ButtonStyle}"/>
-                                <Button Grid.Column="1" Grid.Row="0" Content="-" Width="35" Margin="2.5,2.5,5,5" Style="{StaticResource ButtonStyle}"/>
-                                
-                            </Grid>
+                            <Button Grid.Column="0" Grid.Row="0" Width="Auto" Margin="10,5" Style="{StaticResource ButtonStyle}"
+                                Content="Public Enemy No.1"
+                                ToolTip="Everyone will attack the player. (same as cheat)"
+                                Command="{Binding PublicEnemy}"/>
+                            <Button Grid.Column="0" Grid.Row="1" Width="Auto" Margin="10,5" Style="{StaticResource ButtonStyle}"
+                                Content="Likable Guy"
+                                ToolTip="Nobody will attack the player unprovoked."
+                                Command="{Binding LikableGuy}"/>
+                            <Button Grid.Column="0" Grid.Row="2" Width="Auto" Margin="10,5" Style="{StaticResource ButtonStyle}"
+                                Content="Absolute Mayhem"
+                                ToolTip="Everyone attacks everybody. (same as cheat)"
+                                Command="{Binding Mayhem}"/>
+                            <Button Grid.Column="0" Grid.Row="3" Width="Auto" Margin="10,5" Style="{StaticResource ButtonStyle}"
+                                Content="World Peace"
+                                ToolTip="No more fightin' between man and man!"
+                                Command="{Binding WorldPeace}"/>
                         </Grid>
-                    </GroupBox>-->
+                    </GroupBox>
 
+                    <GroupBox
+                        Grid.Column="1"
+                        Header="Fixes"
+                        Margin="5,0,5,5"
+                        Style="{StaticResource GroupBoxStyle}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="175"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <Button Grid.Column="1" Grid.Row="0" Width="Auto" Margin="10,5" Style="{StaticResource ButtonStyle}"
+                                Content="Fix Purple Nine's Glitch"
+                                ToolTip="Undo the effects of the dreaded Purple Nine's Glitch."
+                                Command="{Binding FixNines}"/>
+                            <Button Grid.Column="1" Grid.Row="1" Width="Auto" Margin="10,5" Style="{StaticResource ButtonStyle}"
+                                Content="Fix Peds"
+                                ToolTip="Make the peds behave normally and set gang hostility according to the story progress."
+                                Command="{Binding FixPeds}"/>
+                            <Button Grid.Column="1" Grid.Row="2" Width="Auto" Margin="10,5" Style="{StaticResource ButtonStyle}"
+                                Content="Reset Gangs"
+                                ToolTip="Reset gang hostility, avoids, vehicles, weapons, and ped models to the game's defaults."
+                                Command="{Binding ResetGangs}"/>
+                        </Grid>
+                    </GroupBox>
                 </Grid>
-            </ScrollViewer>
-        </GroupBox>
+
+            </Grid>
+
+        </ScrollViewer>
     </Grid>
 
 </g:TabPage>

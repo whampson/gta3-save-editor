@@ -9,231 +9,237 @@
     xmlns:wpfe="clr-namespace:WpfEssentials.Win32.Converters;assembly=WpfEssentials.Win32"
     xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=DotNetProjects.Wpf.Extended.Toolkit"
     ShutdownMode="OnMainWindowClose">
-    
+
     <Application.Resources>
+        <ResourceDictionary>
 
-        <!-- ========== Converters ========== -->
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Resources/Strings.xaml" />
+            </ResourceDictionary.MergedDictionaries>
 
-        <conv:IsNullConverter x:Key="IsNull" Invert="False"/>
-        <conv:IsNullConverter x:Key="IsNotNull" Invert="True"/>
-        <conv:IsZeroConverter x:Key="IsZero" Invert="False"/>
-        <conv:IsZeroConverter x:Key="IsNotZero" Invert="True"/>
-        <conv:InvertBooleanConverter x:Key="IsFalse" DefaultValue="True"/>
-        <conv:VectorConverter x:Key="VectorConverter"/>
-        <conv2:VehicleModelConverter x:Key="VehicleModelConverter"/>
-        <conv2:CarColorConverter x:Key="CarColorConverter"/>
-        <conv2:EnumFlagsConverter x:Key="EnumFlagsConverter"/>
-        <wpfe:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <!-- ========== Converters ========== -->
 
-        <!-- ========== Styles ========== -->
+            <conv:IsNullConverter x:Key="IsNull" Invert="False"/>
+            <conv:IsNullConverter x:Key="IsNotNull" Invert="True"/>
+            <conv:IsZeroConverter x:Key="IsZero" Invert="False"/>
+            <conv:IsZeroConverter x:Key="IsNotZero" Invert="True"/>
+            <conv:InvertBooleanConverter x:Key="IsFalse" DefaultValue="True"/>
+            <conv:VectorConverter x:Key="VectorConverter"/>
+            <conv2:VehicleModelConverter x:Key="VehicleModelConverter"/>
+            <conv2:CarColorConverter x:Key="CarColorConverter"/>
+            <conv2:EnumFlagsConverter x:Key="EnumFlagsConverter"/>
+            <wpfe:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
-        <!-- Combo Boxes -->
-        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Style.Triggers>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Foreground" Value="Gray"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="EnumComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource ComboBoxStyle}">
-            <Setter Property="ItemTemplate">
-                <Setter.Value>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}"/>
-                    </DataTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+            <!-- ========== Styles ========== -->
 
-        <!-- Text Boxes -->
-        <Style x:Key="TextBoxStyle" TargetType="TextBox">
-            <Setter Property="Height" Value="22"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
+            <!-- Combo Boxes -->
+            <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+                <Style.Triggers>
+                    <Trigger Property="IsEnabled" Value="False">
+                        <Setter Property="Foreground" Value="Gray"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+            <Style x:Key="EnumComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource ComboBoxStyle}">
+                <Setter Property="ItemTemplate">
+                    <Setter.Value>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={StaticResource EnumDescriptionConverter}}"/>
+                        </DataTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
 
-        <!-- Check Boxes -->
-        <Style x:Key="CheckBoxStyle" TargetType="CheckBox">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Style.Triggers>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Foreground" Value="Gray"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+            <!-- Text Boxes -->
+            <Style x:Key="TextBoxStyle" TargetType="TextBox">
+                <Setter Property="Height" Value="22"/>
+                <Setter Property="VerticalContentAlignment" Value="Center"/>
+            </Style>
 
-        <!-- Buttons -->
-        <Style x:Key="ButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="75"/>
-            <Setter Property="Height" Value="25"/>
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-        </Style>
+            <!-- Check Boxes -->
+            <Style x:Key="CheckBoxStyle" TargetType="CheckBox">
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Style.Triggers>
+                    <Trigger Property="IsEnabled" Value="False">
+                        <Setter Property="Foreground" Value="Gray"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
 
-        <Style x:Key="SplitButtonStyle" TargetType="xctk:SplitButton">
-            <Setter Property="Width" Value="75"/>
-            <Setter Property="Height" Value="25"/>
-            <Setter Property="HorizontalAlignment" Value="Stretch"/>
-        </Style>
+            <!-- Buttons -->
+            <Style x:Key="ButtonStyle" TargetType="Button">
+                <Setter Property="Width" Value="75"/>
+                <Setter Property="Height" Value="25"/>
+                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            </Style>
 
-        <!-- Labels -->
-        <Style x:Key="LabelStyle" TargetType="TextBlock">
-            <Style.Triggers>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="Foreground" Value="Gray"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-        <Style x:Key="LabelStyleLeft" TargetType="TextBlock" BasedOn="{StaticResource LabelStyle}">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Style x:Key="SplitButtonStyle" TargetType="xctk:SplitButton">
+                <Setter Property="Width" Value="75"/>
+                <Setter Property="Height" Value="25"/>
+                <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            </Style>
 
-        </Style>
-        <Style x:Key="LabelStyleRight" TargetType="TextBlock" BasedOn="{StaticResource LabelStyle}">
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Right"/>
-        </Style>
+            <!-- Labels -->
+            <Style x:Key="LabelStyle" TargetType="TextBlock">
+                <Style.Triggers>
+                    <Trigger Property="IsEnabled" Value="False">
+                        <Setter Property="Foreground" Value="Gray"/>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+            <Style x:Key="LabelStyleLeft" TargetType="TextBlock" BasedOn="{StaticResource LabelStyle}">
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="HorizontalAlignment" Value="Left"/>
 
-        <!-- Group Boxes -->
-        <Style x:Key="GroupBoxStyle" TargetType="GroupBox">
-            <Style.Triggers>
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter Property="HeaderTemplate">
-                        <Setter.Value>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding}" Style="{StaticResource LabelStyle}"/>
-                            </DataTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
+            </Style>
+            <Style x:Key="LabelStyleRight" TargetType="TextBlock" BasedOn="{StaticResource LabelStyle}">
+                <Setter Property="VerticalAlignment" Value="Center"/>
+                <Setter Property="HorizontalAlignment" Value="Right"/>
+            </Style>
 
-        <!-- Sliders -->
-        <Style  x:Key="SliderStyle" TargetType="Slider">
-            <Setter Property="SmallChange" Value="10"/>
-            <Setter Property="LargeChange" Value="50"/>
-            <Setter Property="AutoToolTipPlacement" Value="TopLeft"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
+            <!-- Group Boxes -->
+            <Style x:Key="GroupBoxStyle" TargetType="GroupBox">
+                <Style.Triggers>
+                    <Trigger Property="IsEnabled" Value="False">
+                        <Setter Property="HeaderTemplate">
+                            <Setter.Value>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding}" Style="{StaticResource LabelStyle}"/>
+                                </DataTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
 
-        <!-- UpDowns -->
-        <Style x:Key="Int8UpDownStyle" TargetType="xctk:SByteUpDown">
-            <Setter Property="Minimum" Value="-128"/>
-            <Setter Property="Maximum" Value="127"/>
-            <Setter Property="ClipValueToMinMax" Value="True"/>
-            <Setter Property="AutoSelectBehavior" Value="Never"/>
-            <Setter Property="DefaultValue" Value="0"/>
-            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
-        </Style>
-        <Style x:Key="UInt8UpDownStyle" TargetType="xctk:ByteUpDown">
-            <Setter Property="Minimum" Value="0"/>
-            <Setter Property="Maximum" Value="255"/>
-            <Setter Property="ClipValueToMinMax" Value="True"/>
-            <Setter Property="AutoSelectBehavior" Value="Never"/>
-            <Setter Property="DefaultValue" Value="0"/>
-            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
-        </Style>
-        <Style x:Key="Int16UpDownStyle" TargetType="xctk:ShortUpDown">
-            <Setter Property="Minimum" Value="-32768"/>
-            <Setter Property="Maximum" Value="32767"/>
-            <Setter Property="ClipValueToMinMax" Value="True"/>
-            <Setter Property="AutoSelectBehavior" Value="Never"/>
-            <Setter Property="DefaultValue" Value="0"/>
-            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
-        </Style>
-        <Style x:Key="UInt16UpDownStyle" TargetType="xctk:UShortUpDown">
-            <Setter Property="Minimum" Value="0"/>
-            <Setter Property="Maximum" Value="65535"/>
-            <Setter Property="ClipValueToMinMax" Value="True"/>
-            <Setter Property="AutoSelectBehavior" Value="Never"/>
-            <Setter Property="DefaultValue" Value="0"/>
-            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
-        </Style>
-        <Style x:Key="Int32UpDownStyle" TargetType="xctk:IntegerUpDown">
-            <Setter Property="Minimum" Value="-2147483648"/>
-            <Setter Property="Maximum" Value="2147483647"/>
-            <Setter Property="ClipValueToMinMax" Value="True"/>
-            <Setter Property="AutoSelectBehavior" Value="Never"/>
-            <Setter Property="DefaultValue" Value="0"/>
-            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
-        </Style>
-        <Style x:Key="FloatUpDownStyle" TargetType="xctk:SingleUpDown">
-            <Setter Property="Minimum" Value="{x:Static sys:Single.MinValue}"/>
-            <Setter Property="Maximum" Value="{x:Static sys:Single.MaxValue}"/>
-            <Setter Property="ClipValueToMinMax" Value="True"/>
-            <Setter Property="AutoSelectBehavior" Value="Never"/>
-            <Setter Property="DefaultValue" Value="0"/>
-            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
-        </Style>
-        <Style x:Key="DecimalUpDownStyle" TargetType="xctk:DecimalUpDown">
-            <Setter Property="ClipValueToMinMax" Value="True"/>
-            <Setter Property="AutoSelectBehavior" Value="Never"/>
-            <Setter Property="DefaultValue" Value="0"/>
-            <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
-        </Style>
+            <!-- Sliders -->
+            <Style  x:Key="SliderStyle" TargetType="Slider">
+                <Setter Property="SmallChange" Value="10"/>
+                <Setter Property="LargeChange" Value="50"/>
+                <Setter Property="AutoToolTipPlacement" Value="TopLeft"/>
+                <Setter Property="VerticalAlignment" Value="Center"/>
+            </Style>
 
-        <!-- ListView -->
-        <Style x:Key="ListViewStyle" TargetType="ListView">
-            <Setter Property="Foreground" Value="Black"/>
-        </Style>
+            <!-- UpDowns -->
+            <Style x:Key="Int8UpDownStyle" TargetType="xctk:SByteUpDown">
+                <Setter Property="Minimum" Value="-128"/>
+                <Setter Property="Maximum" Value="127"/>
+                <Setter Property="ClipValueToMinMax" Value="True"/>
+                <Setter Property="AutoSelectBehavior" Value="Never"/>
+                <Setter Property="DefaultValue" Value="0"/>
+                <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
+            </Style>
+            <Style x:Key="UInt8UpDownStyle" TargetType="xctk:ByteUpDown">
+                <Setter Property="Minimum" Value="0"/>
+                <Setter Property="Maximum" Value="255"/>
+                <Setter Property="ClipValueToMinMax" Value="True"/>
+                <Setter Property="AutoSelectBehavior" Value="Never"/>
+                <Setter Property="DefaultValue" Value="0"/>
+                <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
+            </Style>
+            <Style x:Key="Int16UpDownStyle" TargetType="xctk:ShortUpDown">
+                <Setter Property="Minimum" Value="-32768"/>
+                <Setter Property="Maximum" Value="32767"/>
+                <Setter Property="ClipValueToMinMax" Value="True"/>
+                <Setter Property="AutoSelectBehavior" Value="Never"/>
+                <Setter Property="DefaultValue" Value="0"/>
+                <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
+            </Style>
+            <Style x:Key="UInt16UpDownStyle" TargetType="xctk:UShortUpDown">
+                <Setter Property="Minimum" Value="0"/>
+                <Setter Property="Maximum" Value="65535"/>
+                <Setter Property="ClipValueToMinMax" Value="True"/>
+                <Setter Property="AutoSelectBehavior" Value="Never"/>
+                <Setter Property="DefaultValue" Value="0"/>
+                <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
+            </Style>
+            <Style x:Key="Int32UpDownStyle" TargetType="xctk:IntegerUpDown">
+                <Setter Property="Minimum" Value="-2147483648"/>
+                <Setter Property="Maximum" Value="2147483647"/>
+                <Setter Property="ClipValueToMinMax" Value="True"/>
+                <Setter Property="AutoSelectBehavior" Value="Never"/>
+                <Setter Property="DefaultValue" Value="0"/>
+                <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
+            </Style>
+            <Style x:Key="FloatUpDownStyle" TargetType="xctk:SingleUpDown">
+                <Setter Property="Minimum" Value="{x:Static sys:Single.MinValue}"/>
+                <Setter Property="Maximum" Value="{x:Static sys:Single.MaxValue}"/>
+                <Setter Property="ClipValueToMinMax" Value="True"/>
+                <Setter Property="AutoSelectBehavior" Value="Never"/>
+                <Setter Property="DefaultValue" Value="0"/>
+                <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
+            </Style>
+            <Style x:Key="DecimalUpDownStyle" TargetType="xctk:DecimalUpDown">
+                <Setter Property="ClipValueToMinMax" Value="True"/>
+                <Setter Property="AutoSelectBehavior" Value="Never"/>
+                <Setter Property="DefaultValue" Value="0"/>
+                <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
+            </Style>
 
-        <!-- TabControl -->
-        <Style x:Key="TabItemStyle" TargetType="{x:Type TabItem}">
-            <Setter Property="MinWidth" Value="50"/>
-        </Style>
-        <Style x:Key="TabControlStyle" TargetType="{x:Type cntl:TabControlEx}">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type TabControl}">
-                        <Grid
-                            Background="{TemplateBinding Background}"
-                            SnapsToDevicePixels="True"
-                            Panel.ZIndex="2"
-                            KeyboardNavigation.TabNavigation="Local">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="*"/>
-                            </Grid.RowDefinitions>
+            <!-- ListView -->
+            <Style x:Key="ListViewStyle" TargetType="ListView">
+                <Setter Property="Foreground" Value="Black"/>
+            </Style>
+
+            <!-- TabControl -->
+            <Style x:Key="TabItemStyle" TargetType="{x:Type TabItem}">
+                <Setter Property="MinWidth" Value="50"/>
+            </Style>
+            <Style x:Key="TabControlStyle" TargetType="{x:Type cntl:TabControlEx}">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type TabControl}">
                             <Grid
-                                Grid.Row="0" Grid.Column="0"
+                                Background="{TemplateBinding Background}"
                                 SnapsToDevicePixels="True"
-                                Panel.ZIndex="1">
+                                Panel.ZIndex="2"
+                                KeyboardNavigation.TabNavigation="Local">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Grid
+                                    Grid.Row="0" Grid.Column="0"
+                                    SnapsToDevicePixels="True"
+                                    Panel.ZIndex="1">
+                                    <Border
+                                        Background="{TemplateBinding Background}"
+                                        BorderBrush="{TemplateBinding BorderBrush}"
+                                        BorderThickness="0,0,0,0">
+                                        <TabPanel
+                                            Margin="2,2,0,0"
+                                            VerticalAlignment="Bottom"
+                                            DockPanel.Dock="Left"
+                                            IsItemsHost="True"
+                                            KeyboardNavigation.TabIndex="1"/>
+                                    </Border>
+                                </Grid>
                                 <Border
+                                    Grid.Row="1" Grid.Column="0"
                                     Background="{TemplateBinding Background}"
                                     BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="0,0,0,0">
-                                    <TabPanel
-                                        Margin="2,2,0,0"
-                                        VerticalAlignment="Bottom"
-                                        DockPanel.Dock="Left"
-                                        IsItemsHost="True"
-                                        KeyboardNavigation.TabIndex="1"/>
+                                    BorderThickness="1,1,1,1"
+                                    KeyboardNavigation.DirectionalNavigation="Contained"
+                                    KeyboardNavigation.TabIndex="2"
+                                    KeyboardNavigation.TabNavigation="Local"
+                                    Panel.ZIndex="0">
+                                    <Grid
+                                        x:Name="PART_ItemsHolder"
+                                        Margin="{TemplateBinding Padding}"
+                                        SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
                                 </Border>
                             </Grid>
-                            <Border
-                                Grid.Row="1" Grid.Column="0"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1,1,1,1"
-                                KeyboardNavigation.DirectionalNavigation="Contained"
-                                KeyboardNavigation.TabIndex="2"
-                                KeyboardNavigation.TabNavigation="Local"
-                                Panel.ZIndex="0">
-                                <Grid
-                                    x:Name="PART_ItemsHolder"
-                                    Margin="{TemplateBinding Padding}"
-                                    SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
-                            </Border>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
 
+        </ResourceDictionary>
     </Application.Resources>
-
+ 
 </Application>

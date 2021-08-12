@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows.Input;
+using GTA3SaveEditor.Core.Game;
 using GTASaveData.GTA3;
 using WpfEssentials.Win32;
 
@@ -9,366 +10,800 @@ namespace GTA3SaveEditor.GUI.Tabs
 
     public class PedsVM : TabPageVM
     {
+        private const PedTypeFlags PedTypeFlagsNone = 0;
+        private const PedTypeFlags PedTypeFlagsRealPeds =
+            PedTypeFlags.Player1 | PedTypeFlags.Player2 | PedTypeFlags.Player3 | PedTypeFlags.Player4 |
+            PedTypeFlags.CivMale | PedTypeFlags.CivFemale | PedTypeFlags.Cop | PedTypeFlags.Gang1 | 
+            PedTypeFlags.Gang2 | PedTypeFlags.Gang3 | PedTypeFlags.Gang4 | PedTypeFlags.Gang5 |
+            PedTypeFlags.Gang6 | PedTypeFlags.Gang7 | PedTypeFlags.Gang8 | PedTypeFlags.Gang9 |
+            PedTypeFlags.Emergency | PedTypeFlags.Prostitute | PedTypeFlags.Criminal | PedTypeFlags.Special;
+        private const PedTypeFlags PedTypeFlagsAll =
+            PedTypeFlagsRealPeds | PedTypeFlags.Gun | PedTypeFlags.CopCar | PedTypeFlags.FastCar |
+            PedTypeFlags.Explosion | PedTypeFlags.Fireman | PedTypeFlags.DeadPeds;
+
         // TODO: gang territory zone picker
+        // TODO: game bugfixes
 
+        private int m_selectedPedIndex;
+        private PedType m_selectedPed;
         private Gang m_selectedGang;
-        private int m_selectedGangIndex;
-        private bool m_isHostilePlayer;
-        private bool m_isHostileMafia;
-        private bool m_isHostileTriads;
-        private bool m_isHostileDiablos;
-        private bool m_isHostileYakuza;
-        private bool m_isHostileYardies;
-        private bool m_isHostileCartel;
-        private bool m_isHostileHoods;
-        private bool m_isHostileGang8;
-        private bool m_isHostileGang9;
-        private bool m_isHostileCivilians;
-        private bool m_isHostileCops;
-        private bool m_isHostileEmergency;
-        private bool m_isHostileFirefighters;
-        private bool m_isHostileProstitutes;
-        private bool m_isHostileCriminals;
-        private bool m_isHostileSpecial;
-        private ObservableCollection<Zone> m_zones;
-        private Zone m_selectedZone;
-        private short m_pedDensityDay;
-        private short m_pedDensityNight;
-        private short m_carDensityDay;
-        private short m_carDensityNight;
 
-        public Gang Gang
+        // peds will attach ped types they are threatened by
+        private bool m_isThreatPlayer1;
+        private bool m_isThreatPlayer2;
+        private bool m_isThreatPlayer3;
+        private bool m_isThreatPlayer4;
+        private bool m_isThreatCivMale;
+        private bool m_isThreatCivFemale;
+        private bool m_isThreatCop;
+        private bool m_isThreatGang1;
+        private bool m_isThreatGang2;
+        private bool m_isThreatGang3;
+        private bool m_isThreatGang4;
+        private bool m_isThreatGang5;
+        private bool m_isThreatGang6;
+        private bool m_isThreatGang7;
+        private bool m_isThreatGang8;
+        private bool m_isThreatGang9;
+        private bool m_isThreatEmergency;
+        private bool m_isThreatFireman;
+        private bool m_isThreatProstitute;
+        private bool m_isThreatCriminal;
+        private bool m_isThreatSpecial;
+        private bool m_isThreatGun;
+        private bool m_isThreatCopCar;
+        private bool m_isThreatFastCar;
+        private bool m_isThreatExplosion;
+        private bool m_isThreatDeadPeds;
+
+        // peds will run away from ped types they avoid
+        private bool m_isAvoidPlayer1;
+        private bool m_isAvoidPlayer2;
+        private bool m_isAvoidPlayer3;
+        private bool m_isAvoidPlayer4;
+        private bool m_isAvoidCivMale;
+        private bool m_isAvoidCivFemale;
+        private bool m_isAvoidCop;
+        private bool m_isAvoidGang1;
+        private bool m_isAvoidGang2;
+        private bool m_isAvoidGang3;
+        private bool m_isAvoidGang4;
+        private bool m_isAvoidGang5;
+        private bool m_isAvoidGang6;
+        private bool m_isAvoidGang7;
+        private bool m_isAvoidGang8;
+        private bool m_isAvoidGang9;
+        private bool m_isAvoidEmergency;
+        private bool m_isAvoidFireman;
+        private bool m_isAvoidProstitute;
+        private bool m_isAvoidCriminal;
+        private bool m_isAvoidSpecial;
+        private bool m_isAvoidGun;
+        private bool m_isAvoidCopCar;
+        private bool m_isAvoidFastCar;
+        private bool m_isAvoidExplosion;
+        private bool m_isAvoidDeadPeds;
+
+        public int SelectedPedIndex
+        {
+            get { return m_selectedPedIndex; }
+            set { m_selectedPedIndex = value; OnPropertyChanged(); }
+        }
+
+        public PedTypeId SelectedPedType
+        {
+            get { return (PedTypeId) SelectedPedIndex; }
+            set { SelectedPedIndex = (int) value; OnPropertyChanged(); }
+        }
+
+        public PedType SelectedPed
+        {
+            get { return m_selectedPed; }
+            set { m_selectedPed = value; OnPropertyChanged(); }
+        }
+
+        public Gang SelectedGang
         {
             get { return m_selectedGang; }
             set { m_selectedGang = value; OnPropertyChanged(); }
         }
 
-        public int GangIndex
+        public bool IsSelectedPedTypeGang
         {
-            get { return m_selectedGangIndex; }
-            set { m_selectedGangIndex = value; OnPropertyChanged(); }
+            get { return SelectedPedType >= PedTypeId.Gang1 && SelectedPedType <= PedTypeId.Gang9; }
         }
 
-        private PedTypeId GangPedType => GangPedTypeIds[(GangType) GangIndex];
-
-        public bool IsHostilePlayer
+        public bool IsThreatPlayer1
         {
-            get { return m_isHostilePlayer; }
-            set { m_isHostilePlayer = value; OnPropertyChanged(); }
+            get { return m_isThreatPlayer1; }
+            set { m_isThreatPlayer1 = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileMafia
+        public bool IsThreatPlayer2
         {
-            get { return m_isHostileMafia; }
-            set { m_isHostileMafia = value; OnPropertyChanged(); }
+            get { return m_isThreatPlayer2; }
+            set { m_isThreatPlayer2 = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileTriads
+        public bool IsThreatPlayer3
         {
-            get { return m_isHostileTriads; }
-            set { m_isHostileTriads = value; OnPropertyChanged(); }
+            get { return m_isThreatPlayer3; }
+            set { m_isThreatPlayer3 = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileDiablos
+        public bool IsThreatPlayer4
         {
-            get { return m_isHostileDiablos; }
-            set { m_isHostileDiablos = value; OnPropertyChanged(); }
+            get { return m_isThreatPlayer4; }
+            set { m_isThreatPlayer4 = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileYakuza
+        public bool IsThreatCivMale
         {
-            get { return m_isHostileYakuza; }
-            set { m_isHostileYakuza = value; OnPropertyChanged(); }
+            get { return m_isThreatCivMale; }
+            set { m_isThreatCivMale = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileYardies
+        public bool IsThreatCivFemale
         {
-            get { return m_isHostileYardies; }
-            set { m_isHostileYardies = value; OnPropertyChanged(); }
+            get { return m_isThreatCivFemale; }
+            set { m_isThreatCivFemale = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileCartel
+        public bool IsThreatCop
         {
-            get { return m_isHostileCartel; }
-            set { m_isHostileCartel = value; OnPropertyChanged(); }
+            get { return m_isThreatCop; }
+            set { m_isThreatCop = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileHoods
+        public bool IsThreatGang1
         {
-            get { return m_isHostileHoods; }
-            set { m_isHostileHoods = value; OnPropertyChanged(); }
+            get { return m_isThreatGang1; }
+            set { m_isThreatGang1 = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileGang8
+        public bool IsThreatGang2
         {
-            get { return m_isHostileGang8; }
-            set { m_isHostileGang8 = value; OnPropertyChanged(); }
+            get { return m_isThreatGang2; }
+            set { m_isThreatGang2 = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileGang9
+        public bool IsThreatGang3
         {
-            get { return m_isHostileGang9; }
-            set { m_isHostileGang9 = value; OnPropertyChanged(); }
+            get { return m_isThreatGang3; }
+            set { m_isThreatGang3 = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileCivilians
+        public bool IsThreatGang4
         {
-            get { return m_isHostileCivilians; }
-            set { m_isHostileCivilians = value; OnPropertyChanged(); }
+            get { return m_isThreatGang4; }
+            set { m_isThreatGang4 = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileCops
+        public bool IsThreatGang5
         {
-            get { return m_isHostileCops; }
-            set { m_isHostileCops = value; OnPropertyChanged(); }
+            get { return m_isThreatGang5; }
+            set { m_isThreatGang5 = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileEmergency
+        public bool IsThreatGang6
         {
-            get { return m_isHostileEmergency; }
-            set { m_isHostileEmergency = value; OnPropertyChanged(); }
+            get { return m_isThreatGang6; }
+            set { m_isThreatGang6 = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileFirefighters
+        public bool IsThreatGang7
         {
-            get { return m_isHostileFirefighters; }
-            set { m_isHostileFirefighters = value; OnPropertyChanged(); }
+            get { return m_isThreatGang7; }
+            set { m_isThreatGang7 = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileProstitutes
+        public bool IsThreatGang8
         {
-            get { return m_isHostileProstitutes; }
-            set { m_isHostileProstitutes = value; OnPropertyChanged(); }
+            get { return m_isThreatGang8; }
+            set { m_isThreatGang8 = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileCriminals
+        public bool IsThreatGang9
         {
-            get { return m_isHostileCriminals; }
-            set { m_isHostileCriminals = value; OnPropertyChanged(); }
+            get { return m_isThreatGang9; }
+            set { m_isThreatGang9 = value; OnPropertyChanged(); }
         }
 
-        public bool IsHostileSpecial
+        public bool IsThreatEmergency
         {
-            get { return m_isHostileSpecial; }
-            set { m_isHostileSpecial = value; OnPropertyChanged(); }
+            get { return m_isThreatEmergency; }
+            set { m_isThreatEmergency = value; OnPropertyChanged(); }
         }
 
-        public ObservableCollection<Zone> Zones
+        public bool IsThreatFireman
         {
-            get { return m_zones; }
-            set { m_zones = value; OnPropertyChanged(); }
+            get { return m_isThreatFireman; }
+            set { m_isThreatFireman = value; OnPropertyChanged(); }
         }
 
-        public Zone SelectedZone
+        public bool IsThreatProstitute
         {
-            get { return m_selectedZone; }
-            set { m_selectedZone = value; OnPropertyChanged(); }
+            get { return m_isThreatProstitute; }
+            set { m_isThreatProstitute = value; OnPropertyChanged(); }
         }
 
-        public short PedDensityDay
+        public bool IsThreatCriminal
         {
-            get { return m_pedDensityDay; }
-            set { m_pedDensityDay = value; OnPropertyChanged(); }
+            get { return m_isThreatCriminal; }
+            set { m_isThreatCriminal = value; OnPropertyChanged(); }
         }
 
-        public short PedDensityNight
+        public bool IsThreatSpecial
         {
-            get { return m_pedDensityNight; }
-            set { m_pedDensityNight = value; OnPropertyChanged(); }
+            get { return m_isThreatSpecial; }
+            set { m_isThreatSpecial = value; OnPropertyChanged(); }
         }
 
-        public short CarDensityDay
+        public bool IsThreatGun
         {
-            get { return m_carDensityDay; }
-            set { m_carDensityDay = value; OnPropertyChanged(); }
+            get { return m_isThreatGun; }
+            set { m_isThreatGun = value; OnPropertyChanged(); }
         }
 
-        public short CarDensityNight
+        public bool IsThreatCopCar
         {
-            get { return m_carDensityNight; }
-            set { m_carDensityNight = value; OnPropertyChanged(); }
+            get { return m_isThreatCopCar; }
+            set { m_isThreatCopCar = value; OnPropertyChanged(); }
+        }
+
+        public bool IsThreatFastCar
+        {
+            get { return m_isThreatFastCar; }
+            set { m_isThreatFastCar = value; OnPropertyChanged(); }
+        }
+
+        public bool IsThreatExplosion
+        {
+            get { return m_isThreatExplosion; }
+            set { m_isThreatExplosion = value; OnPropertyChanged(); }
+        }
+
+        public bool IsThreatDeadPeds
+        {
+            get { return m_isThreatDeadPeds; }
+            set { m_isThreatDeadPeds = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidPlayer1
+        {
+            get { return m_isAvoidPlayer1; }
+            set { m_isAvoidPlayer1 = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidPlayer2
+        {
+            get { return m_isAvoidPlayer2; }
+            set { m_isAvoidPlayer2 = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidPlayer3
+        {
+            get { return m_isAvoidPlayer3; }
+            set { m_isAvoidPlayer3 = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidPlayer4
+        {
+            get { return m_isAvoidPlayer4; }
+            set { m_isAvoidPlayer4 = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidCivMale
+        {
+            get { return m_isAvoidCivMale; }
+            set { m_isAvoidCivMale = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidCivFemale
+        {
+            get { return m_isAvoidCivFemale; }
+            set { m_isAvoidCivFemale = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidCop
+        {
+            get { return m_isAvoidCop; }
+            set { m_isAvoidCop = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidGang1
+        {
+            get { return m_isAvoidGang1; }
+            set { m_isAvoidGang1 = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidGang2
+        {
+            get { return m_isAvoidGang2; }
+            set { m_isAvoidGang2 = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidGang3
+        {
+            get { return m_isAvoidGang3; }
+            set { m_isAvoidGang3 = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidGang4
+        {
+            get { return m_isAvoidGang4; }
+            set { m_isAvoidGang4 = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidGang5
+        {
+            get { return m_isAvoidGang5; }
+            set { m_isAvoidGang5 = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidGang6
+        {
+            get { return m_isAvoidGang6; }
+            set { m_isAvoidGang6 = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidGang7
+        {
+            get { return m_isAvoidGang7; }
+            set { m_isAvoidGang7 = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidGang8
+        {
+            get { return m_isAvoidGang8; }
+            set { m_isAvoidGang8 = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidGang9
+        {
+            get { return m_isAvoidGang9; }
+            set { m_isAvoidGang9 = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidEmergency
+        {
+            get { return m_isAvoidEmergency; }
+            set { m_isAvoidEmergency = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidFireman
+        {
+            get { return m_isAvoidFireman; }
+            set { m_isAvoidFireman = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidProstitute
+        {
+            get { return m_isAvoidProstitute; }
+            set { m_isAvoidProstitute = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidCriminal
+        {
+            get { return m_isAvoidCriminal; }
+            set { m_isAvoidCriminal = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidSpecial
+        {
+            get { return m_isAvoidSpecial; }
+            set { m_isAvoidSpecial = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidGun
+        {
+            get { return m_isAvoidGun; }
+            set { m_isAvoidGun = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidCopCar
+        {
+            get { return m_isAvoidCopCar; }
+            set { m_isAvoidCopCar = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidFastCar
+        {
+            get { return m_isAvoidFastCar; }
+            set { m_isAvoidFastCar = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidExplosion
+        {
+            get { return m_isAvoidExplosion; }
+            set { m_isAvoidExplosion = value; OnPropertyChanged(); }
+        }
+
+        public bool IsAvoidDeadPeds
+        {
+            get { return m_isAvoidDeadPeds; }
+            set { m_isAvoidDeadPeds = value; OnPropertyChanged(); }
         }
 
         public PedsVM()
-        {
-            Zones = new ObservableCollection<Zone>();
-        }
+        { }
 
         public override void Load()
         {
             base.Load();
-            GangIndex = -1;
+            SelectedPedIndex = -1;
+            SelectedGang = null;
+            SelectedPed = null;
+
+            // TODO: ensure every pedtype has correct 'flag' set
+            // offer bug fix if mismatch detected
         }
 
         public override void Update()
         {
             base.Update();
-            ReadHostility();
-            FindZones();
-            ReadDensity();
+            ReadThreats();
+            ReadAvoids();
         }
 
-        private ZoneInfo GetDayZone(Zone z) => TheSave.Zones.ZoneInfo[z.ZoneInfoDay];
-        private ZoneInfo GetNightZone(Zone z) => TheSave.Zones.ZoneInfo[z.ZoneInfoNight];
-
-        public void ReadHostility()
+        public void ReadThreats()
         {
-            if (GangIndex == -1) return;
-            IsHostilePlayer = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Player1);
-            IsHostileMafia = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Gang1);
-            IsHostileTriads = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Gang2);
-            IsHostileDiablos = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Gang3);
-            IsHostileYakuza = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Gang4);
-            IsHostileYardies = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Gang5);
-            IsHostileCartel = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Gang6);
-            IsHostileHoods = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Gang7);
-            IsHostileGang8 = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Gang8);
-            IsHostileGang9 = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Gang9);
-            IsHostileCivilians = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.CivMale | PedTypeFlags.CivFemale);
-            IsHostileCops = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Cop);
-            IsHostileEmergency = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Emergency);
-            IsHostileFirefighters = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Fireman);
-            IsHostileProstitutes = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Prostitute);
-            IsHostileCriminals = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Criminal);
-            IsHostileSpecial = TheSave.PedTypeInfo.IsThreat(GangPedType, PedTypeFlags.Special);
+            IsThreatPlayer1 = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Player1);
+            IsThreatPlayer2 = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Player2);
+            IsThreatPlayer3 = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Player3);
+            IsThreatPlayer4 = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Player4);
+            IsThreatCivMale = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.CivMale);
+            IsThreatCivFemale = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.CivFemale);
+            IsThreatCop = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Cop);
+            IsThreatGang1 = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Gang1);
+            IsThreatGang2 = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Gang2);
+            IsThreatGang3 = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Gang3);
+            IsThreatGang4 = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Gang4);
+            IsThreatGang5 = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Gang5);
+            IsThreatGang6 = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Gang6);
+            IsThreatGang7 = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Gang7);
+            IsThreatGang8 = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Gang8);
+            IsThreatGang9 = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Gang9);
+            IsThreatEmergency = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Emergency);
+            IsThreatFireman = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Fireman);
+            IsThreatProstitute = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Prostitute);
+            IsThreatCriminal = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Criminal);
+            IsThreatSpecial = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Special);
+            IsThreatGun = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Gun);
+            IsThreatCopCar = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.CopCar);
+            IsThreatFastCar = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.FastCar);
+            IsThreatExplosion = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.Explosion);
+            IsThreatDeadPeds = TheSave.PedTypeInfo.IsThreat(SelectedPedType, PedTypeFlags.DeadPeds);
         }
 
-        public void FindZones()
+        public void ReadAvoids()
         {
-            Zones.Clear();
-            foreach (Zone z in TheSave.Zones.Zones)
+            IsAvoidPlayer1 = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Player1);
+            IsAvoidPlayer2 = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Player2);
+            IsAvoidPlayer3 = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Player3);
+            IsAvoidPlayer4 = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Player4);
+            IsAvoidCivMale = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.CivMale);
+            IsAvoidCivFemale = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.CivFemale);
+            IsAvoidCop = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Cop);
+            IsAvoidGang1 = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Gang1);
+            IsAvoidGang2 = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Gang2);
+            IsAvoidGang3 = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Gang3);
+            IsAvoidGang4 = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Gang4);
+            IsAvoidGang5 = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Gang5);
+            IsAvoidGang6 = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Gang6);
+            IsAvoidGang7 = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Gang7);
+            IsAvoidGang8 = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Gang8);
+            IsAvoidGang9 = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Gang9);
+            IsAvoidEmergency = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Emergency);
+            IsAvoidFireman = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Fireman);
+            IsAvoidProstitute = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Prostitute);
+            IsAvoidCriminal = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Criminal);
+            IsAvoidSpecial = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Special);
+            IsAvoidGun = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Gun);
+            IsAvoidCopCar = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.CopCar);
+            IsAvoidFastCar = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.FastCar);
+            IsAvoidExplosion = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.Explosion);
+            IsAvoidDeadPeds = TheSave.PedTypeInfo.IsAvoid(SelectedPedType, PedTypeFlags.DeadPeds);
+        }
+
+        public ICommand SetThreatPlayer1 => new RelayCommand(() => SetPedThreat(IsThreatPlayer1, PedTypeFlags.Player1));
+        public ICommand SetThreatPlayer2 => new RelayCommand(() => SetPedThreat(IsThreatPlayer2, PedTypeFlags.Player2));
+        public ICommand SetThreatPlayer3 => new RelayCommand(() => SetPedThreat(IsThreatPlayer3, PedTypeFlags.Player3));
+        public ICommand SetThreatPlayer4 => new RelayCommand(() => SetPedThreat(IsThreatPlayer4, PedTypeFlags.Player4));
+        public ICommand SetThreatCivMale => new RelayCommand(() => SetPedThreat(IsThreatCivMale, PedTypeFlags.CivMale));
+        public ICommand SetThreatCivFemale => new RelayCommand(() => SetPedThreat(IsThreatCivFemale, PedTypeFlags.CivFemale));
+        public ICommand SetThreatCop => new RelayCommand(() => SetPedThreat(IsThreatCop, PedTypeFlags.Cop));
+        public ICommand SetThreatGang1 => new RelayCommand(() => SetPedThreat(IsThreatGang1, PedTypeFlags.Gang1));
+        public ICommand SetThreatGang2 => new RelayCommand(() => SetPedThreat(IsThreatGang2, PedTypeFlags.Gang2));
+        public ICommand SetThreatGang3 => new RelayCommand(() => SetPedThreat(IsThreatGang3, PedTypeFlags.Gang3));
+        public ICommand SetThreatGang4 => new RelayCommand(() => SetPedThreat(IsThreatGang4, PedTypeFlags.Gang4));
+        public ICommand SetThreatGang5 => new RelayCommand(() => SetPedThreat(IsThreatGang5, PedTypeFlags.Gang5));
+        public ICommand SetThreatGang6 => new RelayCommand(() => SetPedThreat(IsThreatGang6, PedTypeFlags.Gang6));
+        public ICommand SetThreatGang7 => new RelayCommand(() => SetPedThreat(IsThreatGang7, PedTypeFlags.Gang7));
+        public ICommand SetThreatGang8 => new RelayCommand(() => SetPedThreat(IsThreatGang8, PedTypeFlags.Gang8));
+        public ICommand SetThreatGang9 => new RelayCommand(() => SetPedThreat(IsThreatGang9, PedTypeFlags.Gang9));
+        public ICommand SetThreatEmergency => new RelayCommand(() => SetPedThreat(IsThreatEmergency, PedTypeFlags.Emergency));
+        public ICommand SetThreatFireman => new RelayCommand(() => SetPedThreat(IsThreatFireman, PedTypeFlags.Fireman));
+        public ICommand SetThreatProstitute => new RelayCommand(() => SetPedThreat(IsThreatProstitute, PedTypeFlags.Prostitute));
+        public ICommand SetThreatCriminal => new RelayCommand(() => SetPedThreat(IsThreatCriminal, PedTypeFlags.Criminal));
+        public ICommand SetThreatSpecial => new RelayCommand(() => SetPedThreat(IsThreatSpecial, PedTypeFlags.Special));
+        public ICommand SetThreatGun => new RelayCommand(() => SetPedThreat(IsThreatGun, PedTypeFlags.Gun));
+        public ICommand SetThreatCopCar => new RelayCommand(() => SetPedThreat(IsThreatCopCar, PedTypeFlags.CopCar));
+        public ICommand SetThreatFastCar => new RelayCommand(() => SetPedThreat(IsThreatFastCar, PedTypeFlags.FastCar));
+        public ICommand SetThreatExplosion => new RelayCommand(() => SetPedThreat(IsThreatExplosion, PedTypeFlags.Explosion));
+        public ICommand SetThreatDeadPeds => new RelayCommand(() => SetPedThreat(IsThreatDeadPeds, PedTypeFlags.DeadPeds));
+
+        public ICommand HostileAll => new RelayCommand(() =>
+        {
+            SetPedThreat(true, PedTypeFlagsAll);
+        });
+
+        public ICommand HostileNone => new RelayCommand(() =>
+        {
+            SetPedThreat(false, PedTypeFlagsAll);
+        });
+
+        public ICommand ResetThreats => new RelayCommand(() =>
+        {
+            SetPedThreat(null, DefaultThreats[SelectedPedType]);
+        });
+
+        public void SetPedThreat(bool? addRemSet, PedTypeFlags pedTypes)
+        {
+            if (SelectedPedIndex == -1) return;
+
+            switch (addRemSet)
             {
-                if (GangIndex == -1 || (z.ChildZoneIndex == -1 && z.ParentZoneIndex == -1 && z.NextZoneIndex == -1))
+                case true: TheSave.PedTypeInfo.AddThreat(SelectedPedType, pedTypes); break;
+                case false: TheSave.PedTypeInfo.RemoveThreat(SelectedPedType, pedTypes); break;
+                case null: TheSave.PedTypeInfo.SetThreat(SelectedPedType, pedTypes); break;
+            }
+
+            ReadThreats();
+        }
+
+        public ICommand SetAvoidPlayer1 => new RelayCommand(() => SetPedAvoid(IsAvoidPlayer1, PedTypeFlags.Player1));
+        public ICommand SetAvoidPlayer2 => new RelayCommand(() => SetPedAvoid(IsAvoidPlayer2, PedTypeFlags.Player2));
+        public ICommand SetAvoidPlayer3 => new RelayCommand(() => SetPedAvoid(IsAvoidPlayer3, PedTypeFlags.Player3));
+        public ICommand SetAvoidPlayer4 => new RelayCommand(() => SetPedAvoid(IsAvoidPlayer4, PedTypeFlags.Player4));
+        public ICommand SetAvoidCivMale => new RelayCommand(() => SetPedAvoid(IsAvoidCivMale, PedTypeFlags.CivMale));
+        public ICommand SetAvoidCivFemale => new RelayCommand(() => SetPedAvoid(IsAvoidCivFemale, PedTypeFlags.CivFemale));
+        public ICommand SetAvoidCop => new RelayCommand(() => SetPedAvoid(IsAvoidCop, PedTypeFlags.Cop));
+        public ICommand SetAvoidGang1 => new RelayCommand(() => SetPedAvoid(IsAvoidGang1, PedTypeFlags.Gang1));
+        public ICommand SetAvoidGang2 => new RelayCommand(() => SetPedAvoid(IsAvoidGang2, PedTypeFlags.Gang2));
+        public ICommand SetAvoidGang3 => new RelayCommand(() => SetPedAvoid(IsAvoidGang3, PedTypeFlags.Gang3));
+        public ICommand SetAvoidGang4 => new RelayCommand(() => SetPedAvoid(IsAvoidGang4, PedTypeFlags.Gang4));
+        public ICommand SetAvoidGang5 => new RelayCommand(() => SetPedAvoid(IsAvoidGang5, PedTypeFlags.Gang5));
+        public ICommand SetAvoidGang6 => new RelayCommand(() => SetPedAvoid(IsAvoidGang6, PedTypeFlags.Gang6));
+        public ICommand SetAvoidGang7 => new RelayCommand(() => SetPedAvoid(IsAvoidGang7, PedTypeFlags.Gang7));
+        public ICommand SetAvoidGang8 => new RelayCommand(() => SetPedAvoid(IsAvoidGang8, PedTypeFlags.Gang8));
+        public ICommand SetAvoidGang9 => new RelayCommand(() => SetPedAvoid(IsAvoidGang9, PedTypeFlags.Gang9));
+        public ICommand SetAvoidEmergency => new RelayCommand(() => SetPedAvoid(IsAvoidEmergency, PedTypeFlags.Emergency));
+        public ICommand SetAvoidFireman => new RelayCommand(() => SetPedAvoid(IsAvoidFireman, PedTypeFlags.Fireman));
+        public ICommand SetAvoidProstitute => new RelayCommand(() => SetPedAvoid(IsAvoidProstitute, PedTypeFlags.Prostitute));
+        public ICommand SetAvoidCriminal => new RelayCommand(() => SetPedAvoid(IsAvoidCriminal, PedTypeFlags.Criminal));
+        public ICommand SetAvoidSpecial => new RelayCommand(() => SetPedAvoid(IsAvoidSpecial, PedTypeFlags.Special));
+        public ICommand SetAvoidGun => new RelayCommand(() => SetPedAvoid(IsAvoidGun, PedTypeFlags.Gun));
+        public ICommand SetAvoidCopCar => new RelayCommand(() => SetPedAvoid(IsAvoidCopCar, PedTypeFlags.CopCar));
+        public ICommand SetAvoidFastCar => new RelayCommand(() => SetPedAvoid(IsAvoidFastCar, PedTypeFlags.FastCar));
+        public ICommand SetAvoidExplosion => new RelayCommand(() => SetPedAvoid(IsAvoidExplosion, PedTypeFlags.Explosion));
+        public ICommand SetAvoidDeadPeds => new RelayCommand(() => SetPedAvoid(IsAvoidDeadPeds, PedTypeFlags.DeadPeds));
+
+        public ICommand AvoidAll => new RelayCommand(() =>
+        {
+            SetPedAvoid(true, PedTypeFlagsAll);
+        });
+
+        public ICommand AvoidNone => new RelayCommand(() =>
+        {
+            SetPedAvoid(false, PedTypeFlagsAll);
+        });
+
+        public ICommand ResetAvoids => new RelayCommand(() =>
+        {
+            SetPedAvoid(null, DefaultAvoids[SelectedPedType]);
+        });
+
+        public void SetPedAvoid(bool? addRemSet, PedTypeFlags pedTypes)
+        {
+            if (SelectedPedIndex == -1) return;
+
+            switch (addRemSet)
+            {
+                case true: TheSave.PedTypeInfo.AddAvoid(SelectedPedType, pedTypes); break;
+                case false: TheSave.PedTypeInfo.RemoveAvoid(SelectedPedType, pedTypes); break;
+                case null: TheSave.PedTypeInfo.SetAvoid(SelectedPedType, pedTypes); break;
+            }
+
+            ReadAvoids();
+        }
+
+        public ICommand ResetGang => new RelayCommand(() =>
+        {
+            if (!IsSelectedPedTypeGang) return;
+
+            GangType g = GetGangType(SelectedPedType);
+            SetGangToDefaults(g);
+        });
+
+        private void SetGangToDefaults(GangType type)
+        {
+            Gang defaultGang = DefaultGangs[type];
+
+            TheSave.Gangs[type].VehicleModel = defaultGang.VehicleModel;
+            TheSave.Gangs[type].Weapon1 = defaultGang.Weapon1;
+            TheSave.Gangs[type].Weapon2 = defaultGang.Weapon2;
+            TheSave.Gangs[type].PedModelOverride = defaultGang.PedModelOverride;
+        }
+
+        public ICommand PublicEnemy => new RelayCommand(() =>
+        {
+            foreach (PedTypeId pedType in Enum.GetValues(typeof(PedTypeId)))
+            {
+                if (pedType >= PedTypeId.CivMale && pedType < PedTypeId.Special)
                 {
-                    continue;
+                    TheSave.PedTypeInfo.AddThreat(pedType, PedTypeFlags.Player1);
                 }
+            }
+            ReadThreats();
+        });
 
-                ZoneInfo dayZone = GetDayZone(z);
-                ZoneInfo nightZone = GetNightZone(z);
-                if (dayZone.GangPedDensity[GangIndex] > 0 || nightZone.GangPedDensity[GangIndex] > 0)
+        public ICommand LikableGuy => new RelayCommand(() =>
+        {
+            foreach (PedTypeId pedType in Enum.GetValues(typeof(PedTypeId)))
+            {
+                if (pedType >= PedTypeId.CivMale && pedType < PedTypeId.Special)
                 {
-                    Zones.Add(z);
+                    TheSave.PedTypeInfo.RemoveThreat(pedType, PedTypeFlags.Player1);
                 }
             }
-        }
+            ReadThreats();
+        });
 
-        public void ReadDensity()
+        public ICommand Mayhem => new RelayCommand(() =>
         {
-            if (SelectedZone == null || GangIndex == -1)
+            foreach (PedTypeId pedType in Enum.GetValues(typeof(PedTypeId)))
             {
-                return;
+                if (pedType >= PedTypeId.CivMale && pedType < PedTypeId.Special)
+                {
+                    TheSave.PedTypeInfo.SetThreat(pedType, PedTypeFlagsRealPeds);
+                }
+            }
+            ReadThreats();
+        });
+
+        public ICommand WorldPeace => new RelayCommand(() =>
+        {
+            foreach (PedTypeId pedType in Enum.GetValues(typeof(PedTypeId)))
+            {
+                if (pedType >= PedTypeId.CivMale && pedType < PedTypeId.Special)
+                {
+                    TheSave.PedTypeInfo.RemoveThreat(pedType, PedTypeFlagsRealPeds);
+                }
+            }
+            ReadThreats();
+        });
+
+        public ICommand FixNines => new RelayCommand(() =>
+        {
+            Gang hoods = TheSave.Gangs[GangType.Hoods];
+            hoods.PedModelOverride = -1;
+        });
+
+        public ICommand FixPeds => new RelayCommand(() =>
+        {
+            for (int i = 0; i < PedTypeData.NumPedTypes; i++)
+            {
+                PedType ped = TheSave.PedTypeInfo.PedTypes[i];
+                PedTypeId id = (PedTypeId) i;
+                ped.Flag = PedType.GetFlag(id);
+                ped.Threats = DefaultThreats[id];
+                ped.Avoids = DefaultAvoids[id];
+
+                // TODO: set gang hostility according to story vars
             }
 
-            ZoneInfo dayZone = GetDayZone(SelectedZone);
-            ZoneInfo nightZone = GetNightZone(SelectedZone);
+            ReadThreats();
+            ReadAvoids();
+        });
 
-            // Car density is the difference from the previous value, for some reason
-            short prevCarDensityDay = (GangIndex == 0) ? dayZone.CopCarDensity : dayZone.GangCarDensity[GangIndex - 1];
-            short prevCarDensityNight = (GangIndex == 0) ? nightZone.CopCarDensity : nightZone.GangCarDensity[GangIndex - 1];
-
-            CarDensityDay = (short) (dayZone.GangCarDensity[GangIndex] - prevCarDensityDay);
-            CarDensityNight = (short) (nightZone.GangCarDensity[GangIndex] - prevCarDensityNight);
-            PedDensityDay = dayZone.GangPedDensity[GangIndex];
-            PedDensityNight = nightZone.GangPedDensity[GangIndex];
-        }
-
-        public void WritePedDensityDay()
+        public ICommand ResetGangs => new RelayCommand(() =>
         {
-            if (SelectedZone == null || GangIndex == -1)
+            // Set default threats/avoids
+            for (int i = 0; i < PedTypeData.NumPedTypes; i++)
             {
-                return;
+                PedType ped = TheSave.PedTypeInfo.PedTypes[i];
+                PedTypeId id = (PedTypeId) i;
+
+                if (ped.IsGang)
+                {
+                    ped.Threats = DefaultThreats[id];
+                    ped.Avoids = DefaultAvoids[id];
+
+                    GangType g = GetGangType(id);
+                    SetGangToDefaults(g);
+                }
             }
 
-            GetDayZone(SelectedZone).GangPedDensity[GangIndex] = PedDensityDay;
-            MarkDirty($"GangPedDensity[{GangIndex}]", PedDensityDay);
-        }
+            ReadThreats();
+            ReadAvoids();
+        });
 
-        public void WritePedDensityNight()
+        private static GangType GetGangType(PedTypeId pedType)
         {
-            if (SelectedZone == null || GangIndex == -1)
+            if (pedType < PedTypeId.Gang1 || pedType > PedTypeId.Gang9)
             {
-                return;
+                throw new InvalidOperationException($"PedType '{pedType}' is not a gang.");
             }
 
-            GetNightZone(SelectedZone).GangPedDensity[GangIndex] = PedDensityNight;
-            MarkDirty($"GangPedDensity[{GangIndex}]", PedDensityNight);
+            return (GangType) (pedType - (int) PedTypeId.Gang1);
         }
 
-        // TODO: figure this out
-
-        //public void WriteCarDensityDay()
-        //{
-        //    if (SelectedZone == null || GangIndex == -1)
-        //    {
-        //        return;
-        //    }
-
-        //    ZoneInfo dayZone = GetDayZone(SelectedZone);
-        //    short prevCarDensity = (GangIndex == 0) ? dayZone.CopCarDensity : dayZone.GangCarDensity[GangIndex - 1];
-
-        //    for (int i = GangIndex; i < dayZone.GangCarDensity.Count; i++)
-        //    {
-        //        dayZone.GangCarDensity[i] = (short) (prevCarDensity + CarDensityDay);
-        //    }
-        //    TheWindow.SetDirty();
-        //}
-
-        //public void WriteCarDensityNight()
-        //{
-        //    if (SelectedZone == null || GangIndex == -1)
-        //    {
-        //        return;
-        //    }
-
-        //    ZoneInfo nightZone = GetNightZone(SelectedZone);
-        //    //short prevCarDensityNight = (GangIndex == 0) ? nightZone.CarDensity : nightZone.GangCarDensity[GangIndex - 1];
-
-        //    for (int i = GangIndex; i < nightZone.GangCarDensity.Count; i++)
-        //    {
-        //        nightZone.GangCarDensity[i] += CarDensityNight;
-        //    }
-        //    TheWindow.SetDirty();
-        //}
-
-        public ICommand SetHostilityPlayer => new RelayCommand(() => SetPedHostility(IsHostilePlayer, PedTypeFlags.Player1));
-        public ICommand SetHostilityMafia => new RelayCommand(() => SetPedHostility(IsHostileMafia, PedTypeFlags.Gang1));
-        public ICommand SetHostilityTriads => new RelayCommand(() => SetPedHostility(IsHostileTriads, PedTypeFlags.Gang2));
-        public ICommand SetHostilityDiablos => new RelayCommand(() => SetPedHostility(IsHostileDiablos, PedTypeFlags.Gang3));
-        public ICommand SetHostilityYakuza => new RelayCommand(() => SetPedHostility(IsHostileYakuza, PedTypeFlags.Gang4));
-        public ICommand SetHostilityYardies => new RelayCommand(() => SetPedHostility(IsHostileYardies, PedTypeFlags.Gang5));
-        public ICommand SetHostilityCartel => new RelayCommand(() => SetPedHostility(IsHostileCartel, PedTypeFlags.Gang6));
-        public ICommand SetHostilityHoods => new RelayCommand(() => SetPedHostility(IsHostileHoods, PedTypeFlags.Gang7));
-        public ICommand SetHostilityGang8 => new RelayCommand(() => SetPedHostility(IsHostileGang8, PedTypeFlags.Gang8));
-        public ICommand SetHostilityGang9 => new RelayCommand(() => SetPedHostility(IsHostileGang9, PedTypeFlags.Gang9));
-        public ICommand SetHostilityCivilians => new RelayCommand(() => SetPedHostility(IsHostileCivilians, PedTypeFlags.CivMale | PedTypeFlags.CivFemale));
-        public ICommand SetHostilityCops => new RelayCommand(() => SetPedHostility(IsHostileCops, PedTypeFlags.Cop));
-        public ICommand SetHostilityEmergency => new RelayCommand(() => SetPedHostility(IsHostileEmergency, PedTypeFlags.Emergency));
-        public ICommand SetHostilityFirefighters => new RelayCommand(() => SetPedHostility(IsHostileFirefighters, PedTypeFlags.Fireman));
-        public ICommand SetHostilityProstitutes => new RelayCommand(() => SetPedHostility(IsHostileProstitutes, PedTypeFlags.Prostitute));
-        public ICommand SetHostilityCriminals => new RelayCommand(() => SetPedHostility(IsHostileCriminals, PedTypeFlags.Criminal));
-        public ICommand SetHostilitySpecial => new RelayCommand(() => SetPedHostility(IsHostileSpecial, PedTypeFlags.Special));
-
-        public void SetPedHostility(bool hostile, PedTypeFlags threats)
+        public static Dictionary<PedTypeId, PedTypeFlags> DefaultThreats = new Dictionary<PedTypeId, PedTypeFlags>()
         {
-            if (GangIndex == -1) return;
+            { PedTypeId.Player1,    PedTypeFlagsNone },
+            { PedTypeId.Player2,    PedTypeFlagsNone },
+            { PedTypeId.Player3,    PedTypeFlagsNone },
+            { PedTypeId.Player4,    PedTypeFlagsNone },
+            { PedTypeId.CivMale,    PedTypeFlags.Gun | PedTypeFlags.Explosion | PedTypeFlags.DeadPeds },
+            { PedTypeId.CivFemale,  PedTypeFlags.Gun | PedTypeFlags.Explosion | PedTypeFlags.DeadPeds },
+            { PedTypeId.Cop,        PedTypeFlags.Gun | PedTypeFlags.Explosion | PedTypeFlags.DeadPeds },
+            { PedTypeId.Gang1,      PedTypeFlags.Gun | PedTypeFlags.Gang2 | PedTypeFlags.Gang3 | PedTypeFlags.Gang4 | PedTypeFlags.Gang5 | PedTypeFlags.Gang6 | PedTypeFlags.Gang7 | PedTypeFlags.Gang8 | PedTypeFlags.Gang9 | PedTypeFlags.Explosion },
+            { PedTypeId.Gang2,      PedTypeFlags.Gun | PedTypeFlags.Gang1 | PedTypeFlags.Gang3 | PedTypeFlags.Gang4 | PedTypeFlags.Gang5 | PedTypeFlags.Gang6 | PedTypeFlags.Gang7 | PedTypeFlags.Gang8 | PedTypeFlags.Gang9 | PedTypeFlags.Explosion },
+            { PedTypeId.Gang3,      PedTypeFlags.Gun | PedTypeFlags.Gang1 | PedTypeFlags.Gang2 | PedTypeFlags.Gang4 | PedTypeFlags.Gang5 | PedTypeFlags.Gang6 | PedTypeFlags.Gang7 | PedTypeFlags.Gang8 | PedTypeFlags.Gang9 | PedTypeFlags.Explosion },
+            { PedTypeId.Gang4,      PedTypeFlags.Gun | PedTypeFlags.Gang1 | PedTypeFlags.Gang2 | PedTypeFlags.Gang3 | PedTypeFlags.Gang5 | PedTypeFlags.Gang6 | PedTypeFlags.Gang7 | PedTypeFlags.Gang8 | PedTypeFlags.Gang9 | PedTypeFlags.Explosion },
+            { PedTypeId.Gang5,      PedTypeFlags.Gun | PedTypeFlags.Gang1 | PedTypeFlags.Gang2 | PedTypeFlags.Gang3 | PedTypeFlags.Gang4 | PedTypeFlags.Gang6 | PedTypeFlags.Gang7 | PedTypeFlags.Gang8 | PedTypeFlags.Gang9 | PedTypeFlags.Explosion },
+            { PedTypeId.Gang6,      PedTypeFlags.Gun | PedTypeFlags.Gang1 | PedTypeFlags.Gang2 | PedTypeFlags.Gang3 | PedTypeFlags.Gang4 | PedTypeFlags.Gang5 | PedTypeFlags.Gang7 | PedTypeFlags.Gang8 | PedTypeFlags.Gang9 | PedTypeFlags.Explosion | PedTypeFlags.Player1 },
+            { PedTypeId.Gang7,      PedTypeFlags.Gun | PedTypeFlags.Gang1 | PedTypeFlags.Gang2 | PedTypeFlags.Gang3 | PedTypeFlags.Gang4 | PedTypeFlags.Gang5 | PedTypeFlags.Gang6 | PedTypeFlags.Gang8 | PedTypeFlags.Gang9 | PedTypeFlags.Explosion },
+            { PedTypeId.Gang8,      PedTypeFlags.Gun | PedTypeFlags.Gang1 | PedTypeFlags.Gang2 | PedTypeFlags.Gang3 | PedTypeFlags.Gang4 | PedTypeFlags.Gang5 | PedTypeFlags.Gang6 | PedTypeFlags.Gang7 | PedTypeFlags.Gang9 | PedTypeFlags.Explosion },
+            { PedTypeId.Gang9,      PedTypeFlags.Gun | PedTypeFlags.Gang1 | PedTypeFlags.Gang2 | PedTypeFlags.Gang3 | PedTypeFlags.Gang4 | PedTypeFlags.Gang5 | PedTypeFlags.Gang6 | PedTypeFlags.Gang7 | PedTypeFlags.Gang8 | PedTypeFlags.Explosion },
+            { PedTypeId.Emergency,  PedTypeFlags.Explosion },
+            { PedTypeId.Criminal,   PedTypeFlags.Gun | PedTypeFlags.Cop | PedTypeFlags.CopCar | PedTypeFlags.Explosion },
+            { PedTypeId.Prostitute, PedTypeFlags.Gun | PedTypeFlags.Explosion | PedTypeFlags.DeadPeds },
+            { PedTypeId.Fireman,    PedTypeFlagsNone },
+            { PedTypeId.Special,    PedTypeFlagsNone },
+            { PedTypeId.Unused1,    PedTypeFlagsNone },
+            { PedTypeId.Unused2,    PedTypeFlagsNone },
+        };
 
-            if (hostile)
-                TheSave.PedTypeInfo.AddThreat(GangPedType, threats);
-            else
-                TheSave.PedTypeInfo.RemoveThreat(GangPedType, threats);
-        }
-
-        private static readonly Dictionary<GangType, PedTypeId> GangPedTypeIds = new Dictionary<GangType, PedTypeId>()
+        public static Dictionary<PedTypeId, PedTypeFlags> DefaultAvoids = new Dictionary<PedTypeId, PedTypeFlags>()
         {
-            { GangType.Mafia, PedTypeId.Gang1 },
-            { GangType.Triads, PedTypeId.Gang2 },
-            { GangType.Diablos, PedTypeId.Gang3 },
-            { GangType.Yakuza, PedTypeId.Gang4 },
-            { GangType.Yardies, PedTypeId.Gang5 },
-            { GangType.Cartel, PedTypeId.Gang6 },
-            { GangType.Hoods, PedTypeId.Gang7 },
-            { GangType.Gang8, PedTypeId.Gang8 },
-            { GangType.Gang9, PedTypeId.Gang9 },
+            { PedTypeId.Player1,    PedTypeFlagsNone },
+            { PedTypeId.Player2,    PedTypeFlagsNone },
+            { PedTypeId.Player3,    PedTypeFlagsNone },
+            { PedTypeId.Player4,    PedTypeFlagsNone },
+            { PedTypeId.CivMale,    PedTypeFlags.Player1 | PedTypeFlags.Player2 | PedTypeFlags.Player3 | PedTypeFlags.Player4 | PedTypeFlags.CivMale | PedTypeFlags.CivFemale | PedTypeFlags.Cop | PedTypeFlags.Gang1 | PedTypeFlags.Gang2 | PedTypeFlags.Gang3 | PedTypeFlags.Gang4 | PedTypeFlags.Gang5 | PedTypeFlags.Gang6 | PedTypeFlags.Gang7 | PedTypeFlags.Gang8 | PedTypeFlags.Gang9 | PedTypeFlags.Criminal | PedTypeFlags.Special },
+            { PedTypeId.CivFemale,  PedTypeFlags.Player1 | PedTypeFlags.Player2 | PedTypeFlags.Player3 | PedTypeFlags.Player4 | PedTypeFlags.CivMale | PedTypeFlags.CivFemale | PedTypeFlags.Cop | PedTypeFlags.Gang1 | PedTypeFlags.Gang2 | PedTypeFlags.Gang3 | PedTypeFlags.Gang4 | PedTypeFlags.Gang5 | PedTypeFlags.Gang6 | PedTypeFlags.Gang7 | PedTypeFlags.Gang8 | PedTypeFlags.Gang9 | PedTypeFlags.Criminal | PedTypeFlags.Special },
+            { PedTypeId.Cop,        PedTypeFlags.CivMale | PedTypeFlags.CivFemale | PedTypeFlags.Cop },
+            { PedTypeId.Gang1,      PedTypeFlags.Gang1 },
+            { PedTypeId.Gang2,      PedTypeFlags.Gang2 },
+            { PedTypeId.Gang3,      PedTypeFlags.Gang3 },
+            { PedTypeId.Gang4,      PedTypeFlags.Gang4 },
+            { PedTypeId.Gang5,      PedTypeFlags.Gang5 },
+            { PedTypeId.Gang6,      PedTypeFlags.Gang6 },
+            { PedTypeId.Gang7,      PedTypeFlags.Gang7 },
+            { PedTypeId.Gang8,      PedTypeFlags.Gang8 },
+            { PedTypeId.Gang9,      PedTypeFlags.Gang9 },
+            { PedTypeId.Emergency,  PedTypeFlags.CivMale | PedTypeFlags.CivFemale | PedTypeFlags.Cop },
+            { PedTypeId.Criminal,   PedTypeFlags.Cop | PedTypeFlags.Gang1 | PedTypeFlags.Gang2 | PedTypeFlags.Gang3 | PedTypeFlags.Gang4 | PedTypeFlags.Gang5 | PedTypeFlags.Gang6 | PedTypeFlags.Gang7 | PedTypeFlags.Gang8 | PedTypeFlags.Gang9 },
+            { PedTypeId.Prostitute, PedTypeFlags.Cop | PedTypeFlags.Gang1 | PedTypeFlags.Gang2 | PedTypeFlags.Gang3 | PedTypeFlags.Gang4 | PedTypeFlags.Gang5 | PedTypeFlags.Gang6 | PedTypeFlags.Gang7 | PedTypeFlags.Gang8 | PedTypeFlags.Gang9 },
+            { PedTypeId.Fireman,    PedTypeFlagsNone },
+            { PedTypeId.Special,    PedTypeFlagsNone },
+            { PedTypeId.Unused1,    PedTypeFlagsNone },
+            { PedTypeId.Unused2,    PedTypeFlagsNone },
+        };
+
+        public static Dictionary<GangType, Gang> DefaultGangs = new Dictionary<GangType, Gang>()
+        {
+            { GangType.Mafia, new Gang() { VehicleModel = (int) ModelIndex.MAFIA, Weapon1 = WeaponType.Colt45, Weapon2 = WeaponType.Colt45 } },
+            { GangType.Triads, new Gang() { VehicleModel = (int) ModelIndex.BELLYUP, Weapon1 = WeaponType.Colt45, Weapon2 = WeaponType.BaseballBat } },
+            { GangType.Diablos, new Gang() { VehicleModel = (int) ModelIndex.DIABLOS, Weapon1 = WeaponType.BaseballBat, Weapon2 = WeaponType.None } },
+            { GangType.Yakuza, new Gang() { VehicleModel = (int) ModelIndex.YAKUZA, Weapon1 = WeaponType.Colt45, Weapon2 = WeaponType.Uzi } },
+            { GangType.Yardies, new Gang() { VehicleModel = (int) ModelIndex.YARDIE, Weapon1 = WeaponType.BaseballBat, Weapon2 = WeaponType.Colt45 } },
+            { GangType.Cartel, new Gang() { VehicleModel = (int) ModelIndex.COLUMB, Weapon1 = WeaponType.Colt45, Weapon2 = WeaponType.Uzi } },
+            { GangType.Hoods, new Gang() { VehicleModel = (int) ModelIndex.HOODS, Weapon1 = WeaponType.Uzi, Weapon2 = WeaponType.Colt45 } },
+            { GangType.Gang8, new Gang() },
+            { GangType.Gang9, new Gang() },
         };
     }
 }

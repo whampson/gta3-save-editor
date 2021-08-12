@@ -33,7 +33,7 @@ namespace GTA3SaveEditor.GUI
 
         private const string TabNameWelcome = "Welcome";
         private const string TabNameGarages = "Garages";
-        private const string TabNameGangs = "Gangs & Peds";
+        private const string TabNamePeds = "Gangs & Peds";
         private const string TabNamePickups = "Pickups";
         private const string TabNameScripts = "Scripts";
 
@@ -80,7 +80,7 @@ namespace GTA3SaveEditor.GUI
             {
                 new WelcomeVM()  { TheWindow = this, Title = TabNameWelcome, Visibility = TabPageVisibility.WhenNotEditingFile },
                 new GaragesVM()  { TheWindow = this, Title = TabNameGarages, Visibility = TabPageVisibility.WhenEditingFile },      // Save Garages
-                new PedsVM()    { TheWindow = this, Title = TabNameGangs,   Visibility = TabPageVisibility.WhenEditingFile },      // Gangs
+                new PedsVM()    { TheWindow = this, Title = TabNamePeds,   Visibility = TabPageVisibility.WhenEditingFile },      // Gangs
                 new PickupsVM()  { TheWindow = this, Title = TabNamePickups, Visibility = TabPageVisibility.WhenEditingFile },      // All pickups
                 new ScriptsVM()  { TheWindow = this, Title = TabNameScripts, Visibility = TabPageVisibility.WhenEditingFile },      // GlobalVars and Threads
             };
@@ -287,6 +287,7 @@ namespace GTA3SaveEditor.GUI
         {
             // TODO: dim the layout or pop a 'wait' dialog or something
             RevertFileRoutine();
+            ShowInfo("File refreshed.");
             SetTimedStatusText("File reverted.");
 
         }

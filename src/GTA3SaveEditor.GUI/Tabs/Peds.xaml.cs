@@ -1,5 +1,7 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
+using GTA3SaveEditor.Core.Game;
 using GTASaveData.GTA3;
 
 namespace GTA3SaveEditor.GUI.Tabs
@@ -9,8 +11,6 @@ namespace GTA3SaveEditor.GUI.Tabs
     /// </summary>
     public partial class PedsTab : TabPage<PedsVM>
     {
-        private bool m_suppressDensityChanged;
-
         public PedsTab()
         {
             InitializeComponent();
@@ -18,40 +18,21 @@ namespace GTA3SaveEditor.GUI.Tabs
 
         private void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            int i = ViewModel.GangIndex;
-            ViewModel.Gang = (i == -1) ? null : ViewModel.TheSave.Gangs[i];
+            if (ViewModel == null) return;
+
+            PedTypeId t = ViewModel.SelectedPedType;
+            int i = ViewModel.SelectedPedIndex;
+
+            ViewModel.SelectedPed = (i > -1)
+                ? ViewModel.TheSave.PedTypeInfo.PedTypes[i]
+                : null;
+            ViewModel.SelectedGang = (ViewModel.IsSelectedPedTypeGang)
+                ? ViewModel.TheSave.Gangs[GTA3.GetGangType(t)]
+                : null;
+
             ViewModel.Update();
+
+            Debug.Assert(i == -1 || (PedTypeId) i == ViewModel.SelectedPedType);
         }
-
-        private void ZoneListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            m_suppressDensityChanged = true;
-            ViewModel.ReadDensity();
-            m_suppressDensityChanged = false;
-        }
-
-        private void PedDensityDay_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            if (m_suppressDensityChanged) return;
-            ViewModel.WritePedDensityDay();
-        }
-
-        private void PedDensityNight_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        {
-            if (m_suppressDensityChanged) return;
-            ViewModel.WritePedDensityNight();
-        }
-
-        //private void CarDensityDay_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        //{
-        //    if (m_suppressDensityChanged) return;
-        //    ViewModel.WriteCarDensityDay();
-        //}
-
-        //private void CarDensityNight_ValueChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
-        //{
-        //    if (m_suppressDensityChanged) return;
-        //    ViewModel.WriteCarDensityNight();
-        //}
     }
 }

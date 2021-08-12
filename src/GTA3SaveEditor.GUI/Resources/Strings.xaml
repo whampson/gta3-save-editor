@@ -1,0 +1,34 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <sys:String x:Key="PedType00Name">Player1</sys:String>
+    <sys:String x:Key="PedType01Name">Player2</sys:String>
+    <sys:String x:Key="PedType02Name">Player3</sys:String>
+    <sys:String x:Key="PedType03Name">Player4</sys:String>
+    <sys:String x:Key="PedType04Name">Males</sys:String>
+    <sys:String x:Key="PedType05Name">Females</sys:String>
+    <sys:String x:Key="PedType06Name">Cops</sys:String>
+    <sys:String x:Key="PedType07Name">Mafia</sys:String>
+    <sys:String x:Key="PedType08Name">Triads</sys:String>
+    <sys:String x:Key="PedType09Name">Diablos</sys:String>
+    <sys:String x:Key="PedType10Name">Yakuza</sys:String>
+    <sys:String x:Key="PedType11Name">Yardies</sys:String>
+    <sys:String x:Key="PedType12Name">Cartel</sys:String>
+    <sys:String x:Key="PedType13Name">Hoods</sys:String>
+    <sys:String x:Key="PedType14Name">Gang8</sys:String>
+    <sys:String x:Key="PedType15Name">Gang9</sys:String>
+    <sys:String x:Key="PedType16Name">Emergency</sys:String>
+    <sys:String x:Key="PedType17Name">Firefighters</sys:String>
+    <sys:String x:Key="PedType18Name">Criminals</sys:String>
+    <sys:String x:Key="PedType19Name">PedType19</sys:String>
+    <sys:String x:Key="PedType20Name">Prostitutes</sys:String>
+    <sys:String x:Key="PedType21Name">Special</sys:String>
+    <sys:String x:Key="PedType22Name">PedType22</sys:String>
+
+    <sys:String x:Key="PedTypeFlag20Name">Guns</sys:String>
+    <sys:String x:Key="PedTypeFlag21Name">Cop Cars</sys:String>
+    <sys:String x:Key="PedTypeFlag22Name">Fast Cars</sys:String>
+    <sys:String x:Key="PedTypeFlag23Name">Explosions</sys:String>
+    <sys:String x:Key="PedTypeFlag25Name">Dead Peds</sys:String>
+</ResourceDictionary>
