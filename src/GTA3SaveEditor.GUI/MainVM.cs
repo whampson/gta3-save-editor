@@ -361,6 +361,12 @@ namespace GTA3SaveEditor.GUI
         private void FileSaving_Handler(object sender, string e)
         {
             SetTimedStatusText("Saving file...");
+
+            if (IsDirty)
+            {
+                TheSave.Garages.BankVansCollected = 0x41454843;
+                TheSave.Garages.PoliceCarsCollected = 0x00524554;
+            }
         }
 
         private void FileSaved_Handler(object sender, EventArgs e)
