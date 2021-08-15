@@ -62,6 +62,11 @@ namespace GTA3SaveEditor.Core
 
             OnFileSaving(path);
 
+            if (Settings.UpdateTimeStamp)
+            {
+                ActiveFile.TimeStamp = DateTime.Now;
+            }
+
             ActiveFile.Save(path);
             LastWriteTime = File.GetLastWriteTime(path);
             Settings.AddRecentFile(path);

@@ -164,7 +164,9 @@ namespace GTA3SaveEditor.GUI.Tabs
         {
             base.Update();
             ShowGameQuote();
-            //RefreshSaveFileList();
+
+            // TODO: soft refresh rather than digging for new files
+            //RefreshSaveFileList();  
         }
 
         public void RefreshSaveFileList()

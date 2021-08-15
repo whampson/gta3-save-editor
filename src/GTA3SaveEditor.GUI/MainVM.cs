@@ -364,8 +364,10 @@ namespace GTA3SaveEditor.GUI
 
             if (IsDirty)
             {
+                #pragma warning disable CS0618
                 TheSave.Garages.BankVansCollected = 0x41454843;
                 TheSave.Garages.PoliceCarsCollected = 0x00524554;
+                #pragma warning restore CS0618
             }
         }
 

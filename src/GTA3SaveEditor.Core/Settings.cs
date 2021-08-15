@@ -18,7 +18,7 @@ namespace GTA3SaveEditor.Core
         private ObservableCollection<string> m_saveFileList;
         //private string m_lastDirAccessed;
         //private string m_lastFileAccessed;
-        private bool m_writeSaveTimestamp;
+        private bool m_updateTimestamp;
         private bool m_writeLogFile;
         private string m_logFilePath;
         private string m_saveFileDirectory;
@@ -56,10 +56,10 @@ namespace GTA3SaveEditor.Core
         //    set { m_lastFileAccessed = value; OnPropertyChanged(); }
         //}
 
-        public bool WriteSaveTimestamp
+        public bool UpdateTimeStamp
         {
-            get { return m_writeSaveTimestamp; }
-            set { m_writeSaveTimestamp = value; OnPropertyChanged(); }
+            get { return m_updateTimestamp; }
+            set { m_updateTimestamp = value; OnPropertyChanged(); }
         }
 
         public bool WriteLogFile
@@ -106,7 +106,7 @@ namespace GTA3SaveEditor.Core
             RecentFiles = new ObservableCollection<string>();
             SaveFileList = new ObservableCollection<string>();
             RecentFilesCapacity = 10;
-            WriteSaveTimestamp = true;
+            UpdateTimeStamp = true;
             FormatOverride = FileFormatType.None;
             Updater = new UpdaterSettings();
         }
