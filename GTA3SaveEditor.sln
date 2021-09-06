@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30523.141
 MinimumVisualStudioVersion = 15.0.26124.0
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GTA3SaveEditor.Core", "src\GTA3SaveEditor.Core\GTA3SaveEditor.Core.csproj", "{24AC769E-A0AC-470C-8B9E-D69284EAA2BB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GTA3SaveEditor.Core", "src\Core\GTA3SaveEditor.Core.csproj", "{24AC769E-A0AC-470C-8B9E-D69284EAA2BB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GTA3SaveEditor.GUI", "src\GTA3SaveEditor.GUI\GTA3SaveEditor.GUI.csproj", "{29B9C0AD-CCE7-4C60-AEDF-7C0DB3634DC5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GTA3SaveEditor.GUI", "src\GUI\GTA3SaveEditor.GUI.csproj", "{29B9C0AD-CCE7-4C60-AEDF-7C0DB3634DC5}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "lib", "lib", "{C9122B68-2C01-4D0A-B714-A17E775381FE}"
 EndProject

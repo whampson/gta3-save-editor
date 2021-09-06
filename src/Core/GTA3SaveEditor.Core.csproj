@@ -1,28 +1,25 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <AssemblyName>GTA3SaveEditor.GUI</AssemblyName>
-    <AssemblyTitle>GTA III Save Editor</AssemblyTitle>
+    <AssemblyName>GTA3SaveEditor.Core</AssemblyName>
+    <AssemblyTitle>GTA III Save Editor Core Library</AssemblyTitle>
     <Authors>Wes Hampson</Authors>
     <Company>Wes Hampson</Company>
     <Copyright>(C) 2015-2020 Wes Hampson. All Rights Reserved.</Copyright>
-    <Description>The Grand Theft Auto III save file editor.</Description>
+    <Description>Core library for the Grand Theft Auto III save file editor.</Description>
   </PropertyGroup>
   
   <PropertyGroup>
-    <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <AssemblyVersion>0.4.0.1101</AssemblyVersion>
-    <FileVersion>0.4.0.1101</FileVersion>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyVersion>0.4.0.307</AssemblyVersion>
+    <FileVersion>0.4.0.307</FileVersion>
     <Version>0.4.0</Version>
     <LangVersion>8.0</LangVersion>
-    <Configurations>Debug;Release;Release-Standalone</Configurations>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <ShouldCreateLogs>True</ShouldCreateLogs>
-    <AdvancedSettingsExpanded>True</AdvancedSettingsExpanded>
+    <AdvancedSettingsExpanded>False</AdvancedSettingsExpanded>
     <UpdateAssemblyVersion>True</UpdateAssemblyVersion>
     <UpdateAssemblyFileVersion>True</UpdateAssemblyFileVersion>
     <UpdateAssemblyInfoVersion>False</UpdateAssemblyInfoVersion>
@@ -37,7 +34,7 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <ShouldCreateLogs>True</ShouldCreateLogs>
-    <AdvancedSettingsExpanded>True</AdvancedSettingsExpanded>
+    <AdvancedSettingsExpanded>False</AdvancedSettingsExpanded>
     <UpdateAssemblyVersion>True</UpdateAssemblyVersion>
     <UpdateAssemblyFileVersion>True</UpdateAssemblyFileVersion>
     <UpdateAssemblyInfoVersion>False</UpdateAssemblyInfoVersion>
@@ -51,32 +48,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Resources\american.gxt" />
-    <None Remove="Resources\CustomVariables.ini" />
-    <None Remove="Resources\CustomVariables_v2.ini" />
-    <None Remove="Resources\default.ide" />
-    <None Remove="Resources\SCM.INI" />
+    <PackageReference Include="Markdig" Version="0.22.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="semver" Version="2.0.6" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\lib\ToolUI\ToolUI\ToolUI.csproj" />
-    <ProjectReference Include="..\..\lib\WpfExtendedToolkit\Src\Xceed.Wpf.Toolkit\DotNetProjects.Wpf.Extended.Toolkit.csproj" />
-    <ProjectReference Include="..\GTA3SaveEditor.Core\GTA3SaveEditor.Core.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Resource Include="Resources\american.gxt" />
-    <Resource Include="Resources\carcols.dat" />
-    <Resource Include="Resources\CustomVariables_v2.ini" />
-    <Resource Include="Resources\CustomVariables.ini" />
-    <Resource Include="Resources\default.ide" />
-    <Resource Include="Resources\english.gxt" />
-    <Resource Include="Resources\gta3.ide" />
-    <Resource Include="Resources\SCM.INI" />
+    <ProjectReference Include="$(SolutionDir)\lib\GTASaveData\GTASaveData.Core\GTASaveData.Core.csproj" />
+    <ProjectReference Include="$(SolutionDir)\lib\GTASaveData\GTASaveData.GTA3\GTASaveData.GTA3.csproj" />
   </ItemGroup>
 
 </Project>
