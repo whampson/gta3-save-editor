@@ -4,8 +4,8 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:sys="clr-namespace:System;assembly=mscorlib"
     xmlns:cntl="clr-namespace:WHampson.ToolUI.Controls;assembly=WHampson.ToolUI"
-    xmlns:conv="clr-namespace:WHampson.ToolUI.Converters;assembly=WHampson.ToolUI"
-    xmlns:conv2="clr-namespace:GTA3SaveEditor.GUI.Converters"
+    xmlns:tcnv="clr-namespace:WHampson.ToolUI.Converters;assembly=WHampson.ToolUI"
+    xmlns:conv="clr-namespace:GTA3SaveEditor.GUI.Converters"
     xmlns:wpfe="clr-namespace:WpfEssentials.Win32.Converters;assembly=WpfEssentials.Win32"
     xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=DotNetProjects.Wpf.Extended.Toolkit"
     ShutdownMode="OnMainWindowClose">
@@ -19,22 +19,36 @@
 
             <!-- ========== Converters ========== -->
 
-            <conv:IsNullConverter x:Key="IsNull" Invert="False"/>
-            <conv:IsNullConverter x:Key="IsNotNull" Invert="True"/>
-            <conv:IsZeroConverter x:Key="IsZero" Invert="False"/>
-            <conv:IsZeroConverter x:Key="IsNotZero" Invert="True"/>
-            <conv:InvertBooleanConverter x:Key="IsFalse" DefaultValue="True"/>
-            <conv:VectorConverter x:Key="VectorConverter"/>
-            <conv2:VehicleModelConverter x:Key="VehicleModelConverter"/>
-            <conv2:CarColorConverter x:Key="CarColorConverter"/>
-            <conv2:EnumFlagsConverter x:Key="EnumFlagsConverter"/>
             <wpfe:EnumDescriptionConverter x:Key="EnumDescriptionConverter"/>
-            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+            <conv:EnumFlagsConverter x:Key="EnumFlagsConverter"/>
+
+            <tcnv:NullConverter x:Key="IsNull" Invert="False"/>
+            <tcnv:NullConverter x:Key="IsNotNull" Invert="True"/>
+            <tcnv:ZeroConverter x:Key="IsZero" Invert="False"/>
+            <tcnv:ZeroConverter x:Key="IsNotZero" Invert="True"/>
+            <tcnv:NotConverter x:Key="IsFalse" DefaultValue="False"/>
+
+            <tcnv:VectorConverter x:Key="VectorConverter"/>
+            <conv:DateTimeConverter x:Key="DateTimeConverter"/>
+            <conv:VehicleModelConverter x:Key="VehicleModelConverter"/>
+            <conv:CarColorConverter x:Key="CarColorConverter"/>
+            <conv:GxtStringConverter x:Key="GxtConverter"/>
+
+            <BooleanToVisibilityConverter x:Key="VisibleConverter"/>
+            <tcnv:ConverterGroup x:Key="NotVisibleConverter">
+                <tcnv:NotConverter/>
+                <BooleanToVisibilityConverter/>
+            </tcnv:ConverterGroup>
+
 
             <!-- ========== Styles ========== -->
 
+            <Style x:Key="ToolTipDefaults">
+                <Setter Property="ToolTipService.InitialShowDelay" Value="1500"/>
+            </Style>
+
             <!-- Combo Boxes -->
-            <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <Style x:Key="ComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource ToolTipDefaults}">
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
                 <Style.Triggers>
                     <Trigger Property="IsEnabled" Value="False">
@@ -51,15 +65,19 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            
+            <!-- List Box-->
+            <Style x:Key="ListBoxStyle" TargetType="ListBox" BasedOn="{StaticResource ToolTipDefaults}">
+            </Style>
 
-            <!-- Text Boxes -->
-            <Style x:Key="TextBoxStyle" TargetType="TextBox">
+                <!-- Text Boxes -->
+            <Style x:Key="TextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource ToolTipDefaults}">
                 <Setter Property="Height" Value="22"/>
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
             </Style>
 
             <!-- Check Boxes -->
-            <Style x:Key="CheckBoxStyle" TargetType="CheckBox">
+            <Style x:Key="CheckBoxStyle" TargetType="CheckBox" BasedOn="{StaticResource ToolTipDefaults}">
                 <Setter Property="VerticalAlignment" Value="Center"/>
                 <Style.Triggers>
                     <Trigger Property="IsEnabled" Value="False">
@@ -69,20 +87,20 @@
             </Style>
 
             <!-- Buttons -->
-            <Style x:Key="ButtonStyle" TargetType="Button">
+            <Style x:Key="ButtonStyle" TargetType="Button" BasedOn="{StaticResource ToolTipDefaults}">
                 <Setter Property="Width" Value="75"/>
                 <Setter Property="Height" Value="25"/>
                 <Setter Property="HorizontalAlignment" Value="Stretch"/>
             </Style>
 
-            <Style x:Key="SplitButtonStyle" TargetType="xctk:SplitButton">
+            <Style x:Key="SplitButtonStyle" TargetType="xctk:SplitButton" BasedOn="{StaticResource ToolTipDefaults}">
                 <Setter Property="Width" Value="75"/>
                 <Setter Property="Height" Value="25"/>
                 <Setter Property="HorizontalAlignment" Value="Stretch"/>
             </Style>
 
             <!-- Labels -->
-            <Style x:Key="LabelStyle" TargetType="TextBlock">
+            <Style x:Key="LabelStyle" TargetType="TextBlock" BasedOn="{StaticResource ToolTipDefaults}">
                 <Style.Triggers>
                     <Trigger Property="IsEnabled" Value="False">
                         <Setter Property="Foreground" Value="Gray"/>
@@ -100,7 +118,7 @@
             </Style>
 
             <!-- Group Boxes -->
-            <Style x:Key="GroupBoxStyle" TargetType="GroupBox">
+            <Style x:Key="GroupBoxStyle" TargetType="GroupBox" BasedOn="{StaticResource ToolTipDefaults}">
                 <Style.Triggers>
                     <Trigger Property="IsEnabled" Value="False">
                         <Setter Property="HeaderTemplate">
@@ -115,7 +133,7 @@
             </Style>
 
             <!-- Sliders -->
-            <Style  x:Key="SliderStyle" TargetType="Slider">
+            <Style  x:Key="SliderStyle" TargetType="Slider" BasedOn="{StaticResource ToolTipDefaults}">
                 <Setter Property="SmallChange" Value="10"/>
                 <Setter Property="LargeChange" Value="50"/>
                 <Setter Property="AutoToolTipPlacement" Value="TopLeft"/>
@@ -123,7 +141,7 @@
             </Style>
 
             <!-- UpDowns -->
-            <Style x:Key="Int8UpDownStyle" TargetType="xctk:SByteUpDown">
+            <Style x:Key="Int8UpDownStyle" TargetType="xctk:SByteUpDown" BasedOn="{StaticResource ToolTipDefaults}">
                 <Setter Property="Minimum" Value="-128"/>
                 <Setter Property="Maximum" Value="127"/>
                 <Setter Property="ClipValueToMinMax" Value="True"/>
@@ -131,7 +149,7 @@
                 <Setter Property="DefaultValue" Value="0"/>
                 <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
             </Style>
-            <Style x:Key="UInt8UpDownStyle" TargetType="xctk:ByteUpDown">
+            <Style x:Key="UInt8UpDownStyle" TargetType="xctk:ByteUpDown" BasedOn="{StaticResource ToolTipDefaults}">
                 <Setter Property="Minimum" Value="0"/>
                 <Setter Property="Maximum" Value="255"/>
                 <Setter Property="ClipValueToMinMax" Value="True"/>
@@ -139,7 +157,7 @@
                 <Setter Property="DefaultValue" Value="0"/>
                 <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
             </Style>
-            <Style x:Key="Int16UpDownStyle" TargetType="xctk:ShortUpDown">
+            <Style x:Key="Int16UpDownStyle" TargetType="xctk:ShortUpDown" BasedOn="{StaticResource ToolTipDefaults}">
                 <Setter Property="Minimum" Value="-32768"/>
                 <Setter Property="Maximum" Value="32767"/>
                 <Setter Property="ClipValueToMinMax" Value="True"/>
@@ -147,7 +165,7 @@
                 <Setter Property="DefaultValue" Value="0"/>
                 <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
             </Style>
-            <Style x:Key="UInt16UpDownStyle" TargetType="xctk:UShortUpDown">
+            <Style x:Key="UInt16UpDownStyle" TargetType="xctk:UShortUpDown" BasedOn="{StaticResource ToolTipDefaults}">
                 <Setter Property="Minimum" Value="0"/>
                 <Setter Property="Maximum" Value="65535"/>
                 <Setter Property="ClipValueToMinMax" Value="True"/>
@@ -155,7 +173,7 @@
                 <Setter Property="DefaultValue" Value="0"/>
                 <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
             </Style>
-            <Style x:Key="Int32UpDownStyle" TargetType="xctk:IntegerUpDown">
+            <Style x:Key="Int32UpDownStyle" TargetType="xctk:IntegerUpDown" BasedOn="{StaticResource ToolTipDefaults}">
                 <Setter Property="Minimum" Value="-2147483648"/>
                 <Setter Property="Maximum" Value="2147483647"/>
                 <Setter Property="ClipValueToMinMax" Value="True"/>
@@ -163,7 +181,7 @@
                 <Setter Property="DefaultValue" Value="0"/>
                 <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
             </Style>
-            <Style x:Key="FloatUpDownStyle" TargetType="xctk:SingleUpDown">
+            <Style x:Key="FloatUpDownStyle" TargetType="xctk:SingleUpDown" BasedOn="{StaticResource ToolTipDefaults}">
                 <Setter Property="Minimum" Value="{x:Static sys:Single.MinValue}"/>
                 <Setter Property="Maximum" Value="{x:Static sys:Single.MaxValue}"/>
                 <Setter Property="ClipValueToMinMax" Value="True"/>
@@ -171,15 +189,18 @@
                 <Setter Property="DefaultValue" Value="0"/>
                 <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
             </Style>
-            <Style x:Key="DecimalUpDownStyle" TargetType="xctk:DecimalUpDown">
+            <Style x:Key="DecimalUpDownStyle" TargetType="xctk:DecimalUpDown" BasedOn="{StaticResource ToolTipDefaults}">
                 <Setter Property="ClipValueToMinMax" Value="True"/>
                 <Setter Property="AutoSelectBehavior" Value="Never"/>
                 <Setter Property="DefaultValue" Value="0"/>
                 <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
             </Style>
+            <Style x:Key="DateTimeUpDownStyle" TargetType="xctk:DateTimeUpDown" BasedOn="{StaticResource ToolTipDefaults}">
+                <Setter Property="DisplayDefaultValueOnEmptyText" Value="True"/>
+            </Style>
 
             <!-- ListView -->
-            <Style x:Key="ListViewStyle" TargetType="ListView">
+            <Style x:Key="ListViewStyle" TargetType="ListView" BasedOn="{StaticResource ToolTipDefaults}">
                 <Setter Property="Foreground" Value="Black"/>
             </Style>
 

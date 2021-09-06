@@ -32,6 +32,7 @@ namespace GTA3SaveEditor.GUI
         private const string FileFilter = "GTA3 Save Files (*.b)|*.b|All Files|*.*";
 
         private const string TabNameWelcome = "Welcome";
+        private const string TabNameGeneral = "General";
         private const string TabNameGarages = "Garages";
         private const string TabNamePeds = "Gangs & Peds";
         private const string TabNamePickups = "Pickups";
@@ -40,8 +41,8 @@ namespace GTA3SaveEditor.GUI
         private ObservableCollection<SaveSlot> m_saveSlots;
         private ObservableCollection<TabPageVM> m_tabs;
         private int m_selectedTabIndex;
-        private bool m_isDirty;
         private bool m_isReverting;
+        private bool m_isDirty;
 
         public ObservableCollection<SaveSlot> SaveSlots
         {
@@ -79,6 +80,7 @@ namespace GTA3SaveEditor.GUI
             return new ObservableCollection<TabPageVM>()
             {
                 new WelcomeVM()  { TheWindow = this, Title = TabNameWelcome, Visibility = TabPageVisibility.WhenNotEditingFile },
+                new GeneralVM()  { TheWindow = this, Title = TabNameGeneral, Visibility = TabPageVisibility.WhenEditingFile },      // Simple Variables
                 new GaragesVM()  { TheWindow = this, Title = TabNameGarages, Visibility = TabPageVisibility.WhenEditingFile },      // Save Garages
                 new PedsVM()    { TheWindow = this, Title = TabNamePeds,   Visibility = TabPageVisibility.WhenEditingFile },      // Gangs
                 new PickupsVM()  { TheWindow = this, Title = TabNamePickups, Visibility = TabPageVisibility.WhenEditingFile },      // All pickups
@@ -151,6 +153,15 @@ namespace GTA3SaveEditor.GUI
             }
         }
 
+        private void UpdateSelectedTab()
+        {
+            if (SelectedTabIndex != -1)
+            {
+                var tab = Tabs[SelectedTabIndex];
+                tab.Update();
+            }
+        }
+
         private void ReloadTabs()
         {
             foreach (var tab in Tabs)
@@ -211,8 +222,6 @@ namespace GTA3SaveEditor.GUI
 
         public void MarkDirty(string name, object value = null, object oldValue = null)
         {
-            //const string Prefix = "PropertyChanged: ";
-
             string msg = $"{name}";
             if (value != null) msg += $" = {value}";
             if (oldValue != null) msg += $" (was {oldValue})";
@@ -239,7 +248,8 @@ namespace GTA3SaveEditor.GUI
             string title = App.Name;
             if (Editor.IsEditingFile)
             {
-                title += " - " + Editor.ActiveFilePath;
+                title = $"{Editor.ActiveFilePath} - {title}";
+                //title += " - " + Editor.ActiveFilePath;
             }
             if (IsDirty)
             {
@@ -303,16 +313,16 @@ namespace GTA3SaveEditor.GUI
             
             RegisterDirtyHandlers(TheSave);
 
-            if (!m_isReverting)
+            if (m_isReverting)
+            {
+                
+                ReloadTabs();
+                UpdateSelectedTab();
+            }
+            else
             {
                 UpdateTitle();
                 UpdateTabVisibility();
-            }
-
-            ReloadTabs();
-
-            if (!m_isReverting)
-            {
                 SelectFirstVisibleTab();
             }
 
@@ -322,10 +332,10 @@ namespace GTA3SaveEditor.GUI
             string lastMissionKey = TheSave.Stats.LastMissionPassedName;
             string lastMission = GTA3.GetGxtString(lastMissionKey);
             Log.Info($"=============== FILE INFO ===============");
-            Log.Info($"   File Type: {TheSave.FileFormat}");
-            Log.Info($"       Title: {TheSave.GetSaveName()}");
-            Log.Info($"Last Mission: {lastMission}");
+            Log.Info($"    Platform: {TheSave.FileFormat}");
             Log.Info($"  Time Stamp: {TheSave.TimeStamp}");
+            Log.Info($"        Name: {TheSave.GetName()}");
+            Log.Info($"Last Mission: {lastMission}");
             Log.Info($"    Progress: {((float) TheSave.Stats.ProgressMade / TheSave.Stats.TotalProgressInGame):P2}");
             Log.Info($"   MAIN Size: {TheSave.Scripts.MainScriptSize}");
             Log.Info($"Num. Globals: {TheSave.Scripts.Globals.Count()}");
@@ -537,6 +547,15 @@ namespace GTA3SaveEditor.GUI
             {
                 // Only deal with non-indexer properties
                 var data = prop.GetValue(sender);
+
+                // Handle special cases
+                if (type.Name == nameof(SimpleVariables) &&
+                    e.PropertyName == nameof(TheSave.SimpleVars.LastMissionPassedName) &&
+                    TheSave.IsNameGxtKey())
+                {
+                    data = $"({TheSave.GetNameRaw()}, {TheSave.GetName()})";
+                }
+
                 MarkDirty($"{type.Name}.{e.PropertyName}", data);
             }
         }
@@ -755,6 +774,24 @@ namespace GTA3SaveEditor.GUI
         public ICommand DebugClearDirtyCommand => new RelayCommand
         (
             () => { ClearDirty(); },
+            () => Editor.IsEditingFile
+        );
+
+        public ICommand DebugCommandConvertScriptsToV0 => new RelayCommand
+        (
+            () => TheSave.SetScriptVersion(ScmVersion.SCMv0),
+            () => Editor.IsEditingFile
+        );
+
+        public ICommand DebugCommandConvertScriptsToV1 => new RelayCommand
+        (
+            () => TheSave.SetScriptVersion(ScmVersion.SCMv1),
+            () => Editor.IsEditingFile
+        );
+
+        public ICommand DebugCommandConvertScriptsToV2 => new RelayCommand
+        (
+            () => TheSave.SetScriptVersion(ScmVersion.SCMv2),
             () => Editor.IsEditingFile
         );
 

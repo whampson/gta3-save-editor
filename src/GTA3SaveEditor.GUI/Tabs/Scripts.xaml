@@ -25,7 +25,7 @@
         <c:SubtractConverter x:Key="SubtractConverter" Clamp="True" ClampValue="0"/>
         <c:NumberFormatConverter x:Key="NumberFormatConverter"/>
         <c:FloatBitsConverter x:Key="FloatBitsConverter"/>
-        <tc:InvertBooleanConverter x:Key="InvertBool"/>
+        <tc:NotConverter x:Key="InvertBool"/>
         <Style TargetType="ListView" BasedOn="{StaticResource ListViewStyle}">
             <Setter Property="FontFamily" Value="Consolas"/>
             <Setter Property="SelectionMode" Value="Single"/>

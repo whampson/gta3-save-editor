@@ -31,4 +31,18 @@
     <sys:String x:Key="PedTypeFlag22Name">Fast Cars</sys:String>
     <sys:String x:Key="PedTypeFlag23Name">Explosions</sys:String>
     <sys:String x:Key="PedTypeFlag25Name">Dead Peds</sys:String>
+
+    <sys:String x:Key="ToolTip_WeatherList">The weather in GTA3 is not random; it cycles through a pre-defined list of weather types. The next weather type is picked at the top of the hour. Here, you can select the current position in the cycle.</sys:String>
+    <sys:String x:Key="ToolTip_ForcedWeather">Override the weather list and force the selected weather type. Remains in effect until overridden by a mission.</sys:String>
+    <sys:String x:Key="ToolTip_BulletProof">Vehicle is resistant to bullet damage.</sys:String>
+    <sys:String x:Key="ToolTip_CollisionProof">Vehicle is resistant to collision damage.</sys:String>
+    <sys:String x:Key="ToolTip_ExplosionProof">Vehicle is resistant to explosion damage.</sys:String>
+    <sys:String x:Key="ToolTip_FireProof">Vehicle is resistant to fire damage.</sys:String>
+    <sys:String x:Key="ToolTip_MeleeProof">Vehicle is resistant to melee damage. (bugged, does not work in vanilla game)</sys:String>
+    <sys:String x:Key="ToolTip_Color1">Primary Color</sys:String>
+    <sys:String x:Key="ToolTip_Color2">Secondary Color</sys:String>
+    <sys:String x:Key="ToolTip_Extra1">Extra Part 1 (liveries, rollbars, taxi lights, etc.)</sys:String>
+    <sys:String x:Key="ToolTip_Extra2">Extra Part 2 (liveries, rollbars, taxi lights, etc.)</sys:String>
+    <!-- TOOD: MORE TOOLTIPS!!! -->
+    
 </ResourceDictionary>

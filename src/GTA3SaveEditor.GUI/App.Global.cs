@@ -11,7 +11,7 @@ namespace GTA3SaveEditor.GUI
 {
     public partial class App
     {
-        public static string Name => "GTA III Save Editor";
+        public static string Name => "Grand Theft Auto III Save Editor";
         public static string ShortName => "gta3-save-editor";
         public static string ProjectName => "whampson/gta3-save-editor";
         public static string Copyright => $"(C) 2015-2020 {Author}";

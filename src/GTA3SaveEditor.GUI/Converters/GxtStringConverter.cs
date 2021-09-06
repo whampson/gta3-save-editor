@@ -11,6 +11,10 @@ namespace GTA3SaveEditor.GUI.Converters
         {
             if (value is string key)
             {
+                if (key.Length > 0 && key[0] == '\uFFFF')
+                {
+                    key = key.Substring(1);
+                }
                 return GTA3.GetGxtString(key);
             }
 

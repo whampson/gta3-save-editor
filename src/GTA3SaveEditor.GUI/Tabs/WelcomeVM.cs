@@ -6,6 +6,7 @@ using System.IO;
 using System.Windows.Input;
 using System.Windows.Threading;
 using GTA3SaveEditor.Core;
+using GTA3SaveEditor.Core.Extensions;
 using GTA3SaveEditor.Core.Util;
 using WpfEssentials.Win32;
 
@@ -25,20 +26,10 @@ namespace GTA3SaveEditor.GUI.Tabs
         private bool m_isCancelPendingForSearch;
         private bool m_openedOnce;
 
-        private static string AppendTrailingSlash(string path)
-        {
-            if (path != null && !path.EndsWith('\\'))
-            {
-                path += "\\";
-            }
-
-            return path;
-        }
-
         public string SelectedDirectory
         {
-            get { return AppendTrailingSlash(Settings.SaveFileDirectory); }
-            set { Settings.SaveFileDirectory = AppendTrailingSlash(value); OnPropertyChanged(); }
+            get { return PathEx.AppendTrailingSlash(Settings.SaveFileDirectory); }
+            set { Settings.SaveFileDirectory = PathEx.AppendTrailingSlash(value); OnPropertyChanged(); }
         }
 
         public bool RecursiveSearch
@@ -222,7 +213,7 @@ namespace GTA3SaveEditor.GUI.Tabs
 
             if (SelectedFile != null)
             {
-                Editor.OpenFile(SelectedFile.Path);
+                Editor.OpenFile(SelectedFile.FilePath);
             }
         }
 
@@ -238,43 +229,89 @@ namespace GTA3SaveEditor.GUI.Tabs
             // creepy trenchcoat guy
             "My mother's my sister!",
             "What? She's my cousin?!",
-            //"I swear I thought she was my second cousin.",
+            "I swear I thought she was my second cousin.",
             "Yep, I've been drinking again.",
+            "I'll drill yer ass!",
+            "I gotta go on vacation.",
+            "Hell no!",
 
             // mafia
             "Real good red sauce, like blood!",
 
             // hooker
             "Hey hey, you wanna party?",
+            "You ever been downtown?",
+            "That's a tasty corn on the cob!",
+            "Watch the booty!",
+            "20 dollas I'll make ya holla!",
+            "He ain't no gentleman, that one!",
+            "Anything you want for 30!",
+            "I've got an itch.",
+            "Shake it girlfriend!",
+
+            // pimp
+            "Who's ya daddy?",
 
             // dock worker
             "You can sail the seven seas!",
             "In the Navy!",
             "Where's my damn tools?",
+            "Woah, easy on the gas!",
+            "You got a death wish?!",
+            "Freakin' back is killin' me!",
+            "Check out the Zeppelin!",
+            "Young man!",
 
             // triads
-            "You feeling lucky punk?",
+            "You feel lucky, punk?",
             "I see pain in your future!",
             "Ok, ok, we make deal.",
+            "Mo' money, mo' problems!",
+            "No mackerel!",
 
             // colombians
             "You want the chainsaw, gringo?",
             "It's no problem to kill you!",
 
-            // pink haired lady
-            "Ooh look at me I'm drippin'!",
-
-            // cab driver
-            "Watch the cab, punk!",
-            "No good driver!",
-
-            // male01
+            // generic male
             "Shift it, prick!",
             "I've got a better car than you!",
             "Rush rush, do the yay-yo!",
             "My name's Brad, but I guess you knew that.",
             "Stripe summer!",
             "Hey, watch the threads!",
+            "Someone lookin' to get dusted?",
+            "I'm so happy I could shit!",
+            "You got a license?",
+
+            // generic female
+            "I'm hot and you're not!",
+            "We're goin' to Aruba!",
+
+            // pink haired lady
+            "Ooh look at me I'm drippin'!",
+            "You got a diet soda?",
+            "I wanna puke.",
+            "Hey, I'll eat your crust.",
+            "I don't know where I am and I'm hungry!",
+
+            // police scanner
+            "Suspect is on foot!",
+
+            // cop
+            "Get that guy!",
+            "Don't move a muscle!",
+            "You are risking your life!",
+            "Comply!",
+            "Police! Freeze!",
+            "We will open fire!",
+            "This is the LCPD!",
+            "Your ass is mine, punk!",
+            "Take him out!",
+
+            // cab driver
+            "Watch the cab, punk!",
+            "No good driver!",
 
             // SPANK'ed up mad man
             "Tick tock, what's on my clock?",
@@ -282,16 +319,10 @@ namespace GTA3SaveEditor.GUI.Tabs
             "Come to daddy!",
             "Special delivery! TNT!",
 
-            // generic lady
-            "I'm hot and you're not!",
+            // crook
+            "I'm gonna getchya!",
+            "Damn pussy!",
 
-            // police scanner
-            "Suspect is on foot.",
-
-            // Cop
-            "Get that guy!",
-            "Don't move a muscle!",
-            "You are risking your life!",
         };
 
         private void GameQuoteTimer_Tick(object sender, EventArgs e)
@@ -320,10 +351,10 @@ namespace GTA3SaveEditor.GUI.Tabs
                 if (currDir != lastDir)
                 {
                     lastDir = currDir;
-                    if (!m_openedOnce)
-                    {
-                        TheWindow.SetStatusText(@$"Searching {currDir}\...");   // TODO: path shortening func
-                    }
+                    //if (!m_openedOnce)
+                    //{
+                    //    TheWindow.SetStatusText(@$"Searching {currDir}\...");   // TODO: path shortening func
+                    //}
                 }
 
                 if (SaveFileInfo.TryGetInfo(path, out SaveFileInfo info))
@@ -337,7 +368,7 @@ namespace GTA3SaveEditor.GUI.Tabs
         {
             if (e.UserState is SaveFileInfo info)
             {
-                Settings.SaveFileList.Add(info.Path);
+                Settings.SaveFileList.Add(info.FilePath);
                 SaveFiles.Add(info);
             }
         }

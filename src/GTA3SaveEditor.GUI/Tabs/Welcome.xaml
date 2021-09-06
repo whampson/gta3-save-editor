@@ -76,7 +76,7 @@
                     <ListBox.ItemTemplate>
                         <DataTemplate>
                             <Grid
-                                ToolTipService.ToolTip="{Binding Path}"
+                                ToolTipService.ToolTip="{Binding FilePath}"
                                 ToolTipService.InitialShowDelay="1000">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="6*"/>

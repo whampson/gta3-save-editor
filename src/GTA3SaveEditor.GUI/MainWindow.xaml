@@ -13,7 +13,7 @@
     xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=DotNetProjects.Wpf.Extended.Toolkit"
     xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"
     mc:Ignorable="d"
-    Height="775" Width="1000"
+    Height="700" Width="850"
     Title="{Binding Title}"
     GotFocus="Window_GotFocus">
 
@@ -35,6 +35,9 @@
 
         <DataTemplate DataType="{x:Type tab:WelcomeVM}">
             <tab:WelcomeTab/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type tab:GeneralVM}">
+            <tab:GeneralTab/>
         </DataTemplate>
         <DataTemplate DataType="{x:Type tab:GaragesVM}">
             <tab:GaragesTab/>
@@ -129,7 +132,7 @@
                         InputGestureText="F5"
                         Command="{Binding RevertFileCommand}"/>
                     <MenuItem
-                        Header="_Close File"
+                        Header="_Close"
                         InputGestureText="Ctrl+W"
                         Command="{Binding CloseFileCommand}"/>
                     <Separator/>
@@ -168,6 +171,18 @@
                                 IsCheckable="True"
                                 IsChecked="{Binding IsDebugTabVisible}"/>
                             <Separator/>
+                            <MenuItem Header="Scripts">
+                                <MenuItem
+                                    Header="Convert to v0"
+                                    Command="{Binding DebugCommandConvertScriptsToV0}"/>
+                                <MenuItem
+                                    Header="Convert to V1"
+                                    Command="{Binding DebugCommandConvertScriptsToV1}"/>
+                                <MenuItem
+                                    Header="Convert to v2"
+                                    Command="{Binding DebugCommandConvertScriptsToV2}"/>
+                            </MenuItem>
+                            <Separator/>
                             <MenuItem
                                 Header="Load Car Colors..."
                                 Command="{Binding DebugLoadCarColors}"/>
@@ -179,15 +194,15 @@
                                 Command="{Binding DebugLoadIdeObjects}"/>
                             <Separator/>
                             <MenuItem
+                                Header="Raise Unhandled Exception"
+                                Command="{Binding DebugRaiseUnhandledException}"/>
+                            <Separator/>
+                            <MenuItem
                                 Header="Set Dirty Bit"
                                 Command="{Binding DebugSetDirtyCommand}"/>
                             <MenuItem
                                 Header="Clear Dirty Bit"
                                 Command="{Binding DebugClearDirtyCommand}"/>
-                            <Separator/>
-                            <MenuItem
-                                Header="Raise Unhandled Exception"
-                                Command="{Binding DebugRaiseUnhandledException}"/>
                         </MenuItem>
                     </mc:Choice>
                 </mc:AlternateContent>

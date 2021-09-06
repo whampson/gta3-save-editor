@@ -24,7 +24,7 @@ namespace GTA3SaveEditor.GUI
             set { m_saveFile = value; OnPropertyChanged(); }
         }
 
-        public string Path
+        public string FilePath
         {
             get { return m_path; }
             set { m_path = value; OnPropertyChanged(); }
@@ -50,33 +50,28 @@ namespace GTA3SaveEditor.GUI
 
         public static bool TryGetInfo(string path, out SaveFileInfo info)
         {
-            if (SaveEditor.TryLoadFile(path, out SaveFileGTA3 saveFile))
+            if (!SaveEditor.TryLoadFile(path, out SaveFileGTA3 saveFile))
             {
-                DateTime timeStamp = (saveFile.FileFormat.IsPC || saveFile.FileFormat.IsXbox)
-                    ? saveFile.SimpleVars.TimeStamp
-                    : File.GetLastWriteTime(path);
-
                 info = new SaveFileInfo()
                 {
-                    Path = path,
-                    FileType = saveFile.FileFormat,
-                    LastModified = timeStamp,
-                    Title = saveFile.GetSaveName()
+                    FilePath = path,
+                    FileType = FileFormat.Default,
+                    LastModified = DateTime.MinValue,
+                    Title = "(invalid save file)"
                 };
-
-                saveFile.Dispose();
-                return true;
+                return false;
             }
 
             info = new SaveFileInfo()
             {
-                Path = path,
-                FileType = FileFormat.Default,
-                LastModified = DateTime.MinValue,
-                Title = "(invalid save file)"
+                FilePath = path,
+                FileType = saveFile.FileFormat,
+                LastModified = saveFile.TimeStamp,
+                Title = saveFile.GetName()
             };
 
-            return false;
+            saveFile.Dispose();
+            return true;
         }
     }
 }

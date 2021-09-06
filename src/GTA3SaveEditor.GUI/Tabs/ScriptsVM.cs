@@ -324,7 +324,7 @@ namespace GTA3SaveEditor.GUI.Tabs
                 if (index == -1)
                     index = actualThreads.Count;
 
-                var newThread = new RunningScript() { Name = Scripts.GenerateThreadName() };
+                var newThread = new RunningScript() { Name = GTA3.GenerateThreadName() };
                 var newThreadInfo = new ThreadInfo(index, newThread);
                 actualThreads.Insert(index, newThread);
                 ThreadInfo.Insert(index, newThreadInfo);
