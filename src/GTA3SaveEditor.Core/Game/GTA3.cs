@@ -70,6 +70,19 @@ namespace GTA3SaveEditor.Core.Game
                 _ => throw new InvalidOperationException(pedType + " is not a gang!")
             };
         }
+
+        public static string GenerateThreadName()
+        {
+            Random r = new Random();
+
+            string id = "id_";
+            for (int i = 0; i < 4; i++)
+            {
+                id += r.Next(10).ToString();
+            }
+
+            return id;
+        }
     }
 
     public enum GangPedModelState
