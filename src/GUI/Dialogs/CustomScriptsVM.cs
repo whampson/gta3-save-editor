@@ -66,8 +66,8 @@ namespace GTA3SaveEditor.GUI.Dialogs
         public void Enumerate()
         {
             var customScripts = new List<CustomScript>();
-            var scriptSpace = TheSave.Scripts.ScriptSpace.ToArray();
-            var threads = TheSave.Scripts.Threads.ToArray();
+            var scriptSpace = TheSave.Script.ScriptSpace.ToArray();
+            var threads = TheSave.Script.RunningScripts.ToArray();
             using MemoryStream m = new MemoryStream(scriptSpace);
             using BinaryReader r = new BinaryReader(m);
 
@@ -118,8 +118,8 @@ namespace GTA3SaveEditor.GUI.Dialogs
 
             using DataBuffer w = new DataBuffer();
 
-            var threads = TheSave.Scripts.Threads;
-            var scriptSpace = TheSave.Scripts.ScriptSpace.ToArray();
+            var threads = TheSave.Script.RunningScripts;
+            var scriptSpace = TheSave.Script.ScriptSpace.ToArray();
             w.Write(scriptSpace);
 
             int scriptSpaceSize;
@@ -176,7 +176,7 @@ namespace GTA3SaveEditor.GUI.Dialogs
             w.Write(scriptSpaceSize);
 
             w.Seek(scriptSpaceSize);
-            TheSave.Scripts.ScriptSpace = w.GetBytes();
+            TheSave.Script.ScriptSpace = w.GetBytes();
         }
 
         private CustomScript LoadScript(string path)
@@ -226,7 +226,7 @@ namespace GTA3SaveEditor.GUI.Dialogs
                     ShowWarning($"The available custom script space has been exceeded.\n\nThe game may fail to load this save file.");
 
                 CustomScripts.Add(script);
-                TheSave.Scripts.Threads.Add(script.Thread);
+                TheSave.Script.RunningScripts.Add(script.Thread);
                 script.Enabled = true;
                 ShouldCommit = true;
             })
@@ -261,7 +261,7 @@ namespace GTA3SaveEditor.GUI.Dialogs
                 AvailableSpace += SelectedScript.Code.Length;
 
                 SelectedScript.Enabled = false;
-                TheSave.Scripts.Threads.Remove(SelectedScript.Thread);
+                TheSave.Script.RunningScripts.Remove(SelectedScript.Thread);
                 CustomScripts.Remove(SelectedScript);
                 ShouldCommit = true;
 
@@ -275,7 +275,7 @@ namespace GTA3SaveEditor.GUI.Dialogs
         (
             () =>
             {
-                var threads = TheSave.Scripts.Threads;
+                var threads = TheSave.Script.RunningScripts;
                 var sc = SelectedScript;
 
                 if (sc.Enabled && !threads.Contains(sc.Thread))

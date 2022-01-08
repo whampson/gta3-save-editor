@@ -152,17 +152,17 @@ namespace GTA3SaveEditor.Core
         //    }
         //}
 
-        public FileFormat GetFormatOverride()
+        public FileType GetFormatOverride()
         {
             return FormatOverride switch
             {
-                FileFormatType.Android => SaveFileGTA3.FileFormats.Android,
-                FileFormatType.iOS => SaveFileGTA3.FileFormats.iOS,
-                FileFormatType.PC => SaveFileGTA3.FileFormats.PC,
-                FileFormatType.PS2 => SaveFileGTA3.FileFormats.PS2,
-                FileFormatType.PS2AU => SaveFileGTA3.FileFormats.PS2_AU,
-                FileFormatType.PS2JP => SaveFileGTA3.FileFormats.PS2_JP,
-                FileFormatType.Xbox => SaveFileGTA3.FileFormats.Xbox,
+                FileFormatType.Android => GTA3Save.FileTypes.Android,
+                FileFormatType.iOS => GTA3Save.FileTypes.iOS,
+                FileFormatType.PC => GTA3Save.FileTypes.PC,
+                FileFormatType.PS2 => GTA3Save.FileTypes.PS2,
+                FileFormatType.PS2AU => GTA3Save.FileTypes.PS2AU,
+                FileFormatType.PS2JP => GTA3Save.FileTypes.PS2JP,
+                FileFormatType.Xbox => GTA3Save.FileTypes.Xbox,
                 _ => throw new InvalidOperationException("Format override not set.")
             };
         }

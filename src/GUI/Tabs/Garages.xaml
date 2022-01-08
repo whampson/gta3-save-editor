@@ -56,7 +56,7 @@
 
                     <ComboBox
                         Grid.Row="0" Grid.Column="0" Margin="5"
-                        ItemsSource="{e:EnumValueCollection EnumType=gta3:LevelName, StartIndex=1}"
+                        ItemsSource="{e:EnumValueCollection EnumType=gta3:Level, StartIndex=1}"
                         SelectedItem="{Binding SelectedSafehouse}"
                         Style="{StaticResource ComboBoxStyle}"
                         SelectionChanged="SafehouseComboBox_SelectionChanged">
@@ -384,18 +384,18 @@
                                         <RowDefinition Height="Auto"/>
                                     </Grid.RowDefinitions>
 
-                                    <TextBlock Grid.Column="0" Grid.Row="0" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Door Offset:"/>
-                                    <TextBlock Grid.Column="0" Grid.Row="1" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Door Max:"/>
+                                    <TextBlock Grid.Column="0" Grid.Row="0" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Door Position:"/>
+                                    <TextBlock Grid.Column="0" Grid.Row="1" Margin="5" Style="{StaticResource LabelStyleRight}" Text="Door Height:"/>
 
                                     <xctk:SingleUpDown
                                         Grid.Column="1" Grid.Row="0" Margin="5"
                                         Style="{StaticResource FloatUpDownStyle}"
-                                        Value="{Binding SelectedGarage.DoorOpenOffset}"/>
+                                        Value="{Binding SelectedGarage.DoorPosition}"/>
 
                                     <xctk:SingleUpDown
                                         Grid.Column="1" Grid.Row="1" Margin="5"
                                         Style="{StaticResource FloatUpDownStyle}"
-                                        Value="{Binding SelectedGarage.DoorOpenMax}"/>
+                                        Value="{Binding SelectedGarage.DoorHeight}"/>
                                 </Grid>
 
                             </Grid>

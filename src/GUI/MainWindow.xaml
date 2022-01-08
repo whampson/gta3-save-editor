@@ -13,7 +13,7 @@
     xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=DotNetProjects.Wpf.Extended.Toolkit"
     xmlns:gta3="clr-namespace:GTASaveData.GTA3;assembly=GTASaveData.GTA3"
     mc:Ignorable="d"
-    Height="700" Width="850"
+    Height="800" Width="1000"
     Title="{Binding Title}"
     GotFocus="Window_GotFocus">
 
@@ -264,9 +264,9 @@
                     </StatusBarItem>
                     <Separator Grid.Column="1"/>
                     <StatusBarItem Grid.Column="2" HorizontalContentAlignment="Center">
-                        <TextBlock Text="{Binding TheSave.FileFormat}">
+                        <TextBlock Text="{Binding TheSave.Params.FileType}">
                             <TextBlock.ToolTip>
-                                <ToolTip Content="{Binding TheSave.FileFormat.Description}"/>
+                                <ToolTip Content="{Binding TheSave.Params.FileType.Description}"/>
                             </TextBlock.ToolTip>
                         </TextBlock>
                     </StatusBarItem>

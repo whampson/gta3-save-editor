@@ -403,7 +403,7 @@
                                 <CheckBox
                                     Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Margin="20,5"
                                     Content="Trails"
-                                    IsChecked="{Binding SimpleVars.BlurOn}"
+                                    IsChecked="{Binding SimpleVars.Trails}"
                                     Style="{StaticResource CheckBoxStyle}"/>
 
                                 <CheckBox

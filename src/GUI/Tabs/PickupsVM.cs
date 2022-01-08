@@ -18,10 +18,10 @@ namespace GTA3SaveEditor.GUI.Tabs
         }
 
 
-        public Array<Pickup> m_pickups;
+        public ObservableArray<Pickup> m_pickups;
         public Pickup m_selectedPickup;
 
-        public Array<Pickup> Pickups
+        public ObservableArray<Pickup> Pickups
         {
             get { return m_pickups; }
             set { m_pickups = value; OnPropertyChanged(); }

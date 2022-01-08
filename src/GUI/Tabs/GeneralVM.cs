@@ -14,7 +14,7 @@ namespace GTA3SaveEditor.GUI.Tabs
     public class GeneralVM : TabPageVM
     {
         private SimpleVariables m_simpleVars;
-        private FileFormat m_platform;
+        private FileType m_platform;
         private bool m_isPS2;
         private bool m_canNameBeEdited;
         private bool m_canNameBeGxtKey;
@@ -29,7 +29,7 @@ namespace GTA3SaveEditor.GUI.Tabs
             set { m_simpleVars = value; OnPropertyChanged(); }
         }
 
-        public FileFormat Platform
+        public FileType Platform
         {
             get { return m_platform; }
             set { m_platform = value; OnPropertyChanged(); }
@@ -65,22 +65,22 @@ namespace GTA3SaveEditor.GUI.Tabs
             set { SimpleVars.ForcedWeatherType = value; OnPropertyChanged(); OnPropertyChanged(nameof(UsingForcedWeather)); }
         }
 
-        public CamZoom PedCam
+        public CameraMode PedCam
         {
-            get { return (CamZoom) (int) Math.Round(SimpleVars.CameraModeOnFoot); }
-            set { SimpleVars.CameraModeOnFoot = (float) value; OnPropertyChanged(); }
+            get { return SimpleVars.CameraModeOnFoot; }
+            set { SimpleVars.CameraModeOnFoot = value; OnPropertyChanged(); }
         }
 
-        public CamZoom CarCam
+        public CameraMode CarCam
         {
-            get { return (CamZoom) (int) Math.Round(SimpleVars.CameraModeInCar); }
-            set { SimpleVars.CameraModeInCar = (float) value; OnPropertyChanged(); }
+            get { return SimpleVars.CameraModeInCar; }
+            set { SimpleVars.CameraModeInCar = value; OnPropertyChanged(); }
         }
 
-        public AudioOutputType AudioOutput
+        public AudioOutputType MonoAudio
         {
-            get { return (SimpleVars.StereoMono) ? AudioOutputType.Mono : AudioOutputType.Stereo; }
-            set { SimpleVars.StereoMono = (value == AudioOutputType.Mono); OnPropertyChanged(); }
+            get { return (SimpleVars.UseMono) ? AudioOutputType.Mono : AudioOutputType.Stereo; }
+            set { SimpleVars.UseMono = (value == AudioOutputType.Mono); OnPropertyChanged(); }
         }
 
         public DateTime GameClock
@@ -121,10 +121,10 @@ namespace GTA3SaveEditor.GUI.Tabs
             base.Update();
             SuppressNameUpdateOnce = true;
 
-            Platform = TheSave.FileFormat;
+            Platform = TheSave.GetFileType();
             IsPS2 = TheSave.IsPS2;
             CanNameBeGxtKey = !IsPS2 && TheSave.IsMobile;
-            IsNameGxtKey = TheSave.IsNameGxtKey();
+            IsNameGxtKey = TheSave.IsTitleGxtKey();
             UpdateNameTextBoxVisibility();
 
             OnPropertyChanged(nameof(GameClock));
@@ -133,7 +133,7 @@ namespace GTA3SaveEditor.GUI.Tabs
 
         public void UpdateNameTextBoxVisibility()
         {
-            CanEditNameDirectly = !IsPS2 && !TheSave.IsNameGxtKey();
+            CanEditNameDirectly = !IsPS2 && !TheSave.IsTitleGxtKey();
         }
 
         public void UpdateName(bool isGxtKey)
@@ -144,8 +144,8 @@ namespace GTA3SaveEditor.GUI.Tabs
                 return;
             }
 
-            string oldName = TheSave.GetNameRaw();
-            TheSave.SetName(oldName, isGxtKey);
+            string oldName = TheSave.GetTitleRaw();
+            TheSave.SetTitle(oldName, isGxtKey);
         }
 
         private void SimpleVars_PropertyChanged(object sender, PropertyChangedEventArgs e)

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Windows;
-using GTASaveData;
+using GTASaveData.Types;
 
 namespace GTA3SaveEditor.GUI.Converters
 {

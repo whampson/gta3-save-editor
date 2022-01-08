@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using GTA3SaveEditor.Core.Game;
-using GTA3SaveEditor.Core.Util;
 using GTASaveData.GTA3;
 
 namespace GTA3SaveEditor.Core.Extensions
@@ -12,62 +9,62 @@ namespace GTA3SaveEditor.Core.Extensions
         private const char GxtKeyMarker = '\uFFFF';
         private const int GxtKeyLength = 7;         // TODO: confirm, may be 8 if null-terminator isn't required
 
-        public static bool IsNameGxtKey(this SaveFileGTA3 save)
+        public static bool IsTitleGxtKey(this GTA3Save save)
         {
             const int GxtKeyStart = 1;
 
-            return save.Name.Length > GxtKeyStart
-                && save.Name.Length < GxtKeyStart + GxtKeyLength + 1
-                && save.Name[0] == GxtKeyMarker;
+            return save.Title.Length > GxtKeyStart
+                && save.Title.Length < GxtKeyStart + GxtKeyLength + 1
+                && save.Title[0] == GxtKeyMarker;
         }
 
-        public static string GetNameRaw(this SaveFileGTA3 save)
+        public static string GetTitleRaw(this GTA3Save save)
         {
-            if (save.IsNameGxtKey())
+            if (save.IsTitleGxtKey())
             {
-                return save.Name.Substring(1);
+                return save.Title.Substring(1);
             }
 
-            return save.Name;
+            return save.Title;
         }
 
         /// <summary>
         /// "Smart" method for getting a save's internal name. Handles the
         /// GXT string case which is possible on iOS/Android saves.
         /// </summary>
-        public static string GetName(this SaveFileGTA3 save)
+        public static string GetTitle(this GTA3Save save)
         {
-            if (save.Name == null)
+            if (save.Title == null)
             {
                 return null;
             }
 
-            if (save.IsNameGxtKey())
+            if (save.IsTitleGxtKey())
             {
-                string gxtKey = save.Name.Substring(1);
+                string gxtKey = save.Title.Substring(1);
                 return GTA3.GetGxtString(gxtKey);
             }
 
-            return save.Name;
+            return save.Title;
         }
 
         /// <summary>
         /// "Smart" method for setting a save's name. Handles the GXT String
         /// case which is possible on iOS/Android saves.
         /// </summary>
-        public static void SetName(this SaveFileGTA3 save, string name, bool isGxtKey)
+        public static void SetTitle(this GTA3Save save, string name, bool isGxtKey)
         {
             int len = Math.Min(name.Length, GxtKeyLength);
             save.SimpleVars.LastMissionPassedName = (isGxtKey) ? (GxtKeyMarker + name.Substring(0, len)) : name;
         }
 
-        public static bool HasPurpleNinesGlitch(this SaveFileGTA3 save)
+        public static bool HasPurpleNinesGlitch(this GTA3Save save)
         {
             return save.GetScriptVar(ScriptVariable.FLAG_HOOD_MISSION5_PASSED) == 0
                 && save.Gangs[GangType.Hoods].PedModelOverride != -1;
         }
 
-        public static bool FixPurpleNinesGlitch(this SaveFileGTA3 save)
+        public static bool FixPurpleNinesGlitch(this GTA3Save save)
         {
             if (save.HasPurpleNinesGlitch())
             {

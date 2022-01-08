@@ -11,61 +11,61 @@ namespace GTA3SaveEditor.Core.Extensions
 {
     public static class Script
     {
-        public static int GetScriptVar(this SaveFileGTA3 save, ScriptVariable var)
+        public static int GetScriptVar(this GTA3Save save, ScriptVariable var)
         {
             // TODO: conversion function for ScriptVariable -> index
 
-            return save.Scripts.GetGlobal((int) var);
+            return save.Script.GetGlobalVariable((int) var);
         }
 
-        public static float GetScriptVarFloat(this SaveFileGTA3 save, ScriptVariable var)
+        public static float GetScriptVarFloat(this GTA3Save save, ScriptVariable var)
         {
             // TODO: conversion function for ScriptVariable -> index
 
-            return save.Scripts.GetGlobalAsFloat((int) var);
+            return save.Script.GetGlobalVariableFloat((int) var);
         }
 
-        public static void SetScriptVar(this SaveFileGTA3 save, ScriptVariable var, int value)
+        public static void SetScriptVar(this GTA3Save save, ScriptVariable var, int value)
         {
             // TODO: conversion function for ScriptVariable -> index
 
-            save.Scripts.SetGlobal((int) var, value);
+            save.Script.SetGlobalVariable((int) var, value);
         }
 
-        public static void SetScriptVar(this SaveFileGTA3 save, ScriptVariable var, float value)
+        public static void SetScriptVar(this GTA3Save save, ScriptVariable var, float value)
         {
             // TODO: conversion function for ScriptVariable -> index
 
-            save.Scripts.SetGlobal((int) var, value);
+            save.Script.SetGlobalVariable((int) var, value);
         }
 
-        public static void InsertScriptVar(this SaveFileGTA3 save, ScriptVariable var, int value = 0)
+        public static void InsertScriptVar(this GTA3Save save, ScriptVariable var, int value = 0)
         {
             int offset = (int) var * 4;
             for (int i = 0; i < 4; i++)
             {
-                save.Scripts.ScriptSpace.Insert(offset + i, 0);
+                save.Script.ScriptSpace.Insert(offset + i, 0);
             }
 
             save.SetScriptVar(var, value);
         }
 
-        public static void RemoveScriptVar(this SaveFileGTA3 save, ScriptVariable var)
+        public static void RemoveScriptVar(this GTA3Save save, ScriptVariable var)
         {
             int offset = (int) var * 4;
             for (int i = 0; i < 4; i++)
             {
-                save.Scripts.ScriptSpace.RemoveAt(offset + i);
+                save.Script.ScriptSpace.RemoveAt(offset + i);
             }
         }
 
-        public static ScmVersion GetScriptVersion(this SaveFileGTA3 save)
+        public static ScmVersion GetScriptVersion(this GTA3Save save)
         {
             int v0 = ScmVersionInfo[ScmVersion.SCMv0].MainSize;
             int v1 = ScmVersionInfo[ScmVersion.SCMv1].MainSize;
             int v2 = ScmVersionInfo[ScmVersion.SCMv2].MainSize;
 
-            int mainSize = save.Scripts.MainScriptSize;
+            int mainSize = save.Script.MainScriptSize;
             if (mainSize == v0) return ScmVersion.SCMv0;
             if (mainSize == v1) return ScmVersion.SCMv1;
             if (mainSize == v2) return ScmVersion.SCMv2;
@@ -73,7 +73,7 @@ namespace GTA3SaveEditor.Core.Extensions
             return ScmVersion.Unknown;
         }
 
-        public static bool SetScriptVersion(this SaveFileGTA3 save, ScmVersion version)
+        public static bool SetScriptVersion(this GTA3Save save, ScmVersion version)
         {
             if (version <= ScmVersion.Unknown || version > ScmVersion.SCMv2)
             {
@@ -110,7 +110,7 @@ namespace GTA3SaveEditor.Core.Extensions
             return true;
         }
 
-        private static void ConvertScriptsUpOne(SaveFileGTA3 save, ScmVersion toVersion)
+        private static void ConvertScriptsUpOne(GTA3Save save, ScmVersion toVersion)
         {
             ScmInfo info = ScmVersionInfo[toVersion];
             List<(int, int)> diffs = null;
@@ -118,7 +118,7 @@ namespace GTA3SaveEditor.Core.Extensions
             if (toVersion == ScmVersion.SCMv1) diffs = DiffsV0;
             if (toVersion == ScmVersion.SCMv2) diffs = DiffsV1;
 
-            foreach (RunningScript script in save.Scripts.Threads)
+            foreach (var script in save.Script.RunningScripts)
             {
                 int oldIp = script.IP;
                 script.IP = ConvertScriptAddress(diffs, oldIp, false);
@@ -129,8 +129,8 @@ namespace GTA3SaveEditor.Core.Extensions
                 }
             }
 
-            save.Scripts.MainScriptSize = info.MainSize;
-            save.Scripts.LargestMissionScriptSize = info.LargestMission;
+            save.Script.MainScriptSize = info.MainSize;
+            save.Script.LargestMissionScriptSize = info.LargestMission;
 
             if (toVersion == ScmVersion.SCMv2)
             {
@@ -151,11 +151,11 @@ namespace GTA3SaveEditor.Core.Extensions
                 save.InsertScriptVar((ScriptVariable) 3446);
             }
 
-            Debug.Assert(save.Scripts.Globals.Count() == info.NumGlobals,
-                $"NumGlobals Incorrect! (expected = {info.NumGlobals}, actual = {save.Scripts.Globals.Count()})");
+            Debug.Assert(save.Script.GlobalVariables.Count() == info.NumGlobals,
+                $"NumGlobals Incorrect! (expected = {info.NumGlobals}, actual = {save.Script.GlobalVariables.Count()})");
         }
 
-        private static void ConvertScriptsDownOne(SaveFileGTA3 save, ScmVersion toVersion)
+        private static void ConvertScriptsDownOne(GTA3Save save, ScmVersion toVersion)
         {
             ScmInfo info = ScmVersionInfo[toVersion];
             List<(int, int)> diffs = null;
@@ -164,7 +164,7 @@ namespace GTA3SaveEditor.Core.Extensions
             if (toVersion == ScmVersion.SCMv0) diffs = DiffsV0;
             if (toVersion == ScmVersion.SCMv1) diffs = DiffsV1;
 
-            foreach (RunningScript script in save.Scripts.Threads)
+            foreach (var script in save.Script.RunningScripts)
             {
                 int oldIp = script.IP;
                 script.IP = ConvertScriptAddress(diffs, oldIp, true);
@@ -175,10 +175,10 @@ namespace GTA3SaveEditor.Core.Extensions
                 }
             }
 
-            save.Scripts.MainScriptSize = info.MainSize;
-            save.Scripts.LargestMissionScriptSize = info.LargestMission;
+            save.Script.MainScriptSize = info.MainSize;
+            save.Script.LargestMissionScriptSize = info.LargestMission;
 
-            int globalCount = save.Scripts.Globals.Count();
+            int globalCount = save.Script.GlobalVariables.Count();
             if (fromVersion == ScmVersion.SCMv2)
             {
                 save.RemoveScriptVar((ScriptVariable) 3446);
@@ -198,8 +198,8 @@ namespace GTA3SaveEditor.Core.Extensions
                 save.RemoveScriptVar((ScriptVariable) 245);
             }
 
-            Debug.Assert(save.Scripts.Globals.Count() == info.NumGlobals,
-                $"NumGlobals Incorrect! (expected = {info.NumGlobals}, actual = {save.Scripts.Globals.Count()})");
+            Debug.Assert(save.Script.GlobalVariables.Count() == info.NumGlobals,
+                $"NumGlobals Incorrect! (expected = {info.NumGlobals}, actual = {save.Script.GlobalVariables.Count()})");
         }
 
         private static int ConvertScriptAddress(List<(int, int)> diffs, int addr, bool backwards)

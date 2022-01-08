@@ -50,16 +50,16 @@ namespace GTA3SaveEditor.Core
             Log.Info("Saved settings.");
         }
 
-        public static bool TryLoadFile(string path, out SaveFileGTA3 saveFile)
+        public static bool TryLoadFile(string path, out GTA3Save saveFile)
         {
-            return TryLoadFile(path, FileFormat.Default, out saveFile);
+            return TryLoadFile(path, FileType.Default, out saveFile);
         }
 
-        public static bool TryLoadFile(string path, FileFormat format, out SaveFileGTA3 saveFile)
+        public static bool TryLoadFile(string path, FileType type, out GTA3Save saveFile)
         {
             try
             {
-                saveFile = SaveFileGTA3.Load(path, format);
+                saveFile = GTA3Save.Load(path, type);
                 return saveFile != null;
             }
             catch (Exception e)

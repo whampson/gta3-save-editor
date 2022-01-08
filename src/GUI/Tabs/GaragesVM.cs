@@ -18,7 +18,7 @@ namespace GTA3SaveEditor.GUI.Tabs
 
         private ObservableCollection<StoredCar> m_safehouseCars;
         private ObservableCollection<Garage> m_garages;
-        private LevelName m_selectedSafehouse;
+        private Level m_selectedSafehouse;
         private StoredCar m_selectedCar;
         private Garage m_selectedGarage;
 
@@ -34,7 +34,7 @@ namespace GTA3SaveEditor.GUI.Tabs
             set { m_garages = value; OnPropertyChanged(); }
         }
 
-        public LevelName SelectedSafehouse
+        public Level SelectedSafehouse
         {
             get { return m_selectedSafehouse; }
             set { m_selectedSafehouse = value; OnPropertyChanged(); }
@@ -62,9 +62,9 @@ namespace GTA3SaveEditor.GUI.Tabs
         {
             base.Load();
 
-            if (SelectedSafehouse == LevelName.None)
+            if (SelectedSafehouse == Level.None)
             {
-                SelectedSafehouse = LevelName.Industrial;
+                SelectedSafehouse = Level.Industrial;
             }
 
             SelectedCar = null;
@@ -78,14 +78,14 @@ namespace GTA3SaveEditor.GUI.Tabs
         {
             switch (SelectedSafehouse)
             {
-                case LevelName.Industrial:
-                    StoredCars = new ObservableCollection<StoredCar>(TheSave.Garages.StoredCarsPortland);
+                case Level.Industrial:
+                    StoredCars = new ObservableCollection<StoredCar>(TheSave.Garages.CarsInSafeHouse1);
                     break;
-                case LevelName.Commercial:
-                    StoredCars = new ObservableCollection<StoredCar>(TheSave.Garages.StoredCarsStaunton);
+                case Level.Commercial:
+                    StoredCars = new ObservableCollection<StoredCar>(TheSave.Garages.CarsInSafeHouse2);
                     break;
-                case LevelName.Suburban:
-                    StoredCars = new ObservableCollection<StoredCar>(TheSave.Garages.StoredCarsShoreside);
+                case Level.Suburban:
+                    StoredCars = new ObservableCollection<StoredCar>(TheSave.Garages.CarsInSafeHouse3);
                     break;
             }
         }

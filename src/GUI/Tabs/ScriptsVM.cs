@@ -207,7 +207,7 @@ namespace GTA3SaveEditor.GUI.Tabs
 
         public void ReadGlobals()
         {
-            var globalValues = new List<int>(TheSave?.Scripts?.Globals);
+            var globalValues = new List<int>(TheSave?.Script?.GlobalVariables);
             if (globalValues == null)
             {
                 GlobalInfo.Clear();
@@ -228,7 +228,7 @@ namespace GTA3SaveEditor.GUI.Tabs
 
         public void ReadThreads()
         {
-            var actualThreads = TheSave?.Scripts?.Threads;
+            var actualThreads = TheSave?.Script?.RunningScripts;
             if (actualThreads == null)
             {
                 ThreadInfo = null;
@@ -315,7 +315,7 @@ namespace GTA3SaveEditor.GUI.Tabs
         (
             () =>
             {
-                var actualThreads = TheSave.Scripts.Threads;
+                var actualThreads = TheSave.Script.RunningScripts;
                 int index = -1;
                 
                 if (SelectedThread != null)
@@ -343,7 +343,7 @@ namespace GTA3SaveEditor.GUI.Tabs
                 if (selected.Count == 1)
                     Debug.Assert(SelectedThread.Equals(selected.First()));
 
-                var actualThreads = TheSave.Scripts.Threads;
+                var actualThreads = TheSave.Script.RunningScripts;
                 foreach (var info in selected)
                 {
                     actualThreads.Remove(info.Thread);
@@ -353,84 +353,84 @@ namespace GTA3SaveEditor.GUI.Tabs
             () => SelectedThread != null || MultipleThreadsSelected
         );
 
-        public ICommand InsertGlobal => new RelayCommand
-        (
-            () =>
-            {
-                int index = SelectedGlobalIndex;
+        //public ICommand InsertGlobal => new RelayCommand
+        //(
+        //    () =>
+        //    {
+        //        int index = SelectedGlobalIndex;
 
-                var actualGlobals = TheSave.Scripts.Globals.ToList();
-                if (index < 0)
-                    index = actualGlobals.Count;
+        //        var actualGlobals = TheSave.Script.GlobalVariables.ToList();
+        //        if (index < 0)
+        //            index = actualGlobals.Count;
 
-                // Insert into local copy
-                actualGlobals.Insert(index, 0);
-                MarkDirty($"{nameof(TheSave.Scripts.Globals)}[{index}]", 0);
+        //        // Insert into local copy
+        //        actualGlobals.Insert(index, 0);
+        //        MarkDirty($"{nameof(TheSave.Script.GlobalVariables)}[{index}]", 0);
 
-                // Update the global variables / script space pool
-                TheSave.Scripts.SetScriptSpace(actualGlobals);
-                ReadGlobals();
+        //        // Update the global variables / script space pool
+        //        TheSave.Script.SetScriptSpace(actualGlobals);
+        //        ReadGlobals();
 
-                // TODO: scroll to new variable
-            },
-            () => !MultipleGlobalsSelected
-        );
+        //        // TODO: scroll to new variable
+        //    },
+        //    () => !MultipleGlobalsSelected
+        //);
 
-        public ICommand InsertGlobalMultiple => new RelayCommand
-        (
-            () =>
-            {
-                TheWindow.ShowInputDialog("Enter amount:", out string amountString);
-                int.TryParse(amountString, out int amount);
+        //public ICommand InsertGlobalMultiple => new RelayCommand
+        //(
+        //    () =>
+        //    {
+        //        TheWindow.ShowInputDialog("Enter amount:", out string amountString);
+        //        int.TryParse(amountString, out int amount);
 
-                int index = SelectedGlobalIndex;
+        //        int index = SelectedGlobalIndex;
 
-                var actualGlobals = TheSave.Scripts.Globals.ToList();
-                if (index < 0)
-                    index = actualGlobals.Count;
+        //        var actualGlobals = TheSave.Scripts.Globals.ToList();
+        //        if (index < 0)
+        //            index = actualGlobals.Count;
 
-                for (int i = 0; i < amount; i++)    // TODO: limit?
-                {
-                    // Insert into local copy
-                    actualGlobals.Insert(index + i, 0);
-                    MarkDirty($"{nameof(TheSave.Scripts.Globals)}[{index + i}]", 0);
-                }
+        //        for (int i = 0; i < amount; i++)    // TODO: limit?
+        //        {
+        //            // Insert into local copy
+        //            actualGlobals.Insert(index + i, 0);
+        //            MarkDirty($"{nameof(TheSave.Scripts.Globals)}[{index + i}]", 0);
+        //        }
 
-                // Update the global variables / script space pool
-                TheSave.Scripts.SetScriptSpace(actualGlobals);
-                ReadGlobals();
+        //        // Update the global variables / script space pool
+        //        TheSave.Scripts.SetScriptSpace(actualGlobals);
+        //        ReadGlobals();
 
-                // TODO: scroll to new variables
-            }
-        );
+        //        // TODO: scroll to new variables
+        //    }
+        //);
 
-        public ICommand DeleteGlobals => new RelayCommand<object>
-        (
-            (x) =>
-            {
-                var selected = (x as IList)?.Cast<GlobalVarInfo>().OrderByDescending(g => g.Index).ToList();
-                if (selected == null)
-                    return;
+        //public ICommand DeleteGlobals => new RelayCommand<object>
+        //(
+        //    (x) =>
+        //    {
+        //        var selected = (x as IList)?.Cast<GlobalVarInfo>().OrderByDescending(g => g.Index).ToList();
+        //        if (selected == null)
+        //            return;
 
-                if (selected.Count == 1)
-                    Debug.Assert(SelectedGlobalValue.Equals(selected.First().Value));
+        //        if (selected.Count == 1)
+        //            Debug.Assert(SelectedGlobalValue.Equals(selected.First().Value));
 
-                var globals = TheSave.Scripts.Globals.ToList();
-                foreach (var g in selected)
-                {
-                    // remove from local copy
-                    globals.RemoveAt(g.Index);
-                    MarkDirty($"Remove {nameof(TheSave.Scripts.Globals)}[{g.Index}]");
-                }
+        //        var globals = TheSave.Scripts.Globals.ToList();
+        //        foreach (var g in selected)
+        //        {
+        //            // remove from local copy
+        //            globals.RemoveAt(g.Index);
+        //            MarkDirty($"Remove {nameof(TheSave.Scripts.Globals)}[{g.Index}]");
+        //        }
 
-                // Update the global variables / script space pool
-                TheSave.Scripts.SetScriptSpace(globals);
-                ReadGlobals();
+        //        // Update the global variables / script space pool
+        //        TheSave.Scripts.SetScriptSpace(globals);
+        //        ReadGlobals();
 
-                // TODO: dirty
-            },
-            (_) => SelectedGlobalValue != null || MultipleGlobalsSelected
-        );
+        //        // TODO: dirty
+        //    },
+        //    (_) => SelectedGlobalValue != null || MultipleGlobalsSelected
+        //);
     }
 
 

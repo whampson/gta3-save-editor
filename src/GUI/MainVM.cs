@@ -203,8 +203,8 @@ namespace GTA3SaveEditor.GUI
 
                 if (File.Exists(slot.Path))
                 {
-                    SaveEditor.TryLoadFile(slot.Path, out SaveFileGTA3 save);
-                    slot.Name = save?.Name ?? $"(invalid save file)";
+                    SaveEditor.TryLoadFile(slot.Path, out GTA3Save save);
+                    slot.Name = save?.Title ?? $"(invalid save file)";
                     slot.InUse = true;
                     save?.Dispose();
                 }
@@ -332,15 +332,15 @@ namespace GTA3SaveEditor.GUI
             string lastMissionKey = TheSave.Stats.LastMissionPassedName;
             string lastMission = GTA3.GetGxtString(lastMissionKey);
             Log.Info($"=============== FILE INFO ===============");
-            Log.Info($"    Platform: {TheSave.FileFormat}");
+            Log.Info($"    Platform: {TheSave.GetFileType()}");
             Log.Info($"  Time Stamp: {TheSave.TimeStamp}");
-            Log.Info($"        Name: {TheSave.GetName()}");
+            Log.Info($"        Name: {TheSave.GetTitle()}");
             Log.Info($"Last Mission: {lastMission}");
             Log.Info($"    Progress: {((float) TheSave.Stats.ProgressMade / TheSave.Stats.TotalProgressInGame):P2}");
-            Log.Info($"   MAIN Size: {TheSave.Scripts.MainScriptSize}");
-            Log.Info($"Num. Globals: {TheSave.Scripts.Globals.Count()}");
-            Log.Info($"Num. Threads: {TheSave.Scripts.Threads.Count}");
-            Log.Info($"Num. Objects: {TheSave.ObjectPool.Objects.Count}");
+            Log.Info($"   MAIN Size: {TheSave.Script.MainScriptSize}");
+            Log.Info($"Num. Globals: {TheSave.Script.GlobalVariables.Count()}");
+            Log.Info($"Num. Threads: {TheSave.Script.RunningScripts.Count}");
+            Log.Info($"Num. Objects: {TheSave.Objects.Objects.Count}");
             Log.Info($"=========================================");
         }
 
@@ -484,7 +484,7 @@ namespace GTA3SaveEditor.GUI
                 object v = p.GetValue(o, null);
 
                 // Exclude fully-replaceable lists
-                if (v == TheSave.Scripts.ScriptSpace)
+                if (v == TheSave.Script.ScriptSpace)
                 {
                     continue;
                 }
@@ -516,7 +516,7 @@ namespace GTA3SaveEditor.GUI
                 object v = p.GetValue(o, null);
 
                 // Exclude fully-replaceable lists
-                if (v == TheSave.Scripts.ScriptSpace)
+                if (v == TheSave.Script.ScriptSpace)
                 {
                     continue;
                 }
@@ -551,9 +551,9 @@ namespace GTA3SaveEditor.GUI
                 // Handle special cases
                 if (type.Name == nameof(SimpleVariables) &&
                     e.PropertyName == nameof(TheSave.SimpleVars.LastMissionPassedName) &&
-                    TheSave.IsNameGxtKey())
+                    TheSave.IsTitleGxtKey())
                 {
-                    data = $"({TheSave.GetNameRaw()}, {TheSave.GetName()})";
+                    data = $"({TheSave.GetTitleRaw()}, {TheSave.GetTitle()})";
                 }
 
                 MarkDirty($"{type.Name}.{e.PropertyName}", data);

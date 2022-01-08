@@ -12,13 +12,13 @@ namespace GTA3SaveEditor.GUI
 {
     public class SaveFileInfo : ObservableObject
     {
-        private SaveFileGTA3 m_saveFile;
+        private GTA3Save m_saveFile;
         private string m_path;
         private string m_title;
         private DateTime m_lastModified;
-        private FileFormat m_fileType;
+        private FileType m_fileType;
 
-        public SaveFileGTA3 SaveFile
+        public GTA3Save SaveFile
         {
             get { return m_saveFile; }
             set { m_saveFile = value; OnPropertyChanged(); }
@@ -42,7 +42,7 @@ namespace GTA3SaveEditor.GUI
             set { m_lastModified = value; OnPropertyChanged(); }
         }
 
-        public FileFormat FileType
+        public FileType FileType
         {
             get { return m_fileType; }
             set { m_fileType = value; OnPropertyChanged(); }
@@ -50,12 +50,12 @@ namespace GTA3SaveEditor.GUI
 
         public static bool TryGetInfo(string path, out SaveFileInfo info)
         {
-            if (!SaveEditor.TryLoadFile(path, out SaveFileGTA3 saveFile))
+            if (!SaveEditor.TryLoadFile(path, out GTA3Save saveFile))
             {
                 info = new SaveFileInfo()
                 {
                     FilePath = path,
-                    FileType = FileFormat.Default,
+                    FileType = FileType.Default,
                     LastModified = DateTime.MinValue,
                     Title = "(invalid save file)"
                 };
@@ -65,9 +65,9 @@ namespace GTA3SaveEditor.GUI
             info = new SaveFileInfo()
             {
                 FilePath = path,
-                FileType = saveFile.FileFormat,
+                FileType = saveFile.GetFileType(),
                 LastModified = saveFile.TimeStamp,
-                Title = saveFile.GetName()
+                Title = saveFile.GetTitle()
             };
 
             saveFile.Dispose();

@@ -78,8 +78,8 @@ namespace GTA3SaveEditor.GUI.Tabs
                 if (index < 0) return;
 
                 bool changed = false;
-                object iOld = ViewModel.TheSave.Scripts.GetGlobal(index);
-                object fOld = ViewModel.TheSave.Scripts.GetGlobalAsFloat(index);
+                object iOld = ViewModel.TheSave.Script.GetGlobalVariable(index);
+                object fOld = ViewModel.TheSave.Script.GetGlobalVariableFloat(index);
                 object iNew = e.NewValue as int?;
                 object fNew = e.NewValue as float?;
                 var numFmt = ViewModel.NumberFormat;
@@ -88,22 +88,22 @@ namespace GTA3SaveEditor.GUI.Tabs
                     && numFmt == Types.NumberFormat.Float
                     && !fNew.Equals(fOld))
                 {
-                    ViewModel.TheSave.Scripts.SetGlobal(index, (float) e.NewValue);
+                    ViewModel.TheSave.Script.SetGlobalVariable(index, (float) e.NewValue);
                     changed = true;
                 }
                 else if (sender is IntegerUpDown
                     && (numFmt == Types.NumberFormat.Hex || numFmt == Types.NumberFormat.Int)
                     && !iNew.Equals(iOld))
                 {
-                    ViewModel.TheSave.Scripts.SetGlobal(index, (int) e.NewValue);
+                    ViewModel.TheSave.Script.SetGlobalVariable(index, (int) e.NewValue);
                     changed = true;
                 }
 
                 if (changed)
                 {
-                    int v = ViewModel.TheSave.Scripts.GetGlobal(index);
+                    int v = ViewModel.TheSave.Script.GetGlobalVariable(index);
                     ViewModel.GlobalInfo[index].Value = v;
-                    ViewModel.MarkDirty($"{nameof(ViewModel.TheSave.Scripts.Globals)}[{index}]", v);
+                    ViewModel.MarkDirty($"{nameof(ViewModel.TheSave.Script.GlobalVariables)}[{index}]", v);
                 }
             }
         }
