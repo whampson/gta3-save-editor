@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GTASaveData.Core", "lib\GTA
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GTASaveData.GTA3", "lib\GTASaveData\GTASaveData.GTA3\GTASaveData.GTA3.csproj", "{007EDFB4-7945-4BF7-B97F-23593EC09335}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToolUI", "lib\ToolUI\ToolUI\ToolUI.csproj", "{F3D28DE4-8D93-48B3-A995-C4E5FEB5C888}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ToolUI", "lib\ToolUI\src\ToolUI.csproj", "{F3D28DE4-8D93-48B3-A995-C4E5FEB5C888}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

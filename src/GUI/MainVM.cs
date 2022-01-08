@@ -340,7 +340,7 @@ namespace GTA3SaveEditor.GUI
             Log.Info($"   MAIN Size: {TheSave.Scripts.MainScriptSize}");
             Log.Info($"Num. Globals: {TheSave.Scripts.Globals.Count()}");
             Log.Info($"Num. Threads: {TheSave.Scripts.Threads.Count}");
-            Log.Info($"Num. Objects: {TheSave.Objects.Objects.Count}");
+            Log.Info($"Num. Objects: {TheSave.ObjectPool.Objects.Count}");
             Log.Info($"=========================================");
         }
 
