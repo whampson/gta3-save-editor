@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <AssemblyName>GTA3SaveEditor.GUI</AssemblyName>
@@ -11,10 +11,10 @@
   
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
-    <AssemblyVersion>0.4.0.1118</AssemblyVersion>
-    <FileVersion>0.4.0.1118</FileVersion>
+    <AssemblyVersion>0.4.0.1141</AssemblyVersion>
+    <FileVersion>0.4.0.1141</FileVersion>
     <Version>0.4.0</Version>
     <LangVersion>8.0</LangVersion>
     <Configurations>Debug;Release;Release-Standalone</Configurations>
@@ -52,6 +52,15 @@
 
   <ItemGroup>
     <None Remove="Resources\gta3saveeditorlogo.png" />
+    <None Remove="Resources\gta3saveeditorlogogold.png" />
+    <None Remove="Resources\gta3saveeditorlogowhite.png" />
+    <None Remove="Resources\menu\gta3menu0.png" />
+    <None Remove="Resources\menu\gta3menu1.png" />
+    <None Remove="Resources\menu\gta3menu2.png" />
+    <None Remove="Resources\menu\gta3menu3.png" />
+    <None Remove="Resources\menu\gta3menu4.png" />
+    <None Remove="Resources\menu\gta3menu5.png" />
+    <None Remove="Resources\menu\gta3menu6.png" />
   </ItemGroup>
 
   <ItemGroup>
@@ -72,8 +81,22 @@
     <Resource Include="Resources\default.ide" />
     <Resource Include="Resources\english.gxt" />
     <Resource Include="Resources\gta3.ide" />
-    <Resource Include="Resources\gta3saveeditorlogo.png" />
+    <Resource Include="Resources\logo\black.png" />
+    <Resource Include="Resources\logo\gold.png" />
+    <Resource Include="Resources\logo\white.png" />
+    <Resource Include="Resources\menu\gta3menu0.png" />
+    <Resource Include="Resources\menu\gta3menu1.png" />
+    <Resource Include="Resources\menu\gta3menu2.png" />
+    <Resource Include="Resources\menu\gta3menu3.png" />
+    <Resource Include="Resources\menu\gta3menu4.png" />
+    <Resource Include="Resources\menu\gta3menu5.png" />
+    <Resource Include="Resources\menu\gta3menu6.png" />
     <Resource Include="Resources\SCM.INI" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Resources\game\" />
+    <Folder Include="Resources\script\" />
   </ItemGroup>
 
 </Project>
