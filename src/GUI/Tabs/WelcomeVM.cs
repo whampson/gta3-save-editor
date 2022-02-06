@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Windows.Input;
+using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 using GTA3SaveEditor.Core;
 using GTA3SaveEditor.Core.Extensions;
@@ -14,9 +15,10 @@ namespace GTA3SaveEditor.GUI.Tabs
 {
     public class WelcomeVM : TabPageVM
     {
-        const int GameQuoteInterval = 20;
+        const int GameQuoteInterval = 10;
 
         private readonly DispatcherTimer m_gameQuoteTimer;
+        private BitmapImage m_bg;
         private BackgroundWorker m_lukeFileWalker;
         private BackgroundWorker m_fileListWorker;
         private ObservableCollection<SaveFileInfo> m_saveFiles;
@@ -25,6 +27,12 @@ namespace GTA3SaveEditor.GUI.Tabs
         private bool m_isSearchPending;
         private bool m_isCancelPendingForSearch;
         private bool m_openedOnce;
+
+        public BitmapImage BackgroundImage
+        {
+            get { return m_bg; }
+            set { m_bg = value; OnPropertyChanged(); }
+        }
 
         public string SelectedDirectory
         {
@@ -106,6 +114,10 @@ namespace GTA3SaveEditor.GUI.Tabs
             FileListWorker.ProgressChanged += FileListWorker_ProgressChanged;
             FileListWorker.RunWorkerCompleted += FileListWorker_RunWorkerCompleted;
             m_gameQuoteTimer.Tick += GameQuoteTimer_Tick;
+
+            Random r = new Random();
+            string bgPath = BackgroundImages[r.Next(BackgroundImages.Count)];
+            BackgroundImage = new BitmapImage(App.GetResourceUri(bgPath));
         }
 
         public override void Shutdown()
@@ -224,6 +236,17 @@ namespace GTA3SaveEditor.GUI.Tabs
             TheWindow.SetStatusText(GameQuotes[quoteIndex]);
         }
 
+        public static readonly List<string> BackgroundImages = new List<string>()
+        {
+            "menu/gta3menu0.png",
+            "menu/gta3menu1.png",
+            "menu/gta3menu2.png",
+            "menu/gta3menu3.png",
+            //"menu/gta3menu4.png",
+            "menu/gta3menu5.png",
+            "menu/gta3menu6.png"
+        };
+
         public static readonly List<string> GameQuotes = new List<string>()
         {
             // creepy trenchcoat guy
@@ -290,8 +313,8 @@ namespace GTA3SaveEditor.GUI.Tabs
 
             // pink haired lady
             "Ooh look at me I'm drippin'!",
-            "You got a diet soda?",
-            "I wanna puke.",
+            //"You got a diet soda?",
+            //"I wanna puke.",
             "Hey, I'll eat your crust.",
             "I don't know where I am and I'm hungry!",
 
