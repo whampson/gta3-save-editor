@@ -32,17 +32,12 @@
         </Style>
     </UserControl.Resources>
 
-    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <GroupBox
+    <t:TabControlEx>
+        <TabItem Header="Stored Cars">
+            <!--<GroupBox
                 Header="Saved Vehicles"
                 Grid.Row="0" Margin="5,0,5,5"
-                Style="{StaticResource GroupBoxStyle}">
+                Style="{StaticResource GroupBoxStyle}">-->
 
                 <Grid>
                     <Grid.RowDefinitions>
@@ -55,7 +50,7 @@
                     </Grid.ColumnDefinitions>
 
                     <ComboBox
-                        Grid.Row="0" Grid.Column="0" Margin="5"
+                        Grid.Row="0" Grid.Column="0" Margin="5,10,5,5"
                         ItemsSource="{e:EnumValueCollection EnumType=gta3:Level, StartIndex=1}"
                         SelectedItem="{Binding SelectedSafehouse}"
                         Style="{StaticResource ComboBoxStyle}"
@@ -80,7 +75,7 @@
 
                     <GroupBox
                         Header="Vehicle Properties"
-                        Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="5,-5,5,5"
+                        Grid.Row="0" Grid.RowSpan="2" Grid.Column="1" Margin="5,0,5,5"
                         Style="{StaticResource GroupBoxStyle}"
                         IsEnabled="{Binding SelectedCar, Converter={StaticResource IsNotNull}}">
 
@@ -270,12 +265,14 @@
                     </GroupBox>
 
                 </Grid>
-            </GroupBox>
+            <!--</GroupBox>-->
+        </TabItem>
 
-            <GroupBox 
+        <TabItem Header="Garages">
+            <!--<GroupBox 
                 Header="Garages"
                 Grid.Row="1" Margin="5,0,5,5"
-                Style="{StaticResource GroupBoxStyle}">
+                Style="{StaticResource GroupBoxStyle}">-->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="225"/>
@@ -470,9 +467,8 @@
                     </GroupBox>
 
                 </Grid>
-            </GroupBox>
-
-        </Grid>
-    </ScrollViewer>
+            <!--</GroupBox>-->
+        </TabItem>
+    </t:TabControlEx>
 
 </g:TabPage>
