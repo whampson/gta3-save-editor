@@ -8,6 +8,7 @@ using GTA3SaveEditor.Core.Extensions;
 using GTA3SaveEditor.Core.Game;
 using GTA3SaveEditor.Core.Util;
 using GTASaveData;
+using GTASaveData.Helpers;
 using WpfEssentials.Win32;
 
 namespace GTA3SaveEditor.GUI.Dialogs
@@ -164,7 +165,7 @@ namespace GTA3SaveEditor.GUI.Dialogs
                 w.Write(code);
                 w.Seek(w.MarkedPosition);
 
-                addr = DataBuffer.Align4(addr + len);
+                addr = AddressHelper.Align4(addr + len);
             }
 
             w.Seek(w.Length);
