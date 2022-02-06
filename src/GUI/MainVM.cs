@@ -248,8 +248,7 @@ namespace GTA3SaveEditor.GUI
             string title = App.Name;
             if (Editor.IsEditingFile)
             {
-                title = $"{Editor.ActiveFilePath} - {title}";
-                //title += " - " + Editor.ActiveFilePath;
+                title += " - " + Editor.ActiveFilePath;
             }
             if (IsDirty)
             {
