@@ -11,10 +11,10 @@ namespace GTA3SaveEditor.GUI
 {
     public partial class App
     {
-        public static string Name => "Grand Theft Auto III Save Editor";
+        public static string Name => "GTA3 Save Editor";
         public static string ShortName => "gta3-save-editor";
         public static string ProjectName => "whampson/gta3-save-editor";
-        public static string Copyright => $"(C) 2015-2020 {Author}";
+        public static string Copyright => $"(C) 2015-2022 {Author}";
         public static string Author => "Wes Hampson";
         public static string AuthorAlias => "thehambone";
         public static string AuthorContact => "thehambone93@gmail.com";
@@ -32,9 +32,14 @@ namespace GTA3SaveEditor.GUI
         
         private static readonly StringWriter LogWriter = new StringWriter();
 
+        internal static Uri GetResourceUri(string resourceName)
+        {
+            return new Uri($"pack://application:,,,/Resources/{resourceName}");
+        }
+
         internal static byte[] LoadResource(string resourceName)
         {
-            return LoadResource(new Uri($"pack://application:,,,/Resources/{resourceName}"));
+            return LoadResource(GetResourceUri(resourceName));
         }
 
         internal static byte[] LoadResource(Uri resourceUri)
