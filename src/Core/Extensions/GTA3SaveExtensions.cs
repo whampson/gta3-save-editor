@@ -1,5 +1,6 @@
 ﻿using System;
 using GTA3SaveEditor.Core.Game;
+using GTASaveData;
 using GTASaveData.GTA3;
 
 namespace GTA3SaveEditor.Core.Extensions
@@ -56,6 +57,11 @@ namespace GTA3SaveEditor.Core.Extensions
         {
             int len = Math.Min(name.Length, GxtKeyLength);
             save.SimpleVars.LastMissionPassedName = (isGxtKey) ? (GxtKeyMarker + name.Substring(0, len)) : name;
+        }
+
+        public static FileType GetFileType(this GTA3Save save)
+        {
+            return save.Params.FileType;
         }
 
         public static bool HasPurpleNinesGlitch(this GTA3Save save)
