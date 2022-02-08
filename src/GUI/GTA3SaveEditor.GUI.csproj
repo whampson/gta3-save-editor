@@ -94,9 +94,4 @@
     <Resource Include="Resources\SCM.INI" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Resources\game\" />
-    <Folder Include="Resources\script\" />
-  </ItemGroup>
-
 </Project>
